@@ -906,6 +906,13 @@
           <p class="page-subtitle">Acompanhe seu desempenho e resultados</p>
         </div>
 
+        <!-- Botão para salvar manualmente -->
+        <div style="text-align: center; margin: 20px 0">
+          <button class="add-btn" onclick="saveBetsData()">
+            💾 Salvar Apostas
+          </button>
+        </div>
+
         <!-- Stats Cards -->
         <!-- Stats Cards -->
         <div class="stats-grid">
@@ -1092,6 +1099,12 @@
           </div>
         </div>
 
+        <div style="text-align: center; margin: 20px 0">
+          <button class="add-btn" onclick="saveBetsData()">
+            💾 Salvar Apostas
+          </button>
+        </div>
+
         <!-- Modal para Múltipla -->
         <div id="multiplaModal" class="modal">
           <div class="modal-content">
@@ -1132,13 +1145,20 @@
 
     <script>
       let currentMultiplaRow = null;
-      let multiplaData = {};
-      let betsData = {
-        setembro: [],
-        outubro: [],
-        novembro: [],
-        dezembro: [],
-      };
+      // Inicializa betsData a partir do localStorage se houver
+      let storedBets = localStorage.getItem("betsData");
+      let betsData = storedBets
+        ? JSON.parse(storedBets)
+        : {
+            setembro: [],
+            outubro: [],
+            novembro: [],
+            dezembro: [],
+          };
+
+      // MultiplaData também, se quiser
+      let storedMultipla = localStorage.getItem("multiplaData");
+      let multiplaData = storedMultipla ? JSON.parse(storedMultipla) : {};
 
       // Função para formatar números no padrão brasileiro
       function formatBRL(value) {
@@ -1238,12 +1258,9 @@
         const inputs = newRow.querySelectorAll("input, select");
         inputs.forEach((input) => {
           input.addEventListener("change", () => {
-            saveBetsData();
             updateStats();
           });
         });
-
-        saveBetsData();
       }
 
       function handleTipoChange(select) {
@@ -1278,7 +1295,6 @@
           const inputs = row.querySelectorAll("input, select");
           inputs.forEach((input) => {
             input.addEventListener("change", () => {
-              saveBetsData();
               updateStats();
             });
           });
@@ -1412,7 +1428,6 @@
 
         calculateReturn(oddCell);
         closeModal();
-        saveBetsData();
       }
 
       function viewMultipla(rowId) {
@@ -1465,7 +1480,6 @@
 
         element.textContent = newValue + "%";
         element.className = `confidence conf-${newValue}`;
-        saveBetsData();
       }
 
       function calculateReturn(oddInput) {
@@ -1485,7 +1499,6 @@
         select.classList.add(select.value);
 
         updateStats();
-        saveBetsData();
       }
 
       function removeRow(button) {
@@ -1498,7 +1511,6 @@
 
         row.remove();
         updateStats();
-        saveBetsData();
       }
 
       function updateStats() {
@@ -1811,7 +1823,6 @@
             const inputs = newRow.querySelectorAll("input, select");
             inputs.forEach((input) => {
               input.addEventListener("change", () => {
-                saveBetsData();
                 updateStats();
               });
             });
@@ -1871,10 +1882,6 @@
         reader.readAsText(file);
         event.target.value = "";
       }
-
-      // Auto-save
-      setInterval(() => saveBetsData(), 30000);
-      window.addEventListener("beforeunload", saveBetsData);
     </script>
   </body>
 </html>
