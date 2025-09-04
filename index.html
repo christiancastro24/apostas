@@ -254,18 +254,30 @@
       }
       /* Table */
       .table-container {
-        overflow-x: auto;
         background: white;
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         border: 1px solid #e2e8f0;
+        max-height: 500px; /* altura máxima */
+        overflow-y: auto; /* apenas scroll vertical */
       }
+
       table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        min-width: 1400px;
+        border-collapse: collapse;
+        min-width: 1400px; /* garante largura mínima */
+        table-layout: fixed;
       }
+
+      thead th {
+        position: sticky;
+        top: 0;
+        background: #f8fafc;
+        z-index: 2;
+        padding: 8px;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
       th {
         background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
         padding: 18px 16px;
