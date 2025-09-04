@@ -265,7 +265,7 @@
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1400px; /* garante largura mínima */
+        min-width: 1500px; /* aumentar para acomodar as novas colunas */
         table-layout: fixed;
       }
 
@@ -295,51 +295,51 @@
       }
       th:nth-child(1),
       td:nth-child(1) {
-        width: 140px;
+        width: 140px; /* Data */
       }
       th:nth-child(2),
       td:nth-child(2) {
-        width: 120px;
+        width: 100px; /* Tipo */
       }
       th:nth-child(3),
       td:nth-child(3) {
-        width: 200px;
+        width: 140px; /* Esporte */
       }
       th:nth-child(4),
       td:nth-child(4) {
-        width: 180px;
+        width: 200px; /* Jogo */
       }
       th:nth-child(5),
       td:nth-child(5) {
-        width: 130px;
+        width: 180px; /* Método */
       }
       th:nth-child(6),
       td:nth-child(6) {
-        width: 90px;
+        width: 90px; /* Confiança */
       }
       th:nth-child(7),
       td:nth-child(7) {
-        width: 120px;
+        width: 100px; /* Odd */
       }
       th:nth-child(8),
       td:nth-child(8) {
-        width: 100px;
+        width: 90px; /* Unidade */
       }
       th:nth-child(9),
       td:nth-child(9) {
-        width: 140px;
+        width: 120px; /* Retorno */
       }
       th:nth-child(10),
       td:nth-child(10) {
-        width: 120px;
+        width: 110px; /* Resultado */
       }
       th:nth-child(11),
       td:nth-child(11) {
-        width: 100px;
+        width: 140px; /* Casa de Apostas */
       }
       th:nth-child(12),
       td:nth-child(12) {
-        width: 70px;
+        width: 70px; /* Ações */
       }
       td {
         padding: 20px 16px;
@@ -434,6 +434,30 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+      }
+
+      /* Ícones dos esportes */
+      .sport-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      /* Casa de apostas select styling */
+      .casa-apostas-select {
+        background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+        border: 2px solid #3182ce;
+        color: #2b6cb0;
+        font-weight: 600;
+      }
+
+      /* Esconder método quando múltipla */
+      .hidden {
+        display: none !important;
       }
       .btn-danger {
         background: #e53e3e;
@@ -861,6 +885,7 @@
         </div>
 
         <!-- Stats Cards -->
+        <!-- Stats Cards -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-header">
@@ -886,20 +911,22 @@
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-title">Cash Out</div>
-              <div class="stat-icon icon-blue">💰</div>
+              <div class="stat-title">Retorno Total</div>
+              <div class="stat-icon icon-blue">💎</div>
             </div>
-            <div class="stat-value" id="totalCash">0</div>
-            <div class="stat-change" id="changeCash">→ Sem alteração</div>
+            <div class="stat-value" id="totalReturn">R$ 0,00</div>
+            <div class="stat-change positive" id="changeReturn">↗ +R$ 0,00</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-title">Retorno Total</div>
-              <div class="stat-icon icon-purple">💎</div>
+              <div class="stat-title">Assertividade</div>
+              <div class="stat-icon icon-purple">🎯</div>
             </div>
-            <div class="stat-value" id="totalReturn">R$ 0,00</div>
-            <div class="stat-change positive" id="changeReturn">↗ +R$ 0,00</div>
+            <div class="stat-value" id="assertividade">0%</div>
+            <div class="stat-change" id="changeAssertividade">
+              → Performance geral
+            </div>
           </div>
         </div>
 
@@ -908,15 +935,15 @@
           <div class="banca-title">Informações da Banca</div>
           <div class="banca-values">
             <div class="banca-item">
-              <h3>R$ 4.500,00</h3>
+              <h3>R$ 4.600,00</h3>
               <p>Banca Inicial</p>
             </div>
             <div class="banca-item">
-              <h3>R$ 50,00</h3>
+              <h3>R$ 65,00</h3>
               <p>Valor da Unidade</p>
             </div>
             <div class="banca-item">
-              <h3 id="currentBalance">R$ 4.500,00</h3>
+              <h3 id="currentBalance">R$ 4.600,00</h3>
               <p>Saldo Atual</p>
             </div>
           </div>
@@ -940,16 +967,16 @@
                 <thead>
                   <tr>
                     <th>Data</th>
+                    <th>Tipo</th>
                     <th>Esporte</th>
                     <th>Jogo</th>
                     <th>Método</th>
-                    <th>Tipo</th>
                     <th>Confiança</th>
                     <th>Odd</th>
                     <th>Unidade</th>
                     <th>Retorno</th>
                     <th>Resultado</th>
-                    <th>Pré/Live</th>
+                    <th>Casa de Apostas</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -967,16 +994,16 @@
                 <thead>
                   <tr>
                     <th>Data</th>
+                    <th>Tipo</th>
                     <th>Esporte</th>
                     <th>Jogo</th>
                     <th>Método</th>
-                    <th>Tipo</th>
                     <th>Confiança</th>
                     <th>Odd</th>
                     <th>Unidade</th>
                     <th>Retorno</th>
                     <th>Resultado</th>
-                    <th>Pré/Live</th>
+                    <th>Casa de Apostas</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -994,16 +1021,16 @@
                 <thead>
                   <tr>
                     <th>Data</th>
+                    <th>Tipo</th>
                     <th>Esporte</th>
                     <th>Jogo</th>
                     <th>Método</th>
-                    <th>Tipo</th>
                     <th>Confiança</th>
                     <th>Odd</th>
                     <th>Unidade</th>
                     <th>Retorno</th>
                     <th>Resultado</th>
-                    <th>Pré/Live</th>
+                    <th>Casa de Apostas</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -1021,16 +1048,16 @@
                 <thead>
                   <tr>
                     <th>Data</th>
+                    <th>Tipo</th>
                     <th>Esporte</th>
                     <th>Jogo</th>
                     <th>Método</th>
-                    <th>Tipo</th>
                     <th>Confiança</th>
                     <th>Odd</th>
                     <th>Unidade</th>
                     <th>Retorno</th>
                     <th>Resultado</th>
-                    <th>Pré/Live</th>
+                    <th>Casa de Apostas</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -1107,15 +1134,26 @@
       });
 
       function showMonth(month) {
+        // Remove a classe active de todas as tabs
         document
           .querySelectorAll(".tab")
           .forEach((tab) => tab.classList.remove("active"));
-        document
-          .querySelectorAll(".month-content")
-          .forEach((content) => content.classList.remove("active"));
 
-        event.target.classList.add("active");
-        document.getElementById(month).classList.add("active");
+        // Esconde todos os conteúdos das abas
+        document.querySelectorAll(".month-content").forEach((content) => {
+          content.style.display = "none";
+          content.classList.remove("active");
+        });
+
+        // Adiciona active na tab clicada
+        document
+          .querySelector(`[onclick="showMonth('${month}')"]`)
+          .classList.add("active");
+
+        // Mostra o conteúdo da aba selecionada
+        const selectedContent = document.getElementById(month);
+        selectedContent.style.display = "block";
+        selectedContent.classList.add("active");
       }
 
       function addNewBet(month) {
@@ -1129,26 +1167,26 @@
 
         newRow.innerHTML = `
     <td class="cell-data"><input type="date"></td>
+    <td class="cell-tipo">
+      <select onchange="handleTipoChange(this)">
+        <option value="simples">Simples</option>
+        <option value="multipla">Múltipla</option>
+      </select>
+    </td>
     <td class="cell-esporte">
       <select>
-        <option>Futebol</option>
-        <option>Basquete</option>
-        <option>Tênis</option>
-        <option>Vôlei</option>
-        <option>UFC/MMA</option>
-        <option>Ciclismo</option>
-        <option>E-Sports</option>
-        <option>Outros</option>
+        <option value="futebol">⚽ Futebol</option>
+        <option value="basquete">🏀 Basquete</option>
+        <option value="tenis">🎾 Tênis</option>
+        <option value="volei">🏐 Vôlei</option>
+        <option value="ufc">🥊 UFC/MMA</option>
+        <option value="ciclismo">🚴 Ciclismo</option>
+        <option value="esports">🎮 E-Sports</option>
+        <option value="outros">🏆 Outros</option>
       </select>
     </td>
     <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
     <td class="cell-metodo"><input type="text" placeholder="Método/Estratégia"></td>
-    <td class="cell-tipo">
-      <select onchange="handleTipoChange(this)">
-        <option value="dupla">Simples</option>
-        <option value="multipla">Dupla/Múltipla</option>
-      </select>
-    </td>
     <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
     <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
     <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
@@ -1161,10 +1199,13 @@
         <option value="cash">Cash</option>
       </select>
     </td>
-    <td class="cell-timing">
-      <select>
-        <option value="pre">Pré</option>
-        <option value="live">Live</option>
+    <td class="cell-casa-apostas">
+      <select class="casa-apostas-select">
+        <option value="betano">🔥 Betano</option>
+        <option value="superbet">💎 SuperBet</option>
+        <option value="bet365">🎯 Bet365</option>
+        <option value="estrelabet">⭐ estrelabet</option>
+        <option value="outros">🏪 Outros</option>
       </select>
     </td>
     <td class="cell-acoes">
@@ -1184,10 +1225,41 @@
       }
 
       function handleTipoChange(select) {
+        const row = select.closest("tr");
+        const metodoCell = row.querySelector(".cell-metodo");
+        const esporteCell = row.querySelector(".cell-esporte");
+        const eventoCell = row.querySelector(".cell-evento");
+
         if (select.value === "multipla") {
-          const row = select.closest("tr");
           currentMultiplaRow = row;
           openMultiplaModal();
+        } else {
+          // Resetar para simples
+          metodoCell.innerHTML =
+            '<input type="text" placeholder="Método/Estratégia">';
+          esporteCell.innerHTML = `
+      <select>
+        <option value="futebol">⚽ Futebol</option>
+        <option value="basquete">🏀 Basquete</option>
+        <option value="tenis">🎾 Tênis</option>
+        <option value="volei">🏐 Vôlei</option>
+        <option value="ufc">🥊 UFC/MMA</option>
+        <option value="ciclismo">🚴 Ciclismo</option>
+        <option value="esports">🎮 E-Sports</option>
+        <option value="outros">🏆 Outros</option>
+      </select>
+    `;
+          eventoCell.innerHTML =
+            '<input type="text" placeholder="Nome do jogo">';
+
+          // Readicionar event listeners
+          const inputs = row.querySelectorAll("input, select");
+          inputs.forEach((input) => {
+            input.addEventListener("change", () => {
+              saveBetsData();
+              updateStats();
+            });
+          });
         }
       }
 
@@ -1269,8 +1341,49 @@
         const rowId = currentMultiplaRow.getAttribute("data-row-id");
         multiplaData[rowId] = { games, odd: multiplaOdd };
 
+        // Criar resumo dos esportes
+        const sportsCount = {};
+        games.forEach((game) => {
+          const sportName = game.sport;
+          sportsCount[sportName] = (sportsCount[sportName] || 0) + 1;
+        });
+
+        const sportsIcons = {
+          Futebol: "⚽",
+          Basquete: "🏀",
+          Tênis: "🎾",
+          Vôlei: "🏐",
+          "UFC/MMA": "🥊",
+          Ciclismo: "🚴",
+          "E-Sports": "🎮",
+          Outros: "🏆",
+        };
+
+        const sportsSummary = Object.entries(sportsCount)
+          .map(
+            ([sport, count]) =>
+              `${sportsIcons[sport] || "🏆"} ${sport}${
+                count > 1 ? ` (${count})` : ""
+              }`
+          )
+          .join(", ");
+
+        // Criar resumo dos métodos (primeiros 2-3 métodos)
+        const methodsSummary =
+          games
+            .slice(0, 3)
+            .map((game) => game.method)
+            .join(", ") + (games.length > 3 ? "..." : "");
+
+        // Atualizar células
         const eventoCell = currentMultiplaRow.querySelector(".cell-evento");
         eventoCell.innerHTML = `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${games.length} jogos)</button>`;
+
+        const metodoCell = currentMultiplaRow.querySelector(".cell-metodo");
+        metodoCell.innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${methodsSummary}</span>`;
+
+        const esporteCell = currentMultiplaRow.querySelector(".cell-esporte");
+        esporteCell.innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
 
         const oddCell = currentMultiplaRow.querySelector(".cell-odd input");
         oddCell.value = multiplaOdd.toFixed(2);
@@ -1338,7 +1451,7 @@
         const odd = parseFloat(oddInput.value) || 0;
         const unidade =
           parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-        const returnValue = odd * unidade * 50;
+        const returnValue = odd * unidade * 65;
 
         row.querySelector(".cell-retorno .return-value").textContent =
           formatBRL(returnValue);
@@ -1371,7 +1484,14 @@
           totalRed = 0,
           totalCash = 0,
           totalReturn = 0;
+        let weeklyGreen = 0,
+          weeklyRed = 0,
+          weeklyCash = 0,
+          weeklyReturn = 0;
+
         const months = ["setembro", "outubro", "novembro", "dezembro"];
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
         months.forEach((month) => {
           const tbody = document.getElementById(month + "-tbody");
@@ -1379,36 +1499,101 @@
 
           rows.forEach((row) => {
             const resultSelect = row.querySelector(".cell-resultado select");
+            const dateInput = row.querySelector(".cell-data input");
             const odd =
               parseFloat(row.querySelector(".cell-odd input").value) || 0;
             const unidade =
               parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-            const apostado = unidade * 50;
+            const apostado = unidade * 65;
             let lucro = 0;
 
+            // Verificar se a aposta é da última semana
+            const betDate = new Date(dateInput.value);
+            const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
+
             if (resultSelect.value === "green") {
-              lucro = odd * unidade * 50 - apostado;
+              lucro = odd * unidade * 65 - apostado;
               totalGreen++;
+              if (isThisWeek) {
+                weeklyGreen++;
+                weeklyReturn += lucro;
+              }
             } else if (resultSelect.value === "red") {
               lucro = -apostado;
               totalRed++;
+              if (isThisWeek) {
+                weeklyRed++;
+                weeklyReturn += lucro;
+              }
             } else if (resultSelect.value === "cash") {
               lucro = 0;
               totalCash++;
+              if (isThisWeek) {
+                weeklyCash++;
+              }
             }
 
             totalReturn += lucro;
           });
         });
 
+        // Calcular assertividade
+        const totalBets = totalGreen + totalRed + totalCash;
+        const assertividade =
+          totalBets > 0 ? ((totalGreen / totalBets) * 100).toFixed(1) : 0;
+
+        // Atualizar valores principais
         document.getElementById("totalGreen").textContent = totalGreen;
         document.getElementById("totalRed").textContent = totalRed;
-        document.getElementById("totalCash").textContent = totalCash;
         document.getElementById("totalReturn").textContent =
           formatBRL(totalReturn);
         document.getElementById("currentBalance").textContent = formatBRL(
-          4500 + totalReturn
+          4600 + totalReturn
         );
+
+        // Atualizar assertividade
+        document.getElementById("assertividade").textContent =
+          assertividade + "%";
+
+        // Atualizar estatísticas semanais
+        document.getElementById(
+          "changeGreen"
+        ).innerHTML = `↗ ${weeklyGreen} esta semana`;
+        document.getElementById(
+          "changeRed"
+        ).innerHTML = `↘ ${weeklyRed} esta semana`;
+
+        // Definir classe e texto para assertividade baseado na performance
+        const assertividadeElement = document.getElementById(
+          "changeAssertividade"
+        );
+        if (assertividade >= 70) {
+          assertividadeElement.innerHTML = "↗ Excelente performance";
+          assertividadeElement.className = "stat-change positive";
+        } else if (assertividade >= 50) {
+          assertividadeElement.innerHTML = "→ Performance moderada";
+          assertividadeElement.className = "stat-change";
+        } else {
+          assertividadeElement.innerHTML = "↘ Precisa melhorar";
+          assertividadeElement.className = "stat-change negative";
+        }
+
+        // Calcular variação semanal do retorno
+        const changeReturnElement = document.getElementById("changeReturn");
+        if (weeklyReturn > 0) {
+          changeReturnElement.innerHTML = `↗ +${formatBRL(
+            weeklyReturn
+          )} esta semana`;
+          changeReturnElement.className = "stat-change positive";
+        } else if (weeklyReturn < 0) {
+          changeReturnElement.innerHTML = `↘ ${formatBRL(
+            weeklyReturn
+          )} esta semana`;
+          changeReturnElement.className = "stat-change negative";
+        } else {
+          changeReturnElement.innerHTML = "→ Sem alteração esta semana";
+          changeReturnElement.className = "stat-change";
+        }
       }
 
       function saveBetsData() {
@@ -1426,18 +1611,22 @@
             monthData.push({
               rowId: rowId,
               data: row.querySelector(".cell-data input").value,
-              esporte: row.querySelector(".cell-esporte select").value,
+              tipo: row.querySelector(".cell-tipo select").value,
+              esporte: isMultipla
+                ? "multiplos"
+                : row.querySelector(".cell-esporte select")?.value || "",
               evento: isMultipla
                 ? "Múltipla"
                 : row.querySelector(".cell-evento input")?.value || "",
-              metodo: row.querySelector(".cell-metodo input").value,
-              tipo: row.querySelector(".cell-tipo select").value,
+              metodo: isMultipla
+                ? "-"
+                : row.querySelector(".cell-metodo input")?.value || "",
               confianca: row.querySelector(".cell-confianca .confidence")
                 .textContent,
               odd: row.querySelector(".cell-odd input").value,
               unidade: row.querySelector(".cell-unidade input").value,
               resultado: row.querySelector(".cell-resultado select").value,
-              timing: row.querySelector(".cell-timing select").value,
+              casaApostas: row.querySelector(".cell-casa-apostas select").value,
               isMultipla: isMultipla,
             });
           });
@@ -1473,22 +1662,22 @@
 
             newRow.innerHTML = `
         <td class="cell-data"><input type="date"></td>
+        <td class="cell-tipo"><select onchange="handleTipoChange(this)">
+          <option value="simples">Simples</option>
+          <option value="multipla">Múltipla</option>
+        </select></td>
         <td class="cell-esporte"><select>
-          <option>Futebol</option>
-          <option>Basquete</option>
-          <option>Tênis</option>
-          <option>Vôlei</option>
-          <option>UFC/MMA</option>
-          <option>Ciclismo</option>
-          <option>E-Sports</option>
-          <option>Outros</option>
+          <option value="futebol">⚽ Futebol</option>
+          <option value="basquete">🏀 Basquete</option>
+          <option value="tenis">🎾 Tênis</option>
+          <option value="volei">🏐 Vôlei</option>
+          <option value="ufc">🥊 UFC/MMA</option>
+          <option value="ciclismo">🚴 Ciclismo</option>
+          <option value="esports">🎮 E-Sports</option>
+          <option value="outros">🏆 Outros</option>
         </select></td>
         <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
         <td class="cell-metodo"><input type="text" placeholder="Método/Estratégia"></td>
-        <td class="cell-tipo"><select onchange="handleTipoChange(this)">
-          <option value="dupla">Simples</option>
-          <option value="multipla">Dupla/Múltipla</option>
-        </select></td>
         <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
         <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
         <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
@@ -1499,31 +1688,81 @@
           <option value="red">Red</option>
           <option value="cash">Cash</option>
         </select></td>
-        <td class="cell-timing"><select>
-          <option value="pre">Pré</option>
-          <option value="live">Live</option>
+        <td class="cell-casa-apostas"><select class="casa-apostas-select">
+          <option value="bet365">🎯 Bet365</option>
+          <option value="superbet">💎 SuperBet</option>
+          <option value="pixbet">⚡ Pixbet</option>
+          <option value="betano">🔥 Betano</option>
+          <option value="sportingbet">⭐ Sportingbet</option>
+          <option value="1xbet">🎰 1xBet</option>
+          <option value="outros">🏪 Outros</option>
         </select></td>
         <td class="cell-acoes"><button class="delete-btn" onclick="removeRow(this)">🗑️</button></td>
       `;
 
+            // Preencher os dados salvos
             newRow.querySelector(".cell-data input").value = bet.data || "";
-            newRow.querySelector(".cell-esporte select").value =
-              bet.esporte || "";
+            newRow.querySelector(".cell-tipo select").value =
+              bet.tipo || "simples";
 
+            // Verificar se é múltipla
             if (bet.isMultipla && multiplaData[rowId]) {
               const multipla = multiplaData[rowId];
+
+              // Criar resumos
+              const sportsCount = {};
+              multipla.games?.forEach((game) => {
+                sportsCount[game.sport] = (sportsCount[game.sport] || 0) + 1;
+              });
+
+              const sportsIcons = {
+                Futebol: "⚽",
+                Basquete: "🏀",
+                Tênis: "🎾",
+                Vôlei: "🏐",
+                "UFC/MMA": "🥊",
+                Ciclismo: "🚴",
+                "E-Sports": "🎮",
+                Outros: "🏆",
+              };
+
+              const sportsSummary = Object.entries(sportsCount)
+                .map(
+                  ([sport, count]) =>
+                    `${sportsIcons[sport] || "🏆"} ${sport}${
+                      count > 1 ? ` (${count})` : ""
+                    }`
+                )
+                .join(", ");
+
+              const methodsSummary =
+                multipla.games
+                  ?.slice(0, 3)
+                  .map((game) => game.method)
+                  .join(", ") + (multipla.games?.length > 3 ? "..." : "");
+
               newRow.querySelector(
                 ".cell-evento"
               ).innerHTML = `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${
                 multipla.games?.length || 0
               } jogos)</button>`;
+              newRow.querySelector(
+                ".cell-metodo"
+              ).innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${methodsSummary}</span>`;
+              newRow.querySelector(
+                ".cell-esporte"
+              ).innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
             } else {
-              newRow.querySelector(".cell-evento input").value =
-                bet.evento || "";
+              // Se for aposta simples, preencher os campos normalmente
+              if (!bet.isMultipla) {
+                newRow.querySelector(".cell-esporte select").value =
+                  bet.esporte || "futebol";
+                newRow.querySelector(".cell-evento input").value =
+                  bet.evento || "";
+                newRow.querySelector(".cell-metodo input").value =
+                  bet.metodo || "";
+              }
             }
-
-            newRow.querySelector(".cell-metodo input").value = bet.metodo || "";
-            newRow.querySelector(".cell-tipo select").value = bet.tipo || "";
 
             const confidenceSpan = newRow.querySelector(
               ".cell-confianca .confidence"
@@ -1542,8 +1781,8 @@
             resultSelect.classList.remove("green", "red", "cash", "pending");
             resultSelect.classList.add(bet.resultado || "pending");
 
-            newRow.querySelector(".cell-timing select").value =
-              bet.timing || "pre";
+            newRow.querySelector(".cell-casa-apostas select").value =
+              bet.casaApostas || "Betano";
 
             calculateReturn(newRow.querySelector(".cell-odd input"));
 
