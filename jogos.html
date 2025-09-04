@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetPro - Apostas Esportivas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #2d3748;
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+       /* Sidebar */
+      .sidebar {
+        width: 280px;
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.04);
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .sidebar-header {
+        padding: 24px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+         .logo {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo::before {
+        content: "📊";
+        font-size: 24px;
+      }
+      .nav-menu {
+        padding: 24px 0;
+      }
+      .nav-item {
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        color: #4a5568;
+      }
+      .nav-item:hover {
+        background: #f7fafc;
+        color: #2b6cb0;
+      }
+      .nav-item.active {
+        background: #ebf8ff;
+        color: #2b6cb0;
+        border-left-color: #3182ce;
+      }
+      .nav-item::before {
+        width: 20px;
+        text-align: center;
+      }
+      .nav-item:nth-child(1)::before {
+        content: "🏠";
+      }
+      .nav-item:nth-child(2)::before {
+        content: "⚽";
+      }
+      .nav-item:nth-child(3)::before {
+        content: "📈";
+      }
+      .nav-item:nth-child(4)::before {
+        content: "⚙️";
+      }
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: 280px;
+        padding: 32px;
+      }
+      .page-header {
+        margin-bottom: 32px;
+      }
+      .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 8px;
+      }
+      .page-subtitle {
+        color: #718096;
+        font-size: 16px;
+      }
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+      .stat-card {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease;
+      }
+      .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .stat-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #4a5568;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 8px;
+      }
+      .stat-change {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .stat-change.positive {
+        color: #38a169;
+      }
+      .stat-change.negative {
+        color: #e53e3e;
+      }
+      /* Icon colors */
+      .icon-green {
+        background: #f0fff4;
+        color: #38a169;
+      }
+      .icon-red {
+        background: #fed7d7;
+        color: #e53e3e;
+      }
+      .icon-blue {
+        background: #ebf8ff;
+        color: #3182ce;
+      }
+      .icon-purple {
+        background: #faf5ff;
+        color: #805ad5;
+      }
+
+      .page-content {
+        display: none;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .page-content.active {
+        display: block;
+        margin: 5px auto;
+        max-width: 1100px;
+        width: 100%;
+        max-height: 90vh;
+        height: 100%;
+        overflow-y: auto;
+
+        /* scroll suave */
+        scroll-behavior: smooth;
+      }
+
+      /* Scrollbar customizado */
+      .page-content.active::-webkit-scrollbar {
+        width: 10px; /* largura da barra */
+      }
+
+      .page-content.active::-webkit-scrollbar-track {
+        background: #f1f1f1; /* fundo do track */
+        border-radius: 10px;
+      }
+
+      .page-content.active::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #4caf50, #2e7d32); /* degradê */
+        border-radius: 10px;
+      }
+
+      .page-content.active::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(
+          180deg,
+          #66bb6a,
+          #388e3c
+        ); /* efeito hover */
+      }
+
+      /* Estilos específicos para jogos */
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .refresh-btn {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      #api-status {
+        display: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .loading-spinner {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .games-section {
+        margin-bottom: 35px;
+      }
+
+      .league-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .league-icon {
+        font-size: 1.5rem;
+      }
+
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+      }
+
+      .game-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+      }
+
+      .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .game-time {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #4a5568;
+      }
+
+      .game-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .status-upcoming {
+        background: #e6fffa;
+        color: #38a169;
+      }
+
+      .status-live {
+        background: #fed7d7;
+        color: #e53e3e;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .teams-container {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 10px;
+      }
+
+      .team {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+      }
+
+      .team:last-child {
+        flex-direction: row-reverse;
+        text-align: right;
+      }
+
+      .team-logo {
+        font-size: 1.5rem;
+      }
+
+      .vs-divider {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .odds-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .bookmaker {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 15px;
+      }
+
+      .bookmaker-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .bookmaker-name {
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .bookmaker-logo {
+        font-size: 1.2rem;
+      }
+
+      .odds-grid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .odd-button {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .odd-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .odd-button.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .odd-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        opacity: 0.8;
+      }
+
+      .odd-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
+      .no-games {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .no-games-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+        .main-content {
+        flex: 1;
+        margin-left: 280px;
+        padding: 32px;
+      }
+      .page-header {
+        margin-bottom: 32px;
+      }
+      .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 8px;
+      }
+      .page-subtitle {
+        color: #718096;
+        font-size: 16px;
+      }
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .games-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .teams-container {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .team:last-child {
+          flex-direction: row;
+        }
+
+        .controls {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Bet Tracker Pro</div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item" onclick="window.location.href='index.html'">Dashboard</div>
+            <div class="nav-item active" onclick="window.location.href='jogos.html'">Jogos</div>
+            <div class="nav-item" onclick="window.location.href='relatorios.html'">Relatórios</div>
+            <div class="nav-item" onclick="window.location.href='configuracoes.html'">Configurações</div>
+        </div>
+
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="page-header">
+          <p class="page-subtitle">Acompanhe seu desempenho e resultados</p>
+        </div>
+
+      <div id="apostas-page" class="page-content active">
+        <div class="controls">
+          <h2>🏆 Jogos de Hoje</h2>
+          <button class="refresh-btn" onclick="refreshOdds()">
+            🔄 Atualizar Odds
+          </button>
+        </div>
+
+        <div id="api-status"></div>
+        <div id="games-container">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            Carregando jogos do dia...
+          </div>
+        </div>
+      </div>
+
+      <div id="multiplas-page" class="page-content">
+        <h2>📊 Apostas Múltiplas</h2>
+        <p>Funcionalidade de múltiplas em desenvolvimento...</p>
+      </div>
+
+      <div id="historico-page" class="page-content">
+        <h2>📈 Histórico de Apostas</h2>
+        <p>Seu histórico de apostas aparecerá aqui...</p>
+      </div>
+
+      <div id="conta-page" class="page-content">
+        <h2>👤 Minha Conta</h2>
+        <p>Informações da conta em desenvolvimento...</p>
+      </div>
+    </div>
+
+    <script>
+      let currentMultiplaRow = null;
+      let multiplaData = {};
+      let betsData = {
+        setembro: [],
+        outubro: [],
+        novembro: [],
+        dezembro: [],
+      };
+
+      // Função para mostrar diferentes páginas
+      function showPage(page) {
+        // Remove active de todos os nav-items
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        // Adiciona active no item clicado
+        event.target.classList.add("active");
+
+        // Esconde todas as páginas
+        document.querySelectorAll(".page-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        // Mostra a página selecionada
+        const selectedPage = document.getElementById(page + "-page");
+        if (selectedPage) {
+          selectedPage.classList.add("active");
+        }
+
+        // Carregar dados específicos da página
+        if (page === "apostas") {
+          loadTodaysGamesWithStatus();
+        }
+      }
+
+      // Função para buscar odds reais (simulada)
+      async function fetchRealOdds() {
+        // Simula uma chamada para API real
+        // Em produção, você usaria The Odds API ou similar
+        throw new Error("API não disponível - usando dados simulados");
+      }
+
+      // Função para carregar jogos do dia
+      async function loadTodaysGames() {
+        const container = document.getElementById("games-container");
+        container.innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            Carregando jogos do dia...
+          </div>
+        `;
+
+        try {
+          // Simulação de dados - em produção, você usaria uma API real como The Odds API
+          await new Promise((resolve) => setTimeout(resolve, 1500)); // Simula tempo de carregamento
+
+          const mockGames = generateMockGamesData();
+          displayGames(mockGames);
+        } catch (error) {
+          container.innerHTML = `
+            <div class="no-games">
+              <div class="no-games-icon">⚠️</div>
+              <p>Erro ao carregar jogos. Tente novamente.</p>
+            </div>
+          `;
+        }
+      }
+
+      // Função para gerar dados simulados dos jogos
+      function generateMockGamesData() {
+        const today = new Date();
+        const todayStr = today.toISOString().split("T")[0];
+
+        return [
+          {
+            league: "Premier League",
+            icon: "🇬🇧",
+            games: [
+              {
+                time: "16:30",
+                homeTeam: "Manchester City",
+                awayTeam: "Arsenal",
+                homeIcon: "💙",
+                awayIcon: "🔴",
+                status: "upcoming",
+                odds: [
+                  {
+                    bookmaker: "Bet365",
+                    logo: "🎯",
+                    home: "1.85",
+                    draw: "3.60",
+                    away: "4.20",
+                  },
+                  {
+                    bookmaker: "Betano",
+                    logo: "🔥",
+                    home: "1.88",
+                    draw: "3.55",
+                    away: "4.15",
+                  },
+                  {
+                    bookmaker: "SuperBet",
+                    logo: "💎",
+                    home: "1.82",
+                    draw: "3.65",
+                    away: "4.25",
+                  },
+                ],
+              },
+              {
+                time: "19:00",
+                homeTeam: "Liverpool",
+                awayTeam: "Chelsea",
+                homeIcon: "🔴",
+                awayIcon: "🔵",
+                status: "upcoming",
+                odds: [
+                  {
+                    bookmaker: "Bet365",
+                    logo: "🎯",
+                    home: "2.10",
+                    draw: "3.40",
+                    away: "3.50",
+                  },
+                  {
+                    bookmaker: "Betano",
+                    logo: "🔥",
+                    home: "2.08",
+                    draw: "3.45",
+                    away: "3.55",
+                  },
+                  {
+                    bookmaker: "SuperBet",
+                    logo: "💎",
+                    home: "2.12",
+                    draw: "3.38",
+                    away: "3.48",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            league: "NBA",
+            icon: "🏀",
+            games: [
+              {
+                time: "21:00",
+                homeTeam: "Lakers",
+                awayTeam: "Warriors",
+                homeIcon: "💜",
+                awayIcon: "💙",
+                status: "upcoming",
+                odds: [
+                  {
+                    bookmaker: "Bet365",
+                    logo: "🎯",
+                    home: "1.95",
+                    draw: "-",
+                    away: "1.85",
+                  },
+                  {
+                    bookmaker: "Betano",
+                    logo: "🔥",
+                    home: "1.98",
+                    draw: "-",
+                    away: "1.82",
+                  },
+                  {
+                    bookmaker: "SuperBet",
+                    logo: "💎",
+                    home: "1.92",
+                    draw: "-",
+                    away: "1.88",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            league: "Champions League",
+            icon: "🏆",
+            games: [
+              {
+                time: "17:45",
+                homeTeam: "Barcelona",
+                awayTeam: "PSG",
+                homeIcon: "🔴",
+                awayIcon: "🔵",
+                status: "upcoming",
+                odds: [
+                  {
+                    bookmaker: "Bet365",
+                    logo: "🎯",
+                    home: "2.25",
+                    draw: "3.20",
+                    away: "3.10",
+                  },
+                  {
+                    bookmaker: "Betano",
+                    logo: "🔥",
+                    home: "2.28",
+                    draw: "3.15",
+                    away: "3.08",
+                  },
+                  {
+                    bookmaker: "SuperBet",
+                    logo: "💎",
+                    home: "2.22",
+                    draw: "3.25",
+                    away: "3.12",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            league: "Brasileirão",
+            icon: "🇧🇷",
+            games: [
+              {
+                time: "20:00",
+                homeTeam: "Flamengo",
+                awayTeam: "Palmeiras",
+                homeIcon: "🔴",
+                awayIcon: "🟢",
+                status: "live",
+                odds: [
+                  {
+                    bookmaker: "Bet365",
+                    logo: "🎯",
+                    home: "2.40",
+                    draw: "3.10",
+                    away: "2.95",
+                  },
+                  {
+                    bookmaker: "Betano",
+                    logo: "🔥",
+                    home: "2.38",
+                    draw: "3.15",
+                    away: "2.98",
+                  },
+                  {
+                    bookmaker: "SuperBet",
+                    logo: "💎",
+                    home: "2.42",
+                    draw: "3.08",
+                    away: "2.92",
+                  },
+                ],
+              },
+            ],
+          },
+        ];
+      }
+
+      // Função para exibir os jogos na tela
+      function displayGames(leagues) {
+        const container = document.getElementById("games-container");
+        container.innerHTML = "";
+
+        leagues.forEach((league) => {
+          const section = document.createElement("div");
+          section.className = "games-section";
+
+          section.innerHTML = `
+            <div class="league-title">
+              <div class="league-icon">${league.icon}</div>
+              <span>${league.league}</span>
+            </div>
+            <div class="games-grid">
+              ${league.games.map((game) => createGameCard(game)).join("")}
+            </div>
+          `;
+
+          container.appendChild(section);
+        });
+      }
+
+      // Função para criar card de jogo individual
+      function createGameCard(game) {
+        const isNBA = game.odds[0].draw === "-"; // NBA não tem empate
+
+        return `
+          <div class="game-card">
+            <div class="game-header">
+              <div class="game-time">${game.time}</div>
+              <div class="game-status status-${game.status}">
+                ${
+                  game.status === "upcoming"
+                    ? "Próximo"
+                    : game.status === "live"
+                    ? "🔴 Ao Vivo"
+                    : "Finalizado"
+                }
+              </div>
+            </div>
+            
+            <div class="teams-container">
+              <div class="team">
+                <div class="team-logo">${game.homeIcon}</div>
+                <span>${game.homeTeam}</span>
+              </div>
+              <div class="vs-divider">VS</div>
+              <div class="team">
+                <span>${game.awayTeam}</span>
+                <div class="team-logo">${game.awayIcon}</div>
+              </div>
+            </div>
+            
+            <div class="odds-container">
+              ${game.odds
+                .map(
+                  (bookmaker) => `
+                <div class="bookmaker">
+                  <div class="bookmaker-header">
+                    <span class="bookmaker-name">${bookmaker.bookmaker}</span>
+                    <span class="bookmaker-logo">${bookmaker.logo}</span>
+                  </div>
+                  <div class="odds-grid" style="grid-template-columns: ${
+                    isNBA ? "1fr 1fr" : "1fr 1fr 1fr"
+                  };">
+                    <div class="odd-button" onclick="selectOdd(this, '${
+                      game.homeTeam
+                    }', '${bookmaker.home}')">
+                      <div class="odd-label">${
+                        game.homeTeam.split(" ")[0]
+                      }</div>
+                      <div class="odd-value">${bookmaker.home}</div>
+                    </div>
+                    ${
+                      !isNBA
+                        ? `
+                      <div class="odd-button" onclick="selectOdd(this, 'Empate', '${bookmaker.draw}')">
+                        <div class="odd-label">Empate</div>
+                        <div class="odd-value">${bookmaker.draw}</div>
+                      </div>
+                    `
+                        : ""
+                    }
+                    <div class="odd-button" onclick="selectOdd(this, '${
+                      game.awayTeam
+                    }', '${bookmaker.away}')">
+                      <div class="odd-label">${
+                        game.awayTeam.split(" ")[0]
+                      }</div>
+                      <div class="odd-value">${bookmaker.away}</div>
+                    </div>
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      // Função para selecionar uma odd
+      function selectOdd(element, team, odd) {
+        // Remover seleção anterior no mesmo jogo
+        const gameCard = element.closest(".game-card");
+        gameCard.querySelectorAll(".odd-button").forEach((btn) => {
+          btn.classList.remove("selected");
+        });
+
+        // Aplicar seleção atual
+        element.classList.add("selected");
+
+        // Feedback visual
+        element.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          element.style.transform = "";
+        }, 150);
+
+        // Aqui você pode adicionar lógica para salvar a seleção
+        console.log(`Selecionado: ${team} - Odd: ${odd}`);
+
+        // Mostrar notificação (opcional)
+        showNotification(`${team} selecionado com odd ${odd}`);
+      }
+
+      // Função para mostrar notificação
+      function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+          color: white;
+          padding: 15px 20px;
+          border-radius: 10px;
+          font-weight: 600;
+          z-index: 1000;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+          transform: translateX(400px);
+          transition: transform 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(0)";
+        }, 100);
+
+        setTimeout(() => {
+          notification.style.transform = "translateX(400px)";
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 300);
+        }, 3000);
+      }
+
+      // Função para mostrar status da API
+      function showApiStatus(isUsingRealData) {
+        const statusDiv = document.getElementById("api-status");
+        statusDiv.style.display = "block";
+
+        if (isUsingRealData) {
+          statusDiv.innerHTML = "✅ Dados atualizados via The Odds API";
+          statusDiv.style.background = "#f0fff4";
+          statusDiv.style.color = "#38a169";
+          statusDiv.style.border = "1px solid #68d391";
+        } else {
+          statusDiv.innerHTML = "⚠️ Usando dados simulados (API indisponível)";
+          statusDiv.style.background = "#fffaf0";
+          statusDiv.style.color = "#d69e2e";
+          statusDiv.style.border = "1px solid #f6e05e";
+        }
+
+        statusDiv.style.padding = "12px";
+        statusDiv.style.borderRadius = "8px";
+        statusDiv.style.fontWeight = "600";
+        statusDiv.style.textAlign = "center";
+        statusDiv.style.marginBottom = "20px";
+
+        // Esconder após 5 segundos
+        setTimeout(() => {
+          statusDiv.style.display = "none";
+        }, 5000);
+      }
+
+      // Função principal para carregar jogos com status
+      async function loadTodaysGamesWithStatus() {
+        const container = document.getElementById("games-container");
+        container.innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            Carregando jogos do dia...
+          </div>
+        `;
+
+        try {
+          // Tenta buscar dados reais primeiro
+          const realGames = await fetchRealOdds();
+          displayGames(realGames);
+          showApiStatus(true);
+        } catch (error) {
+          console.error("Erro ao carregar odds da API:", error);
+          // Se falhar, usa dados simulados
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula tempo de carregamento
+          const mockGames = generateMockGamesData();
+          displayGames(mockGames);
+          showApiStatus(false);
+        }
+      }
+
+      // Função para atualizar as odds
+      function refreshOdds() {
+        loadTodaysGamesWithStatus();
+      }
+
+      // Inicializar a aplicação
+      document.addEventListener("DOMContentLoaded", function () {
+        loadTodaysGamesWithStatus();
+      });
+    </script>
+  </body>
+</html>

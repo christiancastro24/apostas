@@ -14,6 +14,11 @@
         padding: 0;
         box-sizing: border-box;
       }
+
+      a {
+        text-decoration: none;
+        color: #4a5568;
+      }
       body {
         font-family: "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
         background: #f8fafc;
@@ -871,10 +876,27 @@
           <div class="logo">Bet Tracker Pro</div>
         </div>
         <div class="nav-menu">
-          <div class="nav-item active">Dashboard</div>
-          <div class="nav-item">Apostas</div>
-          <div class="nav-item">Relatórios</div>
-          <div class="nav-item">Configurações</div>
+          <div
+            class="nav-item active"
+            onclick="window.location.href='index.html'"
+          >
+            Dashboard
+          </div>
+          <div class="nav-item" onclick="window.location.href='jogos.html'">
+            Jogos
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href='relatorios.html'"
+          >
+            Relatórios
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href='configuracoes.html'"
+          >
+            Configurações
+          </div>
         </div>
       </div>
 
