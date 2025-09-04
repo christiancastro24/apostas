@@ -939,7 +939,7 @@
               <p>Banca Inicial</p>
             </div>
             <div class="banca-item">
-              <h3>R$ 60,00</h3>
+              <h3>R$ 70,00</h3>
               <p>Valor da Unidade</p>
             </div>
             <div class="banca-item">
@@ -1504,7 +1504,7 @@
               parseFloat(row.querySelector(".cell-odd input").value) || 0;
             const unidade =
               parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-            const apostado = unidade * 60;
+            const apostado = unidade * 70;
             let lucro = 0;
 
             // Verificar se a aposta é da última semana
@@ -1512,7 +1512,7 @@
             const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
 
             if (resultSelect.value === "green") {
-              lucro = odd * unidade * 60 - apostado;
+              lucro = odd * unidade * 70 - apostado;
               totalGreen++;
               if (isThisWeek) {
                 weeklyGreen++;
