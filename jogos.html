@@ -12,11 +12,9 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        color: #2d3748;
+   font-family: "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f8fafc;
+        color: #1a202c;
       }
 
       .layout {
@@ -108,81 +106,6 @@
         color: #718096;
         font-size: 16px;
       }
-      /* Stats Cards */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        margin-bottom: 32px;
-      }
-      .stat-card {
-        background: white;
-        padding: 24px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        transition: all 0.2s ease;
-      }
-      .stat-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      }
-      .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-      .stat-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #4a5568;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .stat-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-      }
-      .stat-value {
-        font-size: 32px;
-        font-weight: 700;
-        color: #2d3748;
-        margin-bottom: 8px;
-      }
-      .stat-change {
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .stat-change.positive {
-        color: #38a169;
-      }
-      .stat-change.negative {
-        color: #e53e3e;
-      }
-      /* Icon colors */
-      .icon-green {
-        background: #f0fff4;
-        color: #38a169;
-      }
-      .icon-red {
-        background: #fed7d7;
-        color: #e53e3e;
-      }
-      .icon-blue {
-        background: #ebf8ff;
-        color: #3182ce;
-      }
-      .icon-purple {
-        background: #faf5ff;
-        color: #805ad5;
-      }
 
       .page-content {
         display: none;
@@ -190,46 +113,40 @@
         border-radius: 15px;
         padding: 25px;
         backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); /* sombra mais forte */
+        /* border removido */
       }
+
 
       .page-content.active {
         display: block;
         margin: 5px auto;
         max-width: 1100px;
         width: 100%;
-        max-height: 90vh;
+        max-height: 85vh;
         height: 100%;
         overflow-y: auto;
-
-        /* scroll suave */
         scroll-behavior: smooth;
       }
 
-      /* Scrollbar customizado */
       .page-content.active::-webkit-scrollbar {
-        width: 10px; /* largura da barra */
+        width: 10px;
       }
 
       .page-content.active::-webkit-scrollbar-track {
-        background: #f1f1f1; /* fundo do track */
+        background: #f1f1f1;
         border-radius: 10px;
       }
 
       .page-content.active::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #4caf50, #2e7d32); /* degradê */
+        background: linear-gradient(180deg, #4caf50, #2e7d32);
         border-radius: 10px;
       }
 
       .page-content.active::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(
-          180deg,
-          #66bb6a,
-          #388e3c
-        ); /* efeito hover */
+        background: linear-gradient(180deg, #66bb6a, #388e3c);
       }
 
-      /* Estilos específicos para jogos */
       .controls {
         display: flex;
         justify-content: space-between;
@@ -253,6 +170,13 @@
       .refresh-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .refresh-btn:disabled {
+        background: #cbd5e0;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
       }
 
       #api-status {
@@ -483,30 +407,26 @@
         margin-bottom: 15px;
       }
 
-        .main-content {
-        flex: 1;
-        margin-left: 280px;
-        padding: 32px;
+      .error-container {
+        text-align: center;
+        padding: 40px 20px;
+        color: #e53e3e;
       }
-      .page-header {
-        margin-bottom: 32px;
+
+      .error-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
       }
-      .page-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #2d3748;
-        margin-bottom: 8px;
-      }
-      .page-subtitle {
-        color: #718096;
-        font-size: 16px;
-      }
-      /* Stats Cards */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        margin-bottom: 32px;
+
+      .credits-info {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #4a5568;
+        text-align: center;
       }
 
       /* Responsividade */
@@ -527,6 +447,15 @@
         .controls {
           flex-direction: column;
         }
+
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+
+        .sidebar {
+          display: none;
+        }
       }
     </style>
   </head>
@@ -543,21 +472,24 @@
             <div class="nav-item" onclick="window.location.href='relatorios.html'">Relatórios</div>
             <div class="nav-item" onclick="window.location.href='configuracoes.html'">Configurações</div>
         </div>
-
       </div>
 
       <!-- Main Content -->
       <div class="main-content">
         <div class="page-header">
-          <p class="page-subtitle">Acompanhe seu desempenho e resultados</p>
+          <p class="page-subtitle">Acompanhe jogos e odds em tempo real</p>
         </div>
 
       <div id="apostas-page" class="page-content active">
         <div class="controls">
           <h2>🏆 Jogos de Hoje</h2>
-          <button class="refresh-btn" onclick="refreshOdds()">
+          <button class="refresh-btn" onclick="refreshOdds()" id="refreshBtn">
             🔄 Atualizar Odds
           </button>
+        </div>
+
+        <div id="credits-info" class="credits-info" style="display: none;">
+          💳 Créditos restantes: <span id="credits-remaining">Carregando...</span>
         </div>
 
         <div id="api-status"></div>
@@ -568,98 +500,202 @@
           </div>
         </div>
       </div>
-
-      <div id="multiplas-page" class="page-content">
-        <h2>📊 Apostas Múltiplas</h2>
-        <p>Funcionalidade de múltiplas em desenvolvimento...</p>
-      </div>
-
-      <div id="historico-page" class="page-content">
-        <h2>📈 Histórico de Apostas</h2>
-        <p>Seu histórico de apostas aparecerá aqui...</p>
-      </div>
-
-      <div id="conta-page" class="page-content">
-        <h2>👤 Minha Conta</h2>
-        <p>Informações da conta em desenvolvimento...</p>
-      </div>
     </div>
 
     <script>
-      let currentMultiplaRow = null;
-      let multiplaData = {};
-      let betsData = {
-        setembro: [],
-        outubro: [],
-        novembro: [],
-        dezembro: [],
+      // Configuração da API
+      const API_KEY = 'e6151727b9b3162bb023a5d9283dc608';
+      const API_BASE_URL = 'https://api.the-odds-api.com/v4';
+
+      let isLoading = false;
+
+      // Mapeamento de esportes disponíveis
+      const SPORTS_MAP = {
+        'soccer_fifa_world_cup': { name: 'Copa do Mundo FIFA', icon: '🏆', hasDraws: true },
+        'soccer_epl': { name: 'Premier League', icon: '🇬🇧', hasDraws: true },
+        'soccer_uefa_champs_league': { name: 'Champions League', icon: '🏆', hasDraws: true },
+        'soccer_spain_la_liga': { name: 'La Liga', icon: '🇪🇸', hasDraws: true },
+        'soccer_italy_serie_a': { name: 'Serie A', icon: '🇮🇹', hasDraws: true },
+        'soccer_germany_bundesliga': { name: 'Bundesliga', icon: '🇩🇪', hasDraws: true },
+        'soccer_france_ligue_one': { name: 'Ligue 1', icon: '🇫🇷', hasDraws: true },
+        'soccer_brazil_campeonato': { name: 'Brasileirão', icon: '🇧🇷', hasDraws: true },
       };
 
-      // Função para mostrar diferentes páginas
-      function showPage(page) {
-        // Remove active de todos os nav-items
-        document.querySelectorAll(".nav-item").forEach((item) => {
-          item.classList.remove("active");
-        });
+      // Mapeamento de bookmakers
+      const BOOKMAKER_MAP = {
+        'bet365': { name: 'Bet365', logo: '🎯' },
+        'betano': { name: 'Betano', logo: '🔥' },
+        'superbet': { name: 'SuperBet', logo: '💎' },
+        'pinnacle': { name: 'Pinnacle', logo: '📌' },
+        'unibet_uk': { name: 'Unibet', logo: '🎰' },
+        'williamhill': { name: 'William Hill', logo: '👑' },
+        // 'draftkings': { name: 'DraftKings', logo: '👤' },
+        // 'fanduel': { name: 'FanDuel', logo: '⚡' }
+      };
 
-        // Adiciona active no item clicado
-        event.target.classList.add("active");
-
-        // Esconde todas as páginas
-        document.querySelectorAll(".page-content").forEach((content) => {
-          content.classList.remove("active");
-        });
-
-        // Mostra a página selecionada
-        const selectedPage = document.getElementById(page + "-page");
-        if (selectedPage) {
-          selectedPage.classList.add("active");
-        }
-
-        // Carregar dados específicos da página
-        if (page === "apostas") {
-          loadTodaysGamesWithStatus();
-        }
-      }
-
-      // Função para buscar odds reais (simulada)
+      // Função para buscar odds reais da API
       async function fetchRealOdds() {
-        // Simula uma chamada para API real
-        // Em produção, você usaria The Odds API ou similar
-        throw new Error("API não disponível - usando dados simulados");
-      }
-
-      // Função para carregar jogos do dia
-      async function loadTodaysGames() {
-        const container = document.getElementById("games-container");
-        container.innerHTML = `
-          <div class="loading-spinner">
-            <div class="spinner"></div>
-            Carregando jogos do dia...
-          </div>
-        `;
-
+        if (isLoading) return;
+        
         try {
-          // Simulação de dados - em produção, você usaria uma API real como The Odds API
-          await new Promise((resolve) => setTimeout(resolve, 1500)); // Simula tempo de carregamento
+          isLoading = true;
+          updateRefreshButton(true);
 
-          const mockGames = generateMockGamesData();
-          displayGames(mockGames);
+          // Primeiro, buscar esportes disponíveis
+          const sportsResponse = await fetch(
+            `${API_BASE_URL}/sports?apiKey=${API_KEY}`
+          );
+
+          if (!sportsResponse.ok) {
+            throw new Error(`Erro na API: ${sportsResponse.status}`);
+          }
+
+          const sports = await sportsResponse.json();
+
+          console.log(sports, 'SPORTS')
+
+          // Filtrar apenas esportes que temos no mapeamento
+          const availableSports = sports.filter(sport => 
+            SPORTS_MAP[sport.key] && sport.active
+          ).slice(0, 6); // Limitar para economizar créditos
+
+          if (availableSports.length === 0) {
+            throw new Error('Nenhum esporte disponível no momento');
+          }
+
+          // Buscar odds para cada esporte
+          const allGames = [];
+          const regions = 'us,uk,eu'; // Múltiplas regiões para mais bookmakers
+          const markets = 'h2h'; // Head to head (1x2)
+
+          for (const sport of availableSports) {
+            try {
+              const oddsResponse = await fetch(
+                `${API_BASE_URL}/sports/${sport.key}/odds?apiKey=${API_KEY}&regions=${regions}&markets=${markets}&oddsFormat=decimal&dateFormat=iso`
+              );
+
+              if (oddsResponse.ok) {
+                const oddsData = await oddsResponse.json();
+
+                console.log(oddsData, 'ODDS DATA')
+                
+                if (oddsData.length > 0) {
+                  allGames.push({
+                    sport: sport.key,
+                    sportInfo: SPORTS_MAP[sport.key],
+                    games: oddsData // Limitar jogos por esporte
+                  });
+                }
+              }
+            } catch (error) {
+              console.error(`Erro ao buscar odds para ${sport.key}:`, error);
+            }
+          }
+
+          return allGames;
+
         } catch (error) {
-          container.innerHTML = `
-            <div class="no-games">
-              <div class="no-games-icon">⚠️</div>
-              <p>Erro ao carregar jogos. Tente novamente.</p>
-            </div>
-          `;
+          console.error('Erro ao buscar dados da API:', error);
+          throw error;
+        } finally {
+          isLoading = false;
+          updateRefreshButton(false);
         }
       }
 
-      // Função para gerar dados simulados dos jogos
-      function generateMockGamesData() {
-        const today = new Date();
-        const todayStr = today.toISOString().split("T")[0];
+      // Função para processar e exibir dados da API
+     function processApiData(apiData) {
+  return apiData.map(league => ({
+    league: league.sportInfo.name,
+    icon: league.sportInfo.icon,
+    games: league.games.map(game => {
+      // Processar horário
+      const gameTime = new Date(game.commence_time);
+      const timeString = gameTime.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
+      // Processar data - extrair apenas o dia do mês
+      const dayOfMonth = gameTime.getDate().toString().padStart(2, '0');
+      const monthName = gameTime.toLocaleDateString('pt-BR', { month: 'short' });
+      const dateString = `${dayOfMonth} ${monthName}`;
+
+      // Processar equipes
+      const homeTeam = game.home_team;
+      const awayTeam = game.away_team;
+
+      // Processar odds por bookmaker
+      const processedOdds = game.bookmakers.slice(0, 1).map(bookmaker => {
+        const bookmakerInfo = BOOKMAKER_MAP[bookmaker.key] || {
+          name: bookmaker.title,
+          logo: '🏪'
+        };
+
+        const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
+        if (!h2hMarket) return null;
+
+        const outcomes = h2hMarket.outcomes;
+        const homeOdd = outcomes.find(o => o.name === homeTeam)?.price?.toFixed(2) || 'N/A';
+        const awayOdd = outcomes.find(o => o.name === awayTeam)?.price?.toFixed(2) || 'N/A';
+        
+        // Para esportes com empate
+        let drawOdd = 'N/A';
+        if (league.sportInfo.hasDraws) {
+          const drawOutcome = outcomes.find(o => o.name === 'Draw');
+          drawOdd = drawOutcome?.price?.toFixed(2) || 'N/A';
+        }
+
+        return {
+          bookmaker: bookmakerInfo.name,
+          logo: bookmakerInfo.logo,
+          home: homeOdd,
+          draw: league.sportInfo.hasDraws ? drawOdd : '-',
+          away: awayOdd
+        };
+      }).filter(Boolean);
+
+      return {
+        time: timeString,
+        date: dateString, // Formatado como "12 set"
+        homeTeam: homeTeam,
+        awayTeam: awayTeam,
+        homeIcon: getTeamIcon(homeTeam),
+        awayIcon: getTeamIcon(awayTeam),
+        status: gameTime > new Date() ? 'upcoming' : 'live',
+        odds: processedOdds,
+        hasDraws: league.sportInfo.hasDraws
+      };
+    })
+  }));
+}
+
+
+      // Função para gerar ícones de times
+      function getTeamIcon(teamName) {
+        const iconMap = {
+          // Futebol
+          'Manchester City': '💙', 'Arsenal': '🔴', 'Liverpool': '🔴', 'Chelsea': '🔵',
+          'Manchester United': '🔴', 'Tottenham': '⚪', 'Newcastle': '⚫',
+          'Barcelona': '🔴', 'Real Madrid': '⚪', 'Atletico Madrid': '🔴',
+          'Bayern Munich': '🔴', 'Borussia Dortmund': '💛', 
+          'Juventus': '⚫', 'AC Milan': '🔴', 'Inter Milan': '🔵',
+          'PSG': '🔵', 'Lyon': '🔵', 'Marseille': '💙',
+          'Flamengo': '🔴', 'Palmeiras': '🟢', 'São Paulo': '⚫', 'Corinthians': '⚫',
+          
+          // Basquete
+          'Lakers': '💜', 'Warriors': '💙', 'Celtics': '🟢', 'Heat': '🔴',
+          'Bulls': '🔴', 'Knicks': '🔵', 'Nets': '⚫',
+          
+          // Tennis
+          'Djokovic': '🎾', 'Nadal': '🎾', 'Federer': '🎾'
+        };
+        
+        return iconMap[teamName] || '⚽';
+      }
+
+      // Função para gerar dados simulados (fallback)
+      function generateMockGamesData() {
         return [
           {
             league: "Premier League",
@@ -672,6 +708,7 @@
                 homeIcon: "💙",
                 awayIcon: "🔴",
                 status: "upcoming",
+                hasDraws: true,
                 odds: [
                   {
                     bookmaker: "Bet365",
@@ -686,47 +723,9 @@
                     home: "1.88",
                     draw: "3.55",
                     away: "4.15",
-                  },
-                  {
-                    bookmaker: "SuperBet",
-                    logo: "💎",
-                    home: "1.82",
-                    draw: "3.65",
-                    away: "4.25",
-                  },
+                  }
                 ],
-              },
-              {
-                time: "19:00",
-                homeTeam: "Liverpool",
-                awayTeam: "Chelsea",
-                homeIcon: "🔴",
-                awayIcon: "🔵",
-                status: "upcoming",
-                odds: [
-                  {
-                    bookmaker: "Bet365",
-                    logo: "🎯",
-                    home: "2.10",
-                    draw: "3.40",
-                    away: "3.50",
-                  },
-                  {
-                    bookmaker: "Betano",
-                    logo: "🔥",
-                    home: "2.08",
-                    draw: "3.45",
-                    away: "3.55",
-                  },
-                  {
-                    bookmaker: "SuperBet",
-                    logo: "💎",
-                    home: "2.12",
-                    draw: "3.38",
-                    away: "3.48",
-                  },
-                ],
-              },
+              }
             ],
           },
           {
@@ -740,6 +739,7 @@
                 homeIcon: "💜",
                 awayIcon: "💙",
                 status: "upcoming",
+                hasDraws: false,
                 odds: [
                   {
                     bookmaker: "Bet365",
@@ -747,108 +747,36 @@
                     home: "1.95",
                     draw: "-",
                     away: "1.85",
-                  },
-                  {
-                    bookmaker: "Betano",
-                    logo: "🔥",
-                    home: "1.98",
-                    draw: "-",
-                    away: "1.82",
-                  },
-                  {
-                    bookmaker: "SuperBet",
-                    logo: "💎",
-                    home: "1.92",
-                    draw: "-",
-                    away: "1.88",
-                  },
+                  }
                 ],
-              },
+              }
             ],
-          },
-          {
-            league: "Champions League",
-            icon: "🏆",
-            games: [
-              {
-                time: "17:45",
-                homeTeam: "Barcelona",
-                awayTeam: "PSG",
-                homeIcon: "🔴",
-                awayIcon: "🔵",
-                status: "upcoming",
-                odds: [
-                  {
-                    bookmaker: "Bet365",
-                    logo: "🎯",
-                    home: "2.25",
-                    draw: "3.20",
-                    away: "3.10",
-                  },
-                  {
-                    bookmaker: "Betano",
-                    logo: "🔥",
-                    home: "2.28",
-                    draw: "3.15",
-                    away: "3.08",
-                  },
-                  {
-                    bookmaker: "SuperBet",
-                    logo: "💎",
-                    home: "2.22",
-                    draw: "3.25",
-                    away: "3.12",
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            league: "Brasileirão",
-            icon: "🇧🇷",
-            games: [
-              {
-                time: "20:00",
-                homeTeam: "Flamengo",
-                awayTeam: "Palmeiras",
-                homeIcon: "🔴",
-                awayIcon: "🟢",
-                status: "live",
-                odds: [
-                  {
-                    bookmaker: "Bet365",
-                    logo: "🎯",
-                    home: "2.40",
-                    draw: "3.10",
-                    away: "2.95",
-                  },
-                  {
-                    bookmaker: "Betano",
-                    logo: "🔥",
-                    home: "2.38",
-                    draw: "3.15",
-                    away: "2.98",
-                  },
-                  {
-                    bookmaker: "SuperBet",
-                    logo: "💎",
-                    home: "2.42",
-                    draw: "3.08",
-                    away: "2.92",
-                  },
-                ],
-              },
-            ],
-          },
+          }
         ];
       }
 
       // Função para exibir os jogos na tela
       function displayGames(leagues) {
         const container = document.getElementById("games-container");
+        
+        if (leagues.length === 0) {
+          container.innerHTML = `
+            <div class="no-games">
+              <div class="no-games-icon">😴</div>
+              <p>Nenhum jogo disponível no momento</p>
+              <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                Tente atualizar mais tarde ou verifique outros esportes
+              </p>
+            </div>
+          `;
+          return;
+        }
+
         container.innerHTML = "";
 
         leagues.forEach((league) => {
+          if (league.games.length === 0) return;
+
           const section = document.createElement("div");
           section.className = "games-section";
 
@@ -867,105 +795,104 @@
       }
 
       // Função para criar card de jogo individual
-      function createGameCard(game) {
-        const isNBA = game.odds[0].draw === "-"; // NBA não tem empate
+    function createGameCard(game) {
+  const hasDraws = game.hasDraws !== false;
 
-        return `
-          <div class="game-card">
-            <div class="game-header">
-              <div class="game-time">${game.time}</div>
-              <div class="game-status status-${game.status}">
-                ${
-                  game.status === "upcoming"
-                    ? "Próximo"
-                    : game.status === "live"
-                    ? "🔴 Ao Vivo"
-                    : "Finalizado"
-                }
+  if (game.odds.length === 0) {
+    return `
+      <div class="game-card">
+        <div class="game-header">
+          <div class="game-time">${game.time}</div>
+          <div class="game-status status-${game.status}">
+            ${game.status === "upcoming" ? "Em breve" : "🔴 Ao Vivo"}
+          </div>
+        </div>
+        
+        <div class="teams-container">
+          <div class="team">
+            <div class="team-logo">${game.homeIcon}</div>
+            <span>${game.homeTeam}</span>
+          </div>
+          <div class="vs-divider">VS</div>
+          <div class="team">
+            <span>${game.awayTeam}</span>
+            <div class="team-logo">${game.awayIcon}</div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; color: #666; padding: 20px;">
+          Odds indisponíveis
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="game-card">
+      <div class="game-header">
+        <div>
+          <div class="game-time">${game.time}</div>
+          <div style="font-size: 0.8rem; color: #666;">${game.date || ''}</div>
+        </div>
+        <div class="game-status status-${game.status}">
+          ${game.status === "upcoming" ? "Próximo" : "🔴 Ao Vivo"}
+        </div>
+      </div>
+      
+      <div class="teams-container">
+        <div class="team">
+          <div class="team-logo">${game.homeIcon}</div>
+          <span>${game.homeTeam}</span>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="team">
+          <span>${game.awayTeam}</span>
+          <div class="team-logo">${game.awayIcon}</div>
+        </div>
+      </div>
+      
+      <div class="odds-container">
+        ${game.odds.map(bookmaker => `
+          <div class="bookmaker">
+            <div class="odds-grid" style="grid-template-columns: ${hasDraws ? '1fr 1fr 1fr' : '1fr 1fr'};">
+              <div class="odd-button" onclick="selectOdd(this, '${game.homeTeam}', '${bookmaker.home}')">
+                <div class="odd-label">${game.homeTeam.split(' ')[0]}</div>
+                <div class="odd-value">${bookmaker.home}</div>
               </div>
-            </div>
-            
-            <div class="teams-container">
-              <div class="team">
-                <div class="team-logo">${game.homeIcon}</div>
-                <span>${game.homeTeam}</span>
-              </div>
-              <div class="vs-divider">VS</div>
-              <div class="team">
-                <span>${game.awayTeam}</span>
-                <div class="team-logo">${game.awayIcon}</div>
-              </div>
-            </div>
-            
-            <div class="odds-container">
-              ${game.odds
-                .map(
-                  (bookmaker) => `
-                <div class="bookmaker">
-                  <div class="bookmaker-header">
-                    <span class="bookmaker-name">${bookmaker.bookmaker}</span>
-                    <span class="bookmaker-logo">${bookmaker.logo}</span>
-                  </div>
-                  <div class="odds-grid" style="grid-template-columns: ${
-                    isNBA ? "1fr 1fr" : "1fr 1fr 1fr"
-                  };">
-                    <div class="odd-button" onclick="selectOdd(this, '${
-                      game.homeTeam
-                    }', '${bookmaker.home}')">
-                      <div class="odd-label">${
-                        game.homeTeam.split(" ")[0]
-                      }</div>
-                      <div class="odd-value">${bookmaker.home}</div>
-                    </div>
-                    ${
-                      !isNBA
-                        ? `
-                      <div class="odd-button" onclick="selectOdd(this, 'Empate', '${bookmaker.draw}')">
-                        <div class="odd-label">Empate</div>
-                        <div class="odd-value">${bookmaker.draw}</div>
-                      </div>
-                    `
-                        : ""
-                    }
-                    <div class="odd-button" onclick="selectOdd(this, '${
-                      game.awayTeam
-                    }', '${bookmaker.away}')">
-                      <div class="odd-label">${
-                        game.awayTeam.split(" ")[0]
-                      }</div>
-                      <div class="odd-value">${bookmaker.away}</div>
-                    </div>
-                  </div>
+              ${hasDraws ? `
+                <div class="odd-button" onclick="selectOdd(this, 'Empate', '${bookmaker.draw}')">
+                  <div class="odd-label">Empate</div>
+                  <div class="odd-value">${bookmaker.draw}</div>
                 </div>
-              `
-                )
-                .join("")}
+              ` : ''}
+              <div class="odd-button" onclick="selectOdd(this, '${game.awayTeam}', '${bookmaker.away}')">
+                <div class="odd-label">${game.awayTeam.split(' ')[0]}</div>
+                <div class="odd-value">${bookmaker.away}</div>
+              </div>
             </div>
           </div>
-        `;
-      }
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
 
       // Função para selecionar uma odd
       function selectOdd(element, team, odd) {
-        // Remover seleção anterior no mesmo jogo
+        if (odd === 'N/A') return;
+
         const gameCard = element.closest(".game-card");
         gameCard.querySelectorAll(".odd-button").forEach((btn) => {
           btn.classList.remove("selected");
         });
 
-        // Aplicar seleção atual
         element.classList.add("selected");
 
-        // Feedback visual
         element.style.transform = "scale(0.95)";
         setTimeout(() => {
           element.style.transform = "";
         }, 150);
 
-        // Aqui você pode adicionar lógica para salvar a seleção
-        console.log(`Selecionado: ${team} - Odd: ${odd}`);
-
-        // Mostrar notificação (opcional)
         showNotification(`${team} selecionado com odd ${odd}`);
       }
 
@@ -996,13 +923,15 @@
         setTimeout(() => {
           notification.style.transform = "translateX(400px)";
           setTimeout(() => {
-            document.body.removeChild(notification);
+            if (document.body.contains(notification)) {
+              document.body.removeChild(notification);
+            }
           }, 300);
         }, 3000);
       }
 
       // Função para mostrar status da API
-      function showApiStatus(isUsingRealData) {
+      function showApiStatus(isUsingRealData, message = '') {
         const statusDiv = document.getElementById("api-status");
         statusDiv.style.display = "block";
 
@@ -1012,57 +941,664 @@
           statusDiv.style.color = "#38a169";
           statusDiv.style.border = "1px solid #68d391";
         } else {
-          statusDiv.innerHTML = "⚠️ Usando dados simulados (API indisponível)";
+          statusDiv.innerHTML = `⚠️ ${message || 'Usando dados simulados (API indisponível)'}`;
           statusDiv.style.background = "#fffaf0";
           statusDiv.style.color = "#d69e2e";
           statusDiv.style.border = "1px solid #f6e05e";
         }
 
-        statusDiv.style.padding = "12px";
-        statusDiv.style.borderRadius = "8px";
-        statusDiv.style.fontWeight = "600";
-        statusDiv.style.textAlign = "center";
-        statusDiv.style.marginBottom = "20px";
-
-        // Esconder após 5 segundos
         setTimeout(() => {
           statusDiv.style.display = "none";
-        }, 5000);
+        }, 8000);
       }
 
-      // Função principal para carregar jogos com status
+      // Função para atualizar botão de refresh
+      function updateRefreshButton(loading) {
+        const btn = document.getElementById('refreshBtn');
+        if (loading) {
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Atualizando...';
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = '🔄 Atualizar Odds';
+        }
+      }
+
+      // Função principal para carregar jogos
       async function loadTodaysGamesWithStatus() {
         const container = document.getElementById("games-container");
         container.innerHTML = `
           <div class="loading-spinner">
             <div class="spinner"></div>
-            Carregando jogos do dia...
+            Buscando jogos da API The Odds...
           </div>
         `;
 
         try {
-          // Tenta buscar dados reais primeiro
           const realGames = await fetchRealOdds();
-          displayGames(realGames);
+          const processedGames = processApiData(realGames);
+          displayGames(processedGames);
           showApiStatus(true);
         } catch (error) {
           console.error("Erro ao carregar odds da API:", error);
-          // Se falhar, usa dados simulados
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula tempo de carregamento
+          
+          // Mostrar erro específico se possível
+          let errorMessage = 'API indisponível - usando dados simulados';
+          if (error.message.includes('429')) {
+            errorMessage = 'Limite de requisições atingido - usando dados simulados';
+          } else if (error.message.includes('401')) {
+            errorMessage = 'Chave da API inválida - usando dados simulados';
+          } else if (error.message.includes('403')) {
+            errorMessage = 'Acesso negado à API - usando dados simulados';
+          }
+          
+          // Fallback para dados simulados
           const mockGames = generateMockGamesData();
           displayGames(mockGames);
-          showApiStatus(false);
+          showApiStatus(false, errorMessage);
         }
       }
 
       // Função para atualizar as odds
       function refreshOdds() {
+        if (isLoading) return;
         loadTodaysGamesWithStatus();
       }
+
+
+      // Variável global para armazenar a data selecionada
+let selectedDate = new Date();
+
+// Função para criar o filtro de data
+function createDateFilter() {
+  return `
+    <div class="date-filter-container">
+      <div class="date-tabs">
+        <button class="date-tab ${isToday() ? 'active' : ''}" onclick="selectDate('today')">
+          <div class="date-number">${new Date().getDate()}</div>
+          <div class="date-label">Hoje</div>
+        </button>
+        <button class="date-tab ${isTomorrow() ? 'active' : ''}" onclick="selectDate('tomorrow')">
+          <div class="date-number">${new Date(Date.now() + 86400000).getDate()}</div>
+          <div class="date-label">Amanhã</div>
+        </button>
+        <button class="date-tab" onclick="selectDate('day_after')">
+          <div class="date-number">${new Date(Date.now() + 2*86400000).getDate()}</div>
+          <div class="date-label">${getDayName(2)}</div>
+        </button>
+        <button class="date-tab" onclick="selectDate('custom')" id="custom-date-btn">
+          <div class="date-icon">📅</div>
+          <div class="date-label">Mais</div>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Função para verificar se é hoje
+function isToday() {
+  const today = new Date();
+  return selectedDate.toDateString() === today.toDateString();
+}
+
+// Função para verificar se é amanhã
+function isTomorrow() {
+  const tomorrow = new Date(Date.now() + 86400000);
+  return selectedDate.toDateString() === tomorrow.toDateString();
+}
+
+// Função para obter nome do dia
+function getDayName(daysFromNow) {
+  const date = new Date(Date.now() + daysFromNow * 86400000);
+  const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  return days[date.getDay()];
+}
+
+// Função para selecionar data
+function selectDate(dateType) {
+  const tabs = document.querySelectorAll('.date-tab');
+  tabs.forEach(tab => tab.classList.remove('active'));
+  
+  let newDate;
+  
+  switch(dateType) {
+    case 'today':
+      newDate = new Date();
+      break;
+    case 'tomorrow':
+      newDate = new Date(Date.now() + 86400000);
+      break;
+    case 'day_after':
+      newDate = new Date(Date.now() + 2*86400000);
+      break;
+    case 'custom':
+      showDatePicker();
+      return;
+  }
+  
+  selectedDate = newDate;
+  
+  // Atualizar visual do tab ativo
+  event.target.closest('.date-tab').classList.add('active');
+  
+  // Recarregar jogos para a data selecionada
+  filterGamesByDate();
+  
+  // Mostrar notificação da data selecionada
+  const dateStr = newDate.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short'
+  });
+  showNotification(`Jogos para ${dateStr} selecionados`);
+}
+
+// Função para mostrar seletor de data personalizado
+function showDatePicker() {
+  // Remover modal existente se houver
+  const existingModal = document.getElementById('date-picker-modal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'date-picker-modal';
+  modal.innerHTML = `
+    <div class="modal-overlay" onclick="closeDatePicker()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Selecionar Data</h3>
+          <button class="close-btn" onclick="closeDatePicker()">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="date" id="date-input" />
+          <div class="quick-dates">
+            <button onclick="selectQuickDate(0)">Hoje</button>
+            <button onclick="selectQuickDate(1)">Amanhã</button>
+            <button onclick="selectQuickDate(2)">Depois de Amanhã</button>
+            <button onclick="selectQuickDate(7)">Próxima Semana</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" onclick="closeDatePicker()">Cancelar</button>
+          <button class="btn-confirm" onclick="confirmDateSelection()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Adicionar estilos do modal
+  const modalStyles = `
+    <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
+      max-height: 80vh;
+      overflow: hidden;
+      animation: slideIn 0.3s ease;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: #f1f5f9;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    #date-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    #date-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .quick-dates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .quick-dates button {
+      padding: 10px 15px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .quick-dates button:hover {
+      background: #f8fafc;
+      border-color: #3b82f6;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel, .btn-confirm {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-cancel:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-confirm {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background: #2563eb;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    </style>
+  `;
+
+  document.head.insertAdjacentHTML('beforeend', modalStyles);
+  document.body.appendChild(modal);
+
+  // Configurar o input de data
+  const dateInput = document.getElementById('date-input');
+  const today = new Date();
+  const maxDate = new Date(today.getTime() + 30*24*60*60*1000);
+  
+  dateInput.min = today.toISOString().split('T')[0];
+  dateInput.max = maxDate.toISOString().split('T')[0];
+  dateInput.value = selectedDate.toISOString().split('T')[0];
+  
+  // Focar no input
+  setTimeout(() => dateInput.focus(), 100);
+}
+
+// Função para fechar o modal
+function closeDatePicker() {
+  const modal = document.getElementById('date-picker-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Função para selecionar data rápida
+function selectQuickDate(daysFromNow) {
+  const date = new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000);
+  document.getElementById('date-input').value = date.toISOString().split('T')[0];
+}
+
+// Função para confirmar seleção de data
+function confirmDateSelection() {
+  const dateInput = document.getElementById('date-input');
+  if (dateInput.value) {
+    selectedDate = new Date(dateInput.value + 'T00:00:00');
+    updateCustomDateTab();
+    filterGamesByDate();
+    closeDatePicker();
+  }
+}
+
+// Função para atualizar o tab de data personalizada
+function updateCustomDateTab() {
+  const customBtn = document.getElementById('custom-date-btn');
+  const dateNumber = selectedDate.getDate();
+  const dayName = selectedDate.toLocaleDateString('pt-BR', { weekday: 'short' });
+  
+  customBtn.innerHTML = `
+    <div class="date-number">${dateNumber}</div>
+    <div class="date-label">${dayName}</div>
+  `;
+  
+  // Remover classe active de todos os tabs
+  document.querySelectorAll('.date-tab').forEach(tab => tab.classList.remove('active'));
+  customBtn.classList.add('active');
+}
+
+// Função para filtrar jogos por data
+function filterGamesByDate() {
+  // Esta função integrará com sua API existente
+  // Por now, vamos simular o comportamento
+  console.log('Filtrando jogos para:', selectedDate.toDateString());
+  
+  // Recarregar jogos com a nova data
+  loadGamesForDate(selectedDate);
+}
+
+// Função para carregar jogos para uma data específica
+async function loadGamesForDate(date) {
+  const container = document.getElementById("games-container");
+  container.innerHTML = `
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      Buscando jogos para ${date.toLocaleDateString('pt-BR')}...
+    </div>
+  `;
+
+  try {
+    // Aqui você integraria com sua API existente
+    // passando a data como parâmetro
+    const realGames = await fetchRealOddsForDate(date);
+    const processedGames = processApiData(realGames);
+    displayGames(processedGames);
+    
+    showFilterStatus(`Jogos de ${date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'short' 
+    })}`);
+  } catch (error) {
+    console.error("Erro ao carregar odds para a data:", error);
+    
+    // Fallback para dados simulados
+    const mockGames = generateMockGamesForDate(date);
+    displayGames(mockGames);
+    showFilterStatus(`Simulação - ${date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'short' 
+    })}`);
+  }
+}
+
+// Função para buscar odds para uma data específica (substitui fetchRealOdds)
+async function fetchRealOddsForDate(date) {
+  if (isLoading) return;
+  
+  try {
+    isLoading = true;
+    updateRefreshButton(true);
+
+    const sportsResponse = await fetch(
+      `${API_BASE_URL}/sports?apiKey=${API_KEY}`
+    );
+
+    if (!sportsResponse.ok) {
+      throw new Error(`Erro na API: ${sportsResponse.status}`);
+    }
+
+    const sports = await sportsResponse.json();
+    const availableSports = sports.filter(sport => 
+      SPORTS_MAP[sport.key] && sport.active
+    ).slice(0, 6);
+
+    if (availableSports.length === 0) {
+      throw new Error('Nenhum esporte disponível no momento');
+    }
+
+    const allGames = [];
+    const regions = 'us,uk,eu';
+    const markets = 'h2h';
+
+    for (const sport of availableSports) {
+      try {
+        const oddsResponse = await fetch(
+          `${API_BASE_URL}/sports/${sport.key}/odds?apiKey=${API_KEY}&regions=${regions}&markets=${markets}&oddsFormat=decimal&dateFormat=iso`
+        );
+
+        if (oddsResponse.ok) {
+          const oddsData = await oddsResponse.json();
+          
+          // Filtrar jogos pela data selecionada
+          const filteredGames = oddsData.filter(game => {
+            const gameDate = new Date(game.commence_time);
+            return gameDate.toDateString() === date.toDateString();
+          });
+          
+          if (filteredGames.length > 0) {
+            allGames.push({
+              sport: sport.key,
+              sportInfo: SPORTS_MAP[sport.key],
+              games: filteredGames
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`Erro ao buscar odds para ${sport.key}:`, error);
+      }
+    }
+
+    return allGames;
+
+  } catch (error) {
+    console.error('Erro ao buscar dados da API:', error);
+    throw error;
+  } finally {
+    isLoading = false;
+    updateRefreshButton(false);
+  }
+}
+
+// Função para mostrar status do filtro (substitui showApiStatus)
+function showFilterStatus(message) {
+  const statusDiv = document.getElementById("api-status");
+  if (!statusDiv) return;
+  
+  statusDiv.style.display = "block";
+  statusDiv.innerHTML = `📅 ${message}`;
+  statusDiv.style.background = "#f0f9ff";
+  statusDiv.style.color = "#0369a1";
+  statusDiv.style.border = "1px solid #7dd3fc";
+
+  setTimeout(() => {
+    statusDiv.style.display = "none";
+  }, 3000);
+}
+
+// Função para gerar dados mockados para uma data específica
+function generateMockGamesForDate(date) {
+  const dateStr = date.toLocaleDateString('pt-BR');
+  
+  return [
+    {
+      league: "Premier League",
+      icon: "🇬🇧",
+      games: [
+        {
+          time: "16:30",
+          date: `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleDateString('pt-BR', { month: 'short' })}`,
+          homeTeam: "Manchester City",
+          awayTeam: "Arsenal",
+          homeIcon: "💙",
+          awayIcon: "🔴",
+          status: "upcoming",
+          hasDraws: true,
+          odds: [
+            {
+              bookmaker: "Bet365",
+              logo: "🎯",
+              home: "1.85",
+              draw: "3.60",
+              away: "4.20",
+            }
+          ],
+        }
+      ],
+    }
+  ];
+}
+
+// CSS para o filtro de data
+const dateFilterCSS = `
+<style>
+.date-filter-container {
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.date-tabs {
+  display: flex;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.date-tab {
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  text-align: center;
+}
+
+.date-tab:hover {
+  background: #e2e8f0;
+}
+
+.date-tab.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.date-number {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.date-label {
+  font-size: 12px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.date-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .date-tabs {
+    gap: 4px;
+    padding: 4px;
+  }
+  
+  .date-tab {
+    padding: 8px 12px;
+    min-width: 50px;
+  }
+  
+  .date-number {
+    font-size: 16px;
+  }
+  
+  .date-label {
+    font-size: 10px;
+  }
+}
+</style>
+`;
+
+// Inicialização do filtro de data
+document.addEventListener("DOMContentLoaded", function () {
+  // Adicionar CSS
+  document.head.insertAdjacentHTML('beforeend', dateFilterCSS);
+  
+  // Substituir o elemento de status da API pelo filtro de data
+  const apiStatus = document.getElementById("api-status");
+  if (apiStatus) {
+    apiStatus.outerHTML = createDateFilter();
+  } else {
+    // Se não existir, criar antes do container de jogos
+    const gamesContainer = document.getElementById("games-container");
+    if (gamesContainer) {
+      gamesContainer.insertAdjacentHTML('beforebegin', createDateFilter());
+    }
+  }
+  
+  // Carregar jogos de hoje inicialmente
+  loadGamesForDate(selectedDate);
+});
 
       // Inicializar a aplicação
       document.addEventListener("DOMContentLoaded", function () {
         loadTodaysGamesWithStatus();
+        
+        // Auto-refresh a cada 5 minutos
+        setInterval(() => {
+          if (!isLoading) {
+            loadTodaysGamesWithStatus();
+          }
+        }, 300000); // 5 minutos
       });
     </script>
   </body>
