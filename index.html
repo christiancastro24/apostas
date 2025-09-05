@@ -1498,12 +1498,19 @@
         const row = button.closest("tr");
         const rowId = row.getAttribute("data-row-id");
 
+        // Remove dos dados da múltipla se existir
         if (rowId && multiplaData[rowId]) {
           delete multiplaData[rowId];
         }
 
+        // Remove a linha da tela
         row.remove();
+
+        // Atualiza as estatísticas
         updateStats();
+
+        // CORREÇÃO: Salva os dados atualizados no localStorage
+        saveBetsData();
       }
 
       function updateStats() {
