@@ -451,13 +451,13 @@ function updateStats() {
   // Definir classe e texto para assertividade baseado na performance
   const assertividadeElement = document.getElementById("changeAssertividade");
   if (assertividade >= 70) {
-    assertividadeElement.innerHTML = "↗ Excelente performance";
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change positive";
   } else if (assertividade >= 50) {
-    assertividadeElement.innerHTML = "→ Performance moderada";
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change";
   } else {
-    assertividadeElement.innerHTML = "↘ Precisa melhorar";
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change negative";
   }
 
