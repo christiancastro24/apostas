@@ -29,6 +29,39 @@ window.addEventListener("load", function () {
   updateStats();
 });
 
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+          color: white;
+          padding: 15px 20px;
+          border-radius: 10px;
+          font-weight: 600;
+          z-index: 1000;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+          transform: translateX(400px);
+          transition: transform 0.3s ease;
+        `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+
+  setTimeout(() => {
+    notification.style.transform = "translateX(400px)";
+    setTimeout(() => {
+      if (document.body.contains(notification)) {
+        document.body.removeChild(notification);
+      }
+    }, 300);
+  }, 3000);
+}
+
 function showMonth(month) {
   // Remove a classe active de todas as tabs
   document
@@ -399,6 +432,8 @@ function removeRow(button) {
 
   // CORREÇÃO: Salva os dados atualizados no localStorage
   saveBetsData();
+
+  showNotification("A Aposta foi Atualizada!");
 }
 
 function updateStats() {
@@ -543,6 +578,8 @@ function saveBetsData() {
 
     betsData[month] = monthData;
   });
+
+  showNotification("A Aposta foi Salva!");
 
   localStorage.setItem("betsData", JSON.stringify(betsData));
   localStorage.setItem("multiplaData", JSON.stringify(multiplaData));
