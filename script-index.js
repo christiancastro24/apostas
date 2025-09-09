@@ -54,8 +54,9 @@ function showMonth(month) {
 
 function addNewBet(month) {
   const tbody = document.getElementById(month + "-tbody");
-  const newRow = tbody.insertRow();
 
+  // Criar a nova linha
+  const newRow = document.createElement("tr");
   const rowId = `${month}-${Date.now()}-${Math.random()
     .toString(36)
     .substr(2, 9)}`;
@@ -109,12 +110,43 @@ function addNewBet(month) {
     </td>
   `;
 
+  // Inserir a nova linha e reorganizar por data
+  tbody.appendChild(newRow);
+  sortTableByDate(month); // Reorganizar após adicionar
+
+  // Adicionar event listener para reordenar quando a data for preenchida
+  const dateInput = newRow.querySelector(".cell-data input");
+  dateInput.addEventListener("change", function () {
+    sortTableByDate(month);
+    updateStats();
+  });
+
   const inputs = newRow.querySelectorAll("input, select");
   inputs.forEach((input) => {
     input.addEventListener("change", () => {
       updateStats();
     });
   });
+}
+
+// Função corrigida para reordenar a tabela (do menor para o maior)
+function sortTableByDate(month) {
+  const tbody = document.getElementById(month + "-tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  rows.sort((a, b) => {
+    const dateA = new Date(
+      a.querySelector(".cell-data input").value || "1970-01-01"
+    );
+    const dateB = new Date(
+      b.querySelector(".cell-data input").value || "1970-01-01"
+    );
+    return dateA - dateB; // Ordem crescente (mais antigo primeiro)
+  });
+
+  // Limpar tbody e readicionar as linhas ordenadas
+  tbody.innerHTML = "";
+  rows.forEach((row) => tbody.appendChild(row));
 }
 
 function handleTipoChange(select) {
@@ -529,7 +561,14 @@ function loadAllBets() {
     const monthData = betsData[month] || [];
     const tbody = document.getElementById(month + "-tbody");
 
-    monthData.forEach((bet) => {
+    // ORDENAR OS DADOS POR DATA (CRESCENTE - MAIS ANTIGO PRIMEIRO)
+    const sortedData = monthData.sort((a, b) => {
+      const dateA = new Date(a.data || "1970-01-01");
+      const dateB = new Date(b.data || "1970-01-01");
+      return dateA - dateB; // Ordem crescente (mais antigo primeiro)
+    });
+
+    sortedData.forEach((bet) => {
       const newRow = tbody.insertRow();
       const rowId =
         bet.rowId ||
