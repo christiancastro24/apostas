@@ -401,7 +401,7 @@ function calculateReturn(oddInput) {
   const odd = parseFloat(oddInput.value) || 0;
   const unidade =
     parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-  const returnValue = odd * unidade * 70;
+  const returnValue = odd * unidade * 50;
 
   row.querySelector(".cell-retorno .return-value").textContent =
     formatBRL(returnValue);
@@ -460,7 +460,7 @@ function updateStats() {
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
       const unidade =
         parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-      const apostado = unidade * 70;
+      const apostado = unidade * 50;
       let lucro = 0;
 
       // Verificar se a aposta é da última semana
@@ -468,7 +468,7 @@ function updateStats() {
       const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
 
       if (resultSelect.value === "green") {
-        lucro = odd * unidade * 70 - apostado;
+        lucro = odd * unidade * 50 - apostado;
         totalGreen++;
         if (isThisWeek) {
           weeklyGreen++;
@@ -503,7 +503,7 @@ function updateStats() {
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
   document.getElementById("currentBalance").textContent = formatBRL(
-    3500 + totalReturn
+    2500 + totalReturn
   );
 
   // Atualizar assertividade
