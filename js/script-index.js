@@ -14,6 +14,9 @@ let betsData = storedBets
 let storedMultipla = localStorage.getItem("multiplaData");
 let multiplaData = storedMultipla ? JSON.parse(storedMultipla) : {};
 
+// Variável para controlar qual mês está ativo
+let currentActiveMonth = "setembro";
+
 // Função para formatar números no padrão brasileiro
 function formatBRL(value) {
   return new Intl.NumberFormat("pt-BR", {
@@ -63,6 +66,9 @@ function showNotification(message) {
 }
 
 function showMonth(month) {
+  // Atualizar a variável do mês ativo
+  currentActiveMonth = month;
+
   // Remove a classe active de todas as tabs
   document
     .querySelectorAll(".tab")
@@ -83,6 +89,9 @@ function showMonth(month) {
   const selectedContent = document.getElementById(month);
   selectedContent.style.display = "block";
   selectedContent.classList.add("active");
+
+  // IMPORTANTE: Atualizar as estatísticas para o novo mês
+  updateStats();
 }
 
 function addNewBet(month) {
@@ -436,6 +445,7 @@ function removeRow(button) {
   showNotification("A Aposta foi Atualizada!");
 }
 
+// FUNÇÃO CORRIGIDA - Agora calcula apenas para o mês ativo
 function updateStats() {
   let totalGreen = 0,
     totalRed = 0,
@@ -446,51 +456,49 @@ function updateStats() {
     weeklyCash = 0,
     weeklyReturn = 0;
 
-  const months = ["setembro", "outubro", "novembro", "dezembro"];
+  // IMPORTANTE: Agora usa apenas o mês atual ao invés de todos
+  const tbody = document.getElementById(currentActiveMonth + "-tbody");
+  const rows = tbody.querySelectorAll("tr");
+
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  months.forEach((month) => {
-    const tbody = document.getElementById(month + "-tbody");
-    const rows = tbody.querySelectorAll("tr");
+  rows.forEach((row) => {
+    const resultSelect = row.querySelector(".cell-resultado select");
+    const dateInput = row.querySelector(".cell-data input");
+    const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
+    const unidade =
+      parseFloat(row.querySelector(".cell-unidade input").value) || 0;
+    const apostado = unidade * 50;
+    let lucro = 0;
 
-    rows.forEach((row) => {
-      const resultSelect = row.querySelector(".cell-resultado select");
-      const dateInput = row.querySelector(".cell-data input");
-      const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
-      const unidade =
-        parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-      const apostado = unidade * 50;
-      let lucro = 0;
+    // Verificar se a aposta é da última semana
+    const betDate = new Date(dateInput.value);
+    const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
 
-      // Verificar se a aposta é da última semana
-      const betDate = new Date(dateInput.value);
-      const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
-
-      if (resultSelect.value === "green") {
-        lucro = odd * unidade * 50 - apostado;
-        totalGreen++;
-        if (isThisWeek) {
-          weeklyGreen++;
-          weeklyReturn += lucro;
-        }
-      } else if (resultSelect.value === "red") {
-        lucro = -apostado;
-        totalRed++;
-        if (isThisWeek) {
-          weeklyRed++;
-          weeklyReturn += lucro;
-        }
-      } else if (resultSelect.value === "cash") {
-        lucro = 0;
-        totalCash++;
-        if (isThisWeek) {
-          weeklyCash++;
-        }
+    if (resultSelect.value === "green") {
+      lucro = odd * unidade * 50 - apostado;
+      totalGreen++;
+      if (isThisWeek) {
+        weeklyGreen++;
+        weeklyReturn += lucro;
       }
+    } else if (resultSelect.value === "red") {
+      lucro = -apostado;
+      totalRed++;
+      if (isThisWeek) {
+        weeklyRed++;
+        weeklyReturn += lucro;
+      }
+    } else if (resultSelect.value === "cash") {
+      lucro = 0;
+      totalCash++;
+      if (isThisWeek) {
+        weeklyCash++;
+      }
+    }
 
-      totalReturn += lucro;
-    });
+    totalReturn += lucro;
   });
 
   // Calcular assertividade
@@ -518,13 +526,13 @@ function updateStats() {
   // Definir classe e texto para assertividade baseado na performance
   const assertividadeElement = document.getElementById("changeAssertividade");
   if (assertividade >= 70) {
-    assertividadeElement.innerHTML = "";
+    assertividadeElement.innerHTML = `🎯 Excelente performance no ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change positive";
   } else if (assertividade >= 50) {
-    assertividadeElement.innerHTML = "";
+    assertividadeElement.innerHTML = `📊 Performance regular no ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change";
   } else {
-    assertividadeElement.innerHTML = "";
+    assertividadeElement.innerHTML = `⚠️ Precisa melhorar no ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change negative";
   }
 
