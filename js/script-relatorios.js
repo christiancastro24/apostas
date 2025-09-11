@@ -630,16 +630,16 @@ function updateDetailedTable() {
       const odd = parseFloat(bet.odd) || 1;
       let profit = 0;
       let roi = 0;
-      let labelLucroOuPrejuizo = ""; // NOVA VARIÁVEL
+      let labelLucroOuPrejuizo = "";
 
       if (bet.resultado === "green") {
         profit = odd * stake - stake;
         roi = ((profit / stake) * 100).toFixed(1);
-        labelLucroOuPrejuizo = "Lucro"; // PARA GREEN
+        labelLucroOuPrejuizo = "Lucro";
       } else if (bet.resultado === "red") {
         profit = -stake;
         roi = -100;
-        labelLucroOuPrejuizo = "Prejuízo"; // PARA RED
+        labelLucroOuPrejuizo = "Prejuízo";
       }
 
       const sportIcons = {
@@ -651,7 +651,6 @@ function updateDetailedTable() {
         esports: "🎮",
       };
 
-      // Melhora a descrição do evento
       let eventoDescricao = bet.evento || "";
       if (!eventoDescricao.trim()) {
         if (bet.tipo === "multipla") {
@@ -665,9 +664,16 @@ function updateDetailedTable() {
         }
       }
 
+      // CORREÇÃO SIMPLES: Substituir apenas esta linha
+      const dataFormatada = bet.data
+        .split("T")[0]
+        .split("-")
+        .reverse()
+        .join("/");
+
       return `
             <tr>
-              <td>${new Date(bet.data).toLocaleDateString("pt-BR")}</td>
+              <td>${dataFormatada}</td>
               <td>
                 <span class="sport-icon">${
                   sportIcons[bet.esporte] || "🏆"
