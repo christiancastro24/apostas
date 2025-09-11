@@ -658,8 +658,6 @@ function updateDetailedTable() {
                 ${bet.esporte.charAt(0).toUpperCase() + bet.esporte.slice(1)}
               </td>
               <td>${bet.evento || "N/A"}</td>
-              <td>${bet.metodo || "N/A"}</td>
-              <td>${bet.confianca}</td>
               <td>${parseFloat(bet.odd).toFixed(2)}</td>
               <td>R$ ${stake.toFixed(2)}</td>
               <td>
