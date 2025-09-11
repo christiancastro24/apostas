@@ -445,23 +445,17 @@ function removeRow(button) {
   showNotification("A Aposta foi Atualizada!");
 }
 
-// FUNÇÃO CORRIGIDA - Agora calcula apenas para o mês ativo
+// FUNÇÃO CORRIGIDA - Calcula stats do mês ativo + saldo total geral
 function updateStats() {
-  let totalGreen = 0,
-    totalRed = 0,
-    totalCash = 0,
-    totalReturn = 0;
-  let weeklyGreen = 0,
-    weeklyRed = 0,
-    weeklyCash = 0,
-    weeklyReturn = 0;
+  // === STATS DO MÊS ATIVO (para cards superiores) ===
+  let monthlyGreen = 0,
+    monthlyRed = 0,
+    monthlyCash = 0,
+    monthlyReturn = 0;
 
-  // IMPORTANTE: Agora usa apenas o mês atual ao invés de todos
+  // IMPORTANTE: Usa apenas o mês atual para Green/Red/Assertividade
   const tbody = document.getElementById(currentActiveMonth + "-tbody");
   const rows = tbody.querySelectorAll("tr");
-
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   rows.forEach((row) => {
     const resultSelect = row.querySelector(".cell-resultado select");
@@ -472,80 +466,93 @@ function updateStats() {
     const apostado = unidade * 50;
     let lucro = 0;
 
-    // Verificar se a aposta é da última semana
-    const betDate = new Date(dateInput.value);
-    const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
-
     if (resultSelect.value === "green") {
       lucro = odd * unidade * 50 - apostado;
-      totalGreen++;
-      if (isThisWeek) {
-        weeklyGreen++;
-        weeklyReturn += lucro;
-      }
+      monthlyGreen++;
     } else if (resultSelect.value === "red") {
       lucro = -apostado;
-      totalRed++;
-      if (isThisWeek) {
-        weeklyRed++;
-        weeklyReturn += lucro;
-      }
+      monthlyRed++;
     } else if (resultSelect.value === "cash") {
       lucro = 0;
-      totalCash++;
-      if (isThisWeek) {
-        weeklyCash++;
-      }
+      monthlyCash++;
     }
 
-    totalReturn += lucro;
+    monthlyReturn += lucro;
   });
 
-  // Calcular assertividade
-  const totalBets = totalGreen + totalRed + totalCash;
+  // === SALDO TOTAL GERAL (para informações da banca) ===
+  let totalGlobalReturn = 0;
+  const allMonths = ["setembro", "outubro", "novembro", "dezembro"];
+
+  allMonths.forEach((month) => {
+    const monthTbody = document.getElementById(month + "-tbody");
+    const monthRows = monthTbody.querySelectorAll("tr");
+
+    monthRows.forEach((row) => {
+      const resultSelect = row.querySelector(".cell-resultado select");
+      const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
+      const unidade =
+        parseFloat(row.querySelector(".cell-unidade input").value) || 0;
+      const apostado = unidade * 50;
+      let lucro = 0;
+
+      if (resultSelect.value === "green") {
+        lucro = odd * unidade * 50 - apostado;
+      } else if (resultSelect.value === "red") {
+        lucro = -apostado;
+      } else if (resultSelect.value === "cash") {
+        lucro = 0;
+      }
+
+      totalGlobalReturn += lucro;
+    });
+  });
+
+  // === CALCULAR ASSERTIVIDADE DO MÊS ===
+  const totalBets = monthlyGreen + monthlyRed + monthlyCash;
   const assertividade =
-    totalBets > 0 ? ((totalGreen / totalBets) * 100).toFixed(1) : 0;
+    totalBets > 0 ? ((monthlyGreen / totalBets) * 100).toFixed(1) : 0;
 
-  // Atualizar valores principais
-  document.getElementById("totalGreen").textContent = totalGreen;
-  document.getElementById("totalRed").textContent = totalRed;
-  document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
-  document.getElementById("currentBalance").textContent = formatBRL(
-    2500 + totalReturn
-  );
-
-  // Atualizar assertividade
+  // === ATUALIZAR CARDS SUPERIORES (dados do mês) ===
+  document.getElementById("totalGreen").textContent = monthlyGreen;
+  document.getElementById("totalRed").textContent = monthlyRed;
+  document.getElementById("totalReturn").textContent = formatBRL(monthlyReturn);
   document.getElementById("assertividade").textContent = assertividade + "%";
 
-  // Atualizar estatísticas semanais
+  // === ATUALIZAR SALDO ATUAL (dados globais) ===
+  document.getElementById("currentBalance").textContent = formatBRL(
+    2500 + totalGlobalReturn
+  );
+
+  // === ATUALIZAR ESTATÍSTICAS MENSAIS ===
   document.getElementById(
     "changeGreen"
-  ).innerHTML = `↗ ${weeklyGreen} esta semana`;
-  document.getElementById("changeRed").innerHTML = `↘ ${weeklyRed} esta semana`;
+  ).innerHTML = `↗ ${monthlyGreen} este mês`;
+  document.getElementById("changeRed").innerHTML = `↘ ${monthlyRed} este mês`;
 
-  // Definir classe e texto para assertividade baseado na performance
+  // === FEEDBACK DA ASSERTIVIDADE ===
   const assertividadeElement = document.getElementById("changeAssertividade");
   if (assertividade >= 70) {
-    assertividadeElement.innerHTML = `🎯 Excelente performance no ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = `🎯 Excelente performance em ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change positive";
   } else if (assertividade >= 50) {
-    assertividadeElement.innerHTML = `📊 Performance regular no ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = `📊 Performance regular em ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change";
   } else {
-    assertividadeElement.innerHTML = `⚠️ Precisa melhorar no ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = `⚠️ Precisa melhorar em ${currentActiveMonth}`;
     assertividadeElement.className = "stat-change negative";
   }
 
-  // Calcular variação semanal do retorno
+  // === VARIAÇÃO DO RETORNO MENSAL ===
   const changeReturnElement = document.getElementById("changeReturn");
-  if (weeklyReturn > 0) {
-    changeReturnElement.innerHTML = `↗ +${formatBRL(weeklyReturn)} esta semana`;
+  if (monthlyReturn > 0) {
+    changeReturnElement.innerHTML = `↗ +${formatBRL(monthlyReturn)} este mês`;
     changeReturnElement.className = "stat-change positive";
-  } else if (weeklyReturn < 0) {
-    changeReturnElement.innerHTML = `↘ ${formatBRL(weeklyReturn)} esta semana`;
+  } else if (monthlyReturn < 0) {
+    changeReturnElement.innerHTML = `↘ ${formatBRL(monthlyReturn)} este mês`;
     changeReturnElement.className = "stat-change negative";
   } else {
-    changeReturnElement.innerHTML = "→ Sem alteração esta semana";
+    changeReturnElement.innerHTML = "→ Sem alteração este mês";
     changeReturnElement.className = "stat-change";
   }
 }
