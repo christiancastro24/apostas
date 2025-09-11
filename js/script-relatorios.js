@@ -630,13 +630,16 @@ function updateDetailedTable() {
       const odd = parseFloat(bet.odd) || 1;
       let profit = 0;
       let roi = 0;
+      let labelLucroOuPrejuizo = ""; // NOVA VARIÁVEL
 
       if (bet.resultado === "green") {
         profit = odd * stake - stake;
         roi = ((profit / stake) * 100).toFixed(1);
+        labelLucroOuPrejuizo = "Lucro"; // PARA GREEN
       } else if (bet.resultado === "red") {
         profit = -stake;
         roi = -100;
+        labelLucroOuPrejuizo = "Prejuízo"; // PARA RED
       }
 
       const sportIcons = {
@@ -682,7 +685,8 @@ function updateDetailedTable() {
               <td style="color: ${
                 profit >= 0 ? "#38a169" : "#e53e3e"
               }; font-weight: 600;">
-                R$ ${profit.toFixed(2)}
+                <span style="font-size: 11px; opacity: 0.7;">${labelLucroOuPrejuizo}:</span><br>
+                R$ ${Math.abs(profit).toFixed(2)}
               </td>
             </tr>
           `;
