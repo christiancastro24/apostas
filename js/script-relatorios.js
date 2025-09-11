@@ -745,3 +745,689 @@ document.querySelector(".filters-section").insertAdjacentHTML(
         </div>
       `
 );
+
+// ==================== 1. CONFETTI QUANDO BATE 1000 REAIS ====================
+function checkLucroMilestone() {
+  const lucroAtual = calculateTotalProfit();
+  const lucroAnterior = localStorage.getItem("ultimoLucroMilestone") || 0;
+
+  const milestoneAtual = Math.floor(lucroAtual / 1000);
+  const milestoneAnterior = Math.floor(lucroAnterior / 1000);
+
+  if (milestoneAtual > milestoneAnterior && lucroAtual > 0) {
+    triggerConfetti();
+    showMilestoneMessage(milestoneAtual * 1000);
+  }
+
+  localStorage.setItem("ultimoLucroMilestone", lucroAtual);
+}
+
+function triggerConfetti() {
+  // Criar confetti usando CSS/JS puro
+  for (let i = 0; i < 50; i++) {
+    createConfettiPiece();
+  }
+}
+
+function createConfettiPiece() {
+  const confetti = document.createElement("div");
+  confetti.style.cssText = `
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: ${
+      ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57"][
+        Math.floor(Math.random() * 5)
+      ]
+    };
+    left: ${Math.random() * 100}vw;
+    top: -10px;
+    z-index: 10000;
+    pointer-events: none;
+    border-radius: 50%;
+    animation: confetti-fall ${2 + Math.random() * 3}s ease-out forwards;
+  `;
+
+  document.body.appendChild(confetti);
+
+  setTimeout(() => confetti.remove(), 5000);
+}
+
+// CSS para animação do confetti (adicionar ao <style>)
+const confettiCSS = `
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateZ(720deg);
+    opacity: 0;
+  }
+}
+`;
+
+function showMilestoneMessage(valor) {
+  const toast = document.createElement("div");
+  toast.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      z-index: 10001;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: slideIn 0.5s ease-out;
+    ">
+      <div style="font-size: 20px; margin-bottom: 5px;">🎉 Parabéns!</div>
+      <div>Você atingiu R$ ${valor.toFixed(2)} de lucro!</div>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ==================== 2. ÍCONES E SETAS NOS CARDS ====================
+function updateStatsCards() {
+  const stats = calculateStats();
+  const trends = calculateTrends(); // Nova função para calcular tendências
+
+  document.getElementById("totalBets").innerHTML = `
+    <div class="stat-icon">🎯</div>
+    <div class="stat-number">${stats.totalBets}</div>
+    <div class="stat-label">TOTAL DE APOSTAS</div>
+    <div class="stat-trend ${trends.totalBets > 0 ? "trend-up" : "trend-down"}">
+      ${trends.totalBets > 0 ? "↗️" : "↘️"} ${Math.abs(trends.totalBets)}%
+    </div>
+  `;
+
+  document.getElementById("winRate").innerHTML = `
+    <div class="stat-icon">📊</div>
+    <div class="stat-number">${stats.winRate}%</div>
+    <div class="stat-label">TAXA DE ACERTO</div>
+    <div class="stat-trend ${trends.winRate > 0 ? "trend-up" : "trend-down"}">
+      ${trends.winRate > 0 ? "↗️" : "↘️"} ${Math.abs(trends.winRate).toFixed(
+    1
+  )}%
+    </div>
+  `;
+
+  document.getElementById("totalProfit").innerHTML = `
+    <div class="stat-icon">💰</div>
+    <div class="stat-number">R$ ${stats.totalProfit.toFixed(2)}</div>
+    <div class="stat-label">LUCRO TOTAL</div>
+    <div class="stat-trend ${
+      trends.totalProfit > 0 ? "trend-up" : "trend-down"
+    }">
+      ${trends.totalProfit > 0 ? "↗️" : "↘️"} R$ ${Math.abs(
+    trends.totalProfit
+  ).toFixed(2)}
+    </div>
+  `;
+
+  document.getElementById("avgROI").innerHTML = `
+    <div class="stat-icon">📈</div>
+    <div class="stat-number">+${stats.avgROI}%</div>
+    <div class="stat-label">ROI MÉDIO</div>
+    <div class="stat-trend ${trends.avgROI > 0 ? "trend-up" : "trend-down"}">
+      ${trends.avgROI > 0 ? "↗️" : "↘️"} ${Math.abs(trends.avgROI).toFixed(1)}%
+    </div>
+  `;
+}
+
+// Função para calcular tendências (compara últimos 30 dias com 30 dias anteriores)
+function calculateTrends() {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  const recent = betsData.filter((bet) => new Date(bet.data) >= thirtyDaysAgo);
+  const previous = betsData.filter((bet) => {
+    const betDate = new Date(bet.data);
+    return betDate >= sixtyDaysAgo && betDate < thirtyDaysAgo;
+  });
+
+  const recentStats = calculateStatsForPeriod(recent);
+  const previousStats = calculateStatsForPeriod(previous);
+
+  return {
+    totalBets:
+      ((recentStats.totalBets - previousStats.totalBets) /
+        (previousStats.totalBets || 1)) *
+      100,
+    winRate: recentStats.winRate - previousStats.winRate,
+    totalProfit: recentStats.totalProfit - previousStats.totalProfit,
+    avgROI: recentStats.avgROI - previousStats.avgROI,
+  };
+}
+
+// ==================== 3. INSIGHTS INTELIGENTES - MELHOR DIA DA SEMANA ====================
+function generateSmartInsights() {
+  const insights = [];
+
+  // Análise por dia da semana
+  const dayPerformance = analyzeDayOfWeek();
+  if (dayPerformance.bestDay) {
+    insights.push({
+      icon: "📅",
+      text: `Você tem melhor performance às ${dayPerformance.bestDay.name}s (${dayPerformance.bestDay.winRate}% de acerto)`,
+      type: "positive",
+    });
+  }
+
+  // Análise de streaks
+  const currentStreak = calculateCurrentStreak();
+  if (currentStreak.type === "win" && currentStreak.count >= 3) {
+    insights.push({
+      icon: "🔥",
+      text: `Você está em uma sequência de ${currentStreak.count} acertos consecutivos! Continue assim!`,
+      type: "positive",
+    });
+  }
+
+  // Análise de apostas múltiplas vs simples
+  const multipleVsSingle = analyzeMultipleVsSingle();
+  if (multipleVsSingle.multiplesBetter) {
+    insights.push({
+      icon: "🎯",
+      text: `Suas apostas múltiplas têm ${multipleVsSingle.multiplesWinRate}% de acerto - continue focando nelas!`,
+      type: "positive",
+    });
+  }
+
+  return insights;
+}
+
+function analyzeDayOfWeek() {
+  const dayStats = {};
+  const dayNames = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ];
+
+  betsData.forEach((bet) => {
+    const dayOfWeek = new Date(bet.data).getDay();
+    const dayName = dayNames[dayOfWeek];
+
+    if (!dayStats[dayName]) {
+      dayStats[dayName] = { total: 0, wins: 0 };
+    }
+
+    dayStats[dayName].total++;
+    if (bet.resultado === "green") {
+      dayStats[dayName].wins++;
+    }
+  });
+
+  let bestDay = null;
+  let bestWinRate = 0;
+
+  Object.entries(dayStats).forEach(([day, stats]) => {
+    if (stats.total >= 3) {
+      // Só considera dias com pelo menos 3 apostas
+      const winRate = (stats.wins / stats.total) * 100;
+      if (winRate > bestWinRate) {
+        bestWinRate = winRate;
+        bestDay = { name: day, winRate: winRate.toFixed(1) };
+      }
+    }
+  });
+
+  return { bestDay };
+}
+
+// ==================== 4. CSS PARA ÍCONES E TENDÊNCIAS ====================
+const newCSS = `
+.stat-card {
+  position: relative;
+  overflow: visible;
+}
+
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.stat-trend {
+  font-size: 12px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.trend-up {
+  color: #38a169;
+}
+
+.trend-down {
+  color: #e53e3e;
+}
+
+.insight-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid;
+}
+
+.insight-item.positive {
+  border-left-color: #38a169;
+}
+
+.insight-item.neutral {
+  border-left-color: #3182ce;
+}
+
+.insight-item.warning {
+  border-left-color: #d69e2e;
+}
+
+.insight-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+`;
+
+// ==================== 5. CHAMAR FUNÇÕES NO CARREGAMENTO ====================
+function initDashboardImprovements() {
+  // Adicionar CSS
+  const style = document.createElement("style");
+  style.textContent = confettiCSS + newCSS;
+  document.head.appendChild(style);
+
+  // Verificar milestone de lucro
+  checkLucroMilestone();
+
+  // Atualizar cards com ícones e tendências
+  updateStatsCards();
+
+  // Gerar e exibir insights inteligentes
+  const insights = generateSmartInsights();
+  displayInsights(insights);
+}
+
+function displayInsights(insights) {
+  const insightsContainer = document.getElementById("smartInsights"); // Assumindo que existe
+
+  if (insightsContainer && insights.length > 0) {
+    insightsContainer.innerHTML = insights
+      .map(
+        (insight) => `
+      <div class="insight-item ${insight.type}">
+        <div class="insight-icon">${insight.icon}</div>
+        <div>${insight.text}</div>
+      </div>
+    `
+      )
+      .join("");
+  }
+}
+
+// Chamar quando a página carregar
+document.addEventListener("DOMContentLoaded", initDashboardImprovements);
+
+// ==================== SISTEMA DE EXPORTAÇÃO PDF ====================
+
+// Adicionar biblioteca jsPDF (coloque no HTML antes do seu script)
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Configurações do documento
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+
+  // Header do PDF
+  addPDFHeader(doc, pageWidth);
+
+  // Estatísticas resumidas
+  addPDFStats(doc, pageWidth);
+
+  // Tabela de apostas filtradas
+  addPDFTable(doc);
+
+  // Footer
+  addPDFFooter(doc, pageWidth, pageHeight);
+
+  // Salvar o arquivo
+  const fileName = `BetTracker_Relatorio_${
+    new Date().toISOString().split("T")[0]
+  }.pdf`;
+  doc.save(fileName);
+
+  // Mostrar toast de sucesso
+  showExportToast();
+}
+
+function addPDFHeader(doc, pageWidth) {
+  // Gradient background simulation with rectangles
+  doc.setFillColor(102, 126, 234); // #667eea
+  doc.rect(0, 0, pageWidth, 40, "F");
+
+  // Logo/Icon (usando texto por simplicidade)
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont(undefined, "bold");
+  doc.text("🎯 Bet Tracker Pro", 20, 25);
+
+  // Data do relatório
+  doc.setFontSize(12);
+  doc.setFont(undefined, "normal");
+  const currentDate = new Date().toLocaleDateString("pt-BR");
+  doc.text(`Relatório gerado em: ${currentDate}`, pageWidth - 20, 25, {
+    align: "right",
+  });
+
+  // Título principal
+  doc.setTextColor(51, 51, 51);
+  doc.setFontSize(18);
+  doc.setFont(undefined, "bold");
+  doc.text("📊 Relatórios Avançados", 20, 60);
+}
+
+function addPDFStats(doc, pageWidth) {
+  const stats = calculateStats();
+  const startY = 80;
+
+  // Background para estatísticas
+  doc.setFillColor(248, 250, 252);
+  doc.rect(15, startY - 5, pageWidth - 30, 35, "F");
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(15, startY - 5, pageWidth - 30, 35, "S");
+
+  // Estatísticas em 4 colunas
+  doc.setTextColor(51, 51, 51);
+  doc.setFontSize(10);
+  doc.setFont(undefined, "bold");
+
+  const colWidth = (pageWidth - 40) / 4;
+
+  // Total de Apostas
+  doc.text("🎯 TOTAL DE APOSTAS", 20, startY + 5);
+  doc.setFontSize(14);
+  doc.setTextColor(102, 126, 234);
+  doc.text(stats.totalBets.toString(), 20, startY + 15);
+
+  // Taxa de Acerto
+  doc.setFontSize(10);
+  doc.setTextColor(51, 51, 51);
+  doc.text("📊 TAXA DE ACERTO", 20 + colWidth, startY + 5);
+  doc.setFontSize(14);
+  doc.setTextColor(56, 161, 105); // Verde
+  doc.text(`${stats.winRate}%`, 20 + colWidth, startY + 15);
+
+  // Lucro Total
+  doc.setFontSize(10);
+  doc.setTextColor(51, 51, 51);
+  doc.text("💰 LUCRO TOTAL", 20 + colWidth * 2, startY + 5);
+  doc.setFontSize(14);
+  doc.setTextColor(
+    stats.totalProfit >= 0 ? 56 : 229,
+    stats.totalProfit >= 0 ? 161 : 62,
+    stats.totalProfit >= 0 ? 105 : 62
+  );
+  doc.text(
+    `R$ ${stats.totalProfit.toFixed(2)}`,
+    20 + colWidth * 2,
+    startY + 15
+  );
+
+  // ROI Médio
+  doc.setFontSize(10);
+  doc.setTextColor(51, 51, 51);
+  doc.text("📈 ROI MÉDIO", 20 + colWidth * 3, startY + 5);
+  doc.setFontSize(14);
+  doc.setTextColor(102, 126, 234);
+  doc.text(`+${stats.avgROI}%`, 20 + colWidth * 3, startY + 15);
+}
+
+function addPDFTable(doc) {
+  // Preparar dados da tabela (usando dados filtrados)
+  const tableData = filteredData.map((bet) => {
+    const stake = (parseFloat(bet.unidade) || 1) * 50;
+    const odd = parseFloat(bet.odd) || 1;
+    let profit = 0;
+
+    if (bet.resultado === "green") {
+      profit = odd * stake - stake;
+    } else if (bet.resultado === "red") {
+      profit = -stake;
+    }
+
+    return [
+      new Date(bet.data).toLocaleDateString("pt-BR"),
+      bet.esporte.charAt(0).toUpperCase() + bet.esporte.slice(1),
+      bet.evento || bet.metodo || "N/A",
+      parseFloat(bet.odd).toFixed(2),
+      `R$ ${stake.toFixed(2)}`,
+      bet.resultado.toUpperCase(),
+      `R$ ${Math.abs(profit).toFixed(2)}`,
+    ];
+  });
+
+  // Configurar tabela com autoTable
+  doc.autoTable({
+    head: [
+      [
+        "Data",
+        "Esporte",
+        "Evento",
+        "Odd",
+        "Valor",
+        "Resultado",
+        "Lucro/Prejuízo",
+      ],
+    ],
+    body: tableData,
+    startY: 130,
+    theme: "grid",
+    headStyles: {
+      fillColor: [102, 126, 234],
+      textColor: 255,
+      fontSize: 10,
+      fontStyle: "bold",
+    },
+    bodyStyles: {
+      fontSize: 9,
+      cellPadding: 3,
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252],
+    },
+    styles: {
+      lineColor: [226, 232, 240],
+      lineWidth: 0.1,
+    },
+    columnStyles: {
+      0: { cellWidth: 25 }, // Data
+      1: { cellWidth: 25 }, // Esporte
+      2: { cellWidth: 45 }, // Evento
+      3: { cellWidth: 20 }, // Odd
+      4: { cellWidth: 25 }, // Valor
+      5: { cellWidth: 25 }, // Resultado
+      6: { cellWidth: 30 }, // Lucro/Prejuízo
+    },
+    didParseCell: function (data) {
+      // Colorir resultados
+      if (data.column.index === 5) {
+        // Coluna Resultado
+        if (data.cell.text[0] === "GREEN") {
+          data.cell.styles.textColor = [56, 161, 105];
+          data.cell.styles.fontStyle = "bold";
+        } else if (data.cell.text[0] === "RED") {
+          data.cell.styles.textColor = [229, 62, 62];
+          data.cell.styles.fontStyle = "bold";
+        }
+      }
+
+      // Colorir lucro/prejuízo
+      if (data.column.index === 6) {
+        const isProfit = !data.cell.text[0].includes("-");
+        data.cell.styles.textColor = isProfit ? [56, 161, 105] : [229, 62, 62];
+        data.cell.styles.fontStyle = "bold";
+      }
+    },
+  });
+}
+
+function addPDFFooter(doc, pageWidth, pageHeight) {
+  const footerY = pageHeight - 20;
+
+  // Linha separadora
+  doc.setDrawColor(226, 232, 240);
+  doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
+
+  // Texto do footer
+  doc.setFontSize(8);
+  doc.setTextColor(107, 114, 126);
+  doc.text(
+    "Relatório gerado automaticamente pelo Bet Tracker Pro",
+    20,
+    footerY
+  );
+  doc.text(
+    `Página 1 de 1 • ${filteredData.length} apostas analisadas`,
+    pageWidth - 20,
+    footerY,
+    { align: "right" }
+  );
+}
+
+// ==================== SUBSTITUIR BOTÃO IMPRIMIR ====================
+function replacePrintButton() {
+  // Remover botão imprimir se existir
+  const printButton = document.querySelector(
+    'button[onclick*="print"], #printButton, .print-btn'
+  );
+  if (printButton) {
+    printButton.remove();
+  }
+
+  // Adicionar botão de exportar PDF
+  const exportButton = document.createElement("button");
+  exportButton.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14,2 14,8 20,8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+      <polyline points="10,9 9,9 8,9"/>
+    </svg>
+    Exportar PDF
+  `;
+  exportButton.className = "btn-exportar-pdf";
+  exportButton.onclick = exportToPDF;
+
+  // Adicionar ao container dos filtros (ao lado do "Aplicar Filtros")
+  const filtersContainer = document.querySelector(
+    ".filters-container, .btn-aplicar-filtros"
+  ).parentElement;
+  if (filtersContainer) {
+    filtersContainer.appendChild(exportButton);
+  }
+}
+
+function showExportToast() {
+  const toast = document.createElement("div");
+  toast.innerHTML = `
+    <div style="
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #38a169, #48bb78);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      z-index: 10001;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    ">
+      <span style="font-size: 18px;">📄</span>
+      <div>
+        <div style="font-weight: bold;">PDF Exportado!</div>
+        <div style="font-size: 12px; opacity: 0.9;">Download iniciado automaticamente</div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ==================== CSS PARA BOTÃO PDF ====================
+const pdfButtonCSS = `
+.btn-exportar-pdf {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  margin-left: 10px;
+}
+
+.btn-exportar-pdf:hover {
+  background: linear-gradient(135deg, #c53030, #9c2626);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+`;
+
+// ==================== INICIALIZAÇÃO ====================
+function initPDFExport() {
+  // Adicionar CSS
+  const style = document.createElement("style");
+  style.textContent = pdfButtonCSS;
+  document.head.appendChild(style);
+
+  // Substituir botão imprimir
+  replacePrintButton();
+}
+
+// Chamar quando a página carregar
+document.addEventListener("DOMContentLoaded", initPDFExport);
