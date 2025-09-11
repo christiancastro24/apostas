@@ -648,6 +648,20 @@ function updateDetailedTable() {
         esports: "🎮",
       };
 
+      // Melhora a descrição do evento
+      let eventoDescricao = bet.evento || "";
+      if (!eventoDescricao.trim()) {
+        if (bet.tipo === "multipla") {
+          eventoDescricao = "Aposta Múltipla";
+        } else if (bet.metodo && bet.metodo.trim()) {
+          eventoDescricao = bet.metodo;
+        } else {
+          eventoDescricao = `${
+            bet.esporte.charAt(0).toUpperCase() + bet.esporte.slice(1)
+          } - ${bet.casaApostas}`;
+        }
+      }
+
       return `
             <tr>
               <td>${new Date(bet.data).toLocaleDateString("pt-BR")}</td>
@@ -657,7 +671,7 @@ function updateDetailedTable() {
                 }</span>
                 ${bet.esporte.charAt(0).toUpperCase() + bet.esporte.slice(1)}
               </td>
-              <td>${bet.evento || "N/A"}</td>
+              <td>${eventoDescricao}</td>
               <td>${parseFloat(bet.odd).toFixed(2)}</td>
               <td>R$ ${stake.toFixed(2)}</td>
               <td>
@@ -675,7 +689,6 @@ function updateDetailedTable() {
     })
     .join("");
 }
-
 // Inicialização
 document.addEventListener("DOMContentLoaded", function () {
   loadBetsData();
