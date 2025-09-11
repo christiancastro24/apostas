@@ -161,12 +161,6 @@ function updateStatsOverview() {
             <div class="stat-label">ROI Médio</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value" style="color: #805ad5;">R$ ${
-              stats.avgOdd
-            }</div>
-            <div class="stat-label">Odd Média</div>
-          </div>
-          <div class="stat-item">
             <div class="stat-value" style="color: #d69e2e;">${
               stats.bestSport
             }</div>
@@ -224,13 +218,14 @@ function calculateStats(data) {
   const avgOdd = (totalOdd / totalBets).toFixed(2);
 
   // Melhor esporte
-  let bestSport = "N/A";
+  let bestSport = "Futebol";
   let bestWinRate = 0;
   Object.entries(sportStats).forEach(([sport, stats]) => {
+    console.log(sport, "SPORT ANTES");
     const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
     if (winRate > bestWinRate && stats.total >= 3) {
       bestWinRate = winRate;
-      bestSport = sport;
+      bestSport = "Futebol";
     }
   });
 
@@ -673,9 +668,9 @@ function updateDetailedTable() {
                 </span>
               </td>
               <td style="color: ${
-                roi >= 0 ? "#38a169" : "#e53e3e"
+                profit >= 0 ? "#38a169" : "#e53e3e"
               }; font-weight: 600;">
-                ${roi >= 0 ? "+" : ""}${roi}%
+                R$ ${profit.toFixed(2)}
               </td>
             </tr>
           `;
