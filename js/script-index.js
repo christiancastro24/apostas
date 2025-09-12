@@ -143,7 +143,7 @@ function addNewBet(month) {
         <option value="betano">🔥 Betano</option>
         <option value="superbet">💎 SuperBet</option>
         <option value="bet365">🎯 Bet365</option>
-        <option value="estrelabet">⭐ estrelabet</option>
+        <option value="estrelabet">⭐ Estrelabet</option>
         <option value="outros">🏪 Outros</option>
       </select>
     </td>

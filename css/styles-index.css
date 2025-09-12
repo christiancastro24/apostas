@@ -855,3 +855,54 @@
           align-items: flex-start;
         }
       }
+
+
+      /* Header da banca - simples e discreto */
+.header-banca {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 32px;
+  margin-bottom: 32px;
+  border-radius: 12px;
+  align-items: center;
+}
+
+.header-banca .banca-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-banca .banca-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.header-banca .banca-label {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+/* Stats grid agora fica embaixo */
+.stats-grid {
+  margin-top: 0;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .header-banca {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .header-banca .banca-item {
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+  }
+}
