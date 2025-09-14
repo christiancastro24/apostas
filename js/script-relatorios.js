@@ -127,28 +127,54 @@ function updateDashboard() {
 }
 
 // Atualizar estatísticas gerais
+// Funções de formatação brasileira
+function formatCurrency(value) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatPercentage(value) {
+  const formatted = Math.abs(value).toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  return `${value >= 0 ? "+" : ""}${formatted}%`;
+}
+
+function formatWinRate(value) {
+  return value.toLocaleString("pt-BR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
+// Sua função atualizada
 function updateStatsOverview() {
   const stats = calculateStats(filteredData);
   const container = document.getElementById("statsOverview");
 
   container.innerHTML = `
           <div class="stat-item">
-            <div class="stat-value" style="color: #38a169;">${
-              stats.totalBets
-            }</div>
+            <div class="stat-value" style="color: #38a169;">
+              ${stats.totalBets}
+            </div>
             <div class="stat-label">Total de Apostas</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value" style="color: #3182ce;">${
-              stats.winRate
-            }%</div>
+            <div class="stat-value" style="color: #3182ce;">
+              ${formatWinRate(stats.winRate)}%
+            </div>
             <div class="stat-label">Taxa de Acerto</div>
           </div>
           <div class="stat-item">
             <div class="stat-value" style="color: ${
               stats.totalProfit >= 0 ? "#38a169" : "#e53e3e"
             };">
-              R$ ${stats.totalProfit.toFixed(2)}
+              ${formatCurrency(stats.totalProfit)}
             </div>
             <div class="stat-label">Lucro Total</div>
           </div>
@@ -156,19 +182,18 @@ function updateStatsOverview() {
             <div class="stat-value" style="color: ${
               stats.roi >= 0 ? "#38a169" : "#e53e3e"
             };">
-              ${stats.roi >= 0 ? "+" : ""}${stats.roi}%
+              ${formatPercentage(stats.roi)}
             </div>
             <div class="stat-label">ROI Médio</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value" style="color: #d69e2e;">${
-              stats.bestSport
-            }</div>
+            <div class="stat-value" style="color: #d69e2e;">
+              ${stats.bestSport}
+            </div>
             <div class="stat-label">Melhor Esporte</div>
           </div>
         `;
 }
-
 // Calcular estatísticas
 function calculateStats(data) {
   if (!data.length)
