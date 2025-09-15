@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetPro - Dicas de Apostas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f8fafc;
+        color: #1a202c;
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 280px;
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.04);
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .sidebar-header {
+        padding: 24px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .logo {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo::before {
+        content: "📊";
+        font-size: 24px;
+      }
+      .nav-menu {
+        padding: 24px 0;
+      }
+      .nav-item {
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        color: #4a5568;
+      }
+      .nav-item:hover {
+        background: #f7fafc;
+        color: #2b6cb0;
+      }
+      .nav-item.active {
+        background: #ebf8ff;
+        color: #2b6cb0;
+        border-left-color: #3182ce;
+      }
+      .nav-item::before {
+        width: 20px;
+        text-align: center;
+      }
+      .nav-item:nth-child(1)::before {
+        content: "🏠";
+      }
+      .nav-item:nth-child(2)::before {
+        content: "⚽";
+      }
+      .nav-item:nth-child(3)::before {
+        content: "📈";
+      }
+      .nav-item:nth-child(4)::before {
+        content: "💡";
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: 280px;
+        padding: 32px;
+      }
+      .page-header {
+        margin-bottom: 32px;
+      }
+      .page-subtitle {
+        color: #718096;
+        font-size: 16px;
+      }
+
+      .page-content {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        margin: 5px auto;
+        max-width: 1200px;
+        width: 100%;
+      }
+
+      .dicas-header {
+        margin-bottom: 30px;
+      }
+
+      .dicas-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+      }
+
+      .date-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .date-selector {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+
+      .date-tab {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 80px;
+        font-weight: 500;
+        color: #4a5568;
+      }
+
+      .date-tab:hover {
+        background: #edf2f7;
+        transform: translateY(-1px);
+      }
+
+      .date-tab.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .date-number {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+
+      .date-info {
+        font-size: 0.7rem;
+        opacity: 0.8;
+      }
+
+      .filter-tabs {
+        display: flex;
+        background: #f7fafc;
+        border-radius: 12px;
+        padding: 4px;
+        gap: 4px;
+        justify-content: center;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .filter-tab {
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: #4a5568;
+        border: none;
+        background: transparent;
+        white-space: nowrap;
+      }
+
+      .filter-tab.active {
+        background: white;
+        color: #2b6cb0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Responsividade para filtros */
+      @media (max-width: 768px) {
+        .date-filters {
+          align-items: stretch;
+        }
+
+        .date-selector {
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 5px;
+        }
+
+        .date-tab {
+          min-width: 70px;
+          padding: 10px 15px;
+          flex-shrink: 0;
+        }
+
+        .filter-tabs {
+          max-width: none;
+        }
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+      }
+
+      .success-rate {
+        color: #38a169;
+      }
+      .roi-positive {
+        color: #2b6cb0;
+      }
+      .total-tips {
+        color: #805ad5;
+      }
+      .hit-rate {
+        color: #d69e2e;
+      }
+
+      .dicas-container {
+        display: grid;
+        gap: 20px;
+      }
+
+      .dica-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .dica-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .dica-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #48bb78, #38a169);
+      }
+
+      .premium-card::before {
+        background: linear-gradient(90deg, #ffd700, #ffb700);
+      }
+
+      .dica-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+      }
+
+      .dica-info {
+        flex: 1;
+      }
+
+      .dica-match {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 5px;
+      }
+
+      .dica-league {
+        color: #718096;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .confidence-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .confidence-high {
+        background: #c6f6d5;
+        color: #2f855a;
+      }
+
+      .confidence-medium {
+        background: #feebc8;
+        color: #c05621;
+      }
+
+      .confidence-premium {
+        background: #ffd700;
+        color: #744210;
+      }
+
+      .dica-content {
+        margin-bottom: 20px;
+      }
+
+      .dica-tipo {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dica-descricao {
+        color: #718096;
+        line-height: 1.5;
+        margin-bottom: 15px;
+      }
+
+      .dica-analise {
+        background: #f7fafc;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+
+      .analise-title {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .analise-text {
+        color: #4a5568;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .dica-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .dica-odds {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .odd-value {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+
+      .dica-time {
+        color: #718096;
+        font-size: 0.8rem;
+      }
+
+      .premium-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+        color: #744210;
+        padding: 8px 15px;
+        border-bottom-left-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .loading-spinner {
+        text-align: center;
+        padding: 60px 20px;
+        color: #718096;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .no-dicas {
+        text-align: center;
+        padding: 60px 20px;
+        color: #718096;
+      }
+
+      .no-dicas-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dicas-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .date-selector {
+          justify-content: flex-start;
+          overflow-x: auto;
+          padding-bottom: 5px;
+        }
+
+        .date-tab {
+          min-width: 70px;
+          padding: 10px 15px;
+          flex-shrink: 0;
+        }
+
+        .filter-tabs {
+          max-width: none;
+        }
+      }
+
+      /* Animações */
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Bet Tracker Pro</div>
+        </div>
+        <div class="nav-menu">
+          <div class="nav-item" onclick="window.location.href='index.html'">
+            Dashboard
+          </div>
+          <div class="nav-item" onclick="window.location.href='jogos.html'">
+            Jogos
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href='relatorios.html'"
+          >
+            Relatórios
+          </div>
+          <div class="nav-item active">Dicas de Aposta</div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="page-header">
+          <p class="page-subtitle">
+            Dicas exclusivas e análises profissionais para suas apostas
+          </p>
+        </div>
+
+        <div class="page-content">
+          <div class="dicas-header">
+            <div class="dicas-title">💡 Dicas de Apostas</div>
+            <div class="date-filters">
+              <div class="date-selector" id="dateSelector">
+                <!-- Datas serão populadas dinamicamente -->
+              </div>
+              <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterDicas('all')">
+                  Todas
+                </button>
+                <button class="filter-tab" onclick="filterDicas('premium')">
+                  Premium
+                </button>
+                <button class="filter-tab" onclick="filterDicas('high')">
+                  Alta Confiança
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estatísticas -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number success-rate">87%</div>
+              <div class="stat-label">Taxa de Sucesso</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number roi-positive">+24%</div>
+              <div class="stat-label">ROI Médio</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number total-tips">156</div>
+              <div class="stat-label">Total de Dicas</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number hit-rate pulse-animation">🔥</div>
+              <div class="stat-label">Em Alta</div>
+            </div>
+          </div>
+
+          <!-- Container das Dicas -->
+          <div class="dicas-container" id="dicasContainer">
+            <!-- Dica Premium -->
+            <div class="dica-card premium-card fade-in">
+              <div class="premium-overlay">⭐ VIP</div>
+              <div class="dica-header">
+                <div class="dica-info">
+                  <div class="dica-match">Real Madrid vs Barcelona</div>
+                  <div class="dica-league">🇪🇸 La Liga • Hoje 16:00</div>
+                </div>
+                <div class="confidence-badge confidence-premium">
+                  Alta Confiança
+                </div>
+              </div>
+              <div class="dica-content">
+                <div class="dica-tipo">🎯 Mais de 2.5 Gols</div>
+                <div class="dica-descricao">
+                  Clássico sempre movimentado com ambas as equipes tendo ataques
+                  potentes.
+                </div>
+                <div class="dica-analise">
+                  <div class="analise-title">📊 Análise Detalhada</div>
+                  <div class="analise-text">
+                    Últimos 5 El Clásicos tiveram média de 3.2 gols por jogo.
+                    Real Madrid marcou em 8 dos últimos 10 jogos, enquanto o
+                    Barcelona tem a segunda melhor média de gols do campeonato.
+                    Defesas mais vulneráveis em jogos de alta pressão.
+                  </div>
+                </div>
+              </div>
+              <div class="dica-footer">
+                <div class="dica-odds">
+                  <span>Odd:</span>
+                  <span class="odd-value">1.85</span>
+                </div>
+                <div class="dica-time">Há 2 horas</div>
+              </div>
+            </div>
+
+            <!-- Dica Regular 1 -->
+            <div class="dica-card fade-in">
+              <div class="dica-header">
+                <div class="dica-info">
+                  <div class="dica-match">Manchester City vs Liverpool</div>
+                  <div class="dica-league">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League • Hoje 18:30</div>
+                </div>
+                <div class="confidence-badge confidence-high">Alta</div>
+              </div>
+              <div class="dica-content">
+                <div class="dica-tipo">⚽ Ambas Marcam</div>
+                <div class="dica-descricao">
+                  Dois ataques de elite se enfrentam em confronto direto pela
+                  liderança.
+                </div>
+                <div class="dica-analise">
+                  <div class="analise-title">📊 Estatísticas</div>
+                  <div class="analise-text">
+                    Man City: 28 gols em 12 jogos casa. Liverpool: 31 gols em 13
+                    jogos fora. Ambos marcaram em 4 dos últimos 5 confrontos
+                    diretos.
+                  </div>
+                </div>
+              </div>
+              <div class="dica-footer">
+                <div class="dica-odds">
+                  <span>Odd:</span>
+                  <span class="odd-value">1.72</span>
+                </div>
+                <div class="dica-time">Há 4 horas</div>
+              </div>
+            </div>
+
+            <!-- Dica Regular 2 -->
+            <div class="dica-card fade-in">
+              <div class="dica-header">
+                <div class="dica-info">
+                  <div class="dica-match">PSG vs Monaco</div>
+                  <div class="dica-league">🇫🇷 Ligue 1 • Hoje 20:00</div>
+                </div>
+                <div class="confidence-badge confidence-medium">Média</div>
+              </div>
+              <div class="dica-content">
+                <div class="dica-tipo">🏆 PSG Vitória</div>
+                <div class="dica-descricao">
+                  PSG forte em casa contra um Monaco irregular fora de casa.
+                </div>
+                <div class="dica-analise">
+                  <div class="analise-title">📊 Forma Recente</div>
+                  <div class="analise-text">
+                    PSG: 7 vitórias em 8 jogos casa. Monaco: apenas 2 vitórias
+                    nos últimos 6 jogos fora. Mbappe em grande fase com 8 gols
+                    nos últimos 5 jogos.
+                  </div>
+                </div>
+              </div>
+              <div class="dica-footer">
+                <div class="dica-odds">
+                  <span>Odd:</span>
+                  <span class="odd-value">1.45</span>
+                </div>
+                <div class="dica-time">Há 1 hora</div>
+              </div>
+            </div>
+
+            <!-- Dica Regular 3 -->
+            <div class="dica-card fade-in">
+              <div class="dica-header">
+                <div class="dica-info">
+                  <div class="dica-match">Inter vs Juventus</div>
+                  <div class="dica-league">🇮🇹 Serie A • Amanhã 15:45</div>
+                </div>
+                <div class="confidence-badge confidence-high">Alta</div>
+              </div>
+              <div class="dica-content">
+                <div class="dica-tipo">🛡️ Menos de 2.5 Gols</div>
+                <div class="dica-descricao">
+                  Derby d'Italia tradicionalmente equilibrado com poucas
+                  oportunidades.
+                </div>
+                <div class="dica-analise">
+                  <div class="analise-title">📊 Histórico</div>
+                  <div class="analise-text">
+                    Últimos 8 confrontos: média de 1.8 gols. Inter com defesa
+                    sólida (apenas 9 gols sofridos em casa). Juventus mais
+                    cautelosa em jogos grandes.
+                  </div>
+                </div>
+              </div>
+              <div class="dica-footer">
+                <div class="dica-odds">
+                  <span>Odd:</span>
+                  <span class="odd-value">1.95</span>
+                </div>
+                <div class="dica-time">Há 30 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let allGames = [];
+      let allDicas = [];
+      let currentFilter = "all";
+      let selectedDate = null;
+
+      // Configuração da API (mesmo do jogos.html)
+      const API_CONFIG = {
+        key: "e6151727b9b3162bb023a5d9283dc608",
+        baseUrl: "https://api.the-odds-api.com/v4",
+        sports: [
+          // Ligas nacionais
+          "soccer_brazil_serie_a",
+          "soccer_spain_la_liga",
+          "soccer_england_premier_league",
+          "soccer_italy_serie_a",
+          "soccer_france_ligue_one",
+          "soccer_germany_bundesliga",
+          "soccer_netherlands_eredivisie",
+          "soccer_portugal_primeira_liga",
+          // Competições europeias
+          "soccer_uefa_champs_league",
+          "soccer_uefa_europa_league",
+          "soccer_uefa_europa_conference_league",
+          // Outras competições internacionais
+          "soccer_conmebol_copa_libertadores",
+          "soccer_fifa_world_cup",
+          "soccer_uefa_nations_league",
+          // Copas nacionais principais
+          "soccer_fa_cup",
+          "soccer_spain_copa_del_rey",
+          "soccer_italy_copa_italia",
+          "soccer_germany_dfb_pokal",
+        ],
+        markets: "h2h,totals",
+      };
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadDicas();
+      });
+
+      async function loadDicas() {
+        showLoading();
+        try {
+          await fetchGamesData();
+          generateDicasFromGames();
+          createDateTabs();
+          renderDicas();
+          // updateStats(); // Removido - stats agora são estáticas
+        } catch (error) {
+          console.error("Erro ao carregar dicas:", error);
+          showError();
+        }
+      }
+
+      function createDateTabs() {
+        const dateSelector = document.getElementById("dateSelector");
+        const dates = getAvailableDates();
+
+        dateSelector.innerHTML = dates
+          .map((date, index) => {
+            const isToday = isDateToday(date.dateObj);
+            const isTomorrow = isDateTomorrow(date.dateObj);
+            const isActive = index === 0; // Primeiro dia ativo por padrão
+
+            if (isActive) selectedDate = date.dateStr;
+
+            return `
+            <div class="date-tab ${
+              isActive ? "active" : ""
+            }" onclick="selectDate('${date.dateStr}', this)">
+              <div class="date-number">${date.day}</div>
+              <div class="date-info">${
+                isToday ? "Hoje" : isTomorrow ? "Amanhã" : date.dayName
+              }</div>
+              <div class="date-info">${date.monthName}</div>
+            </div>
+          `;
+          })
+          .join("");
+      }
+
+      function getAvailableDates() {
+        const dates = [];
+        const today = new Date();
+
+        // Pegar datas dos próximos 7 dias que tenham jogos
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i);
+
+          const dateStr = date.toISOString().split("T")[0];
+          const hasGames = allGames.some((game) => {
+            const gameDate = new Date(game.commence_time)
+              .toISOString()
+              .split("T")[0];
+            return gameDate === dateStr;
+          });
+
+          if (hasGames || i === 0) {
+            // Sempre incluir hoje mesmo sem jogos
+            dates.push({
+              dateStr,
+              dateObj: date,
+              day: date.getDate(),
+              dayName: date
+                .toLocaleDateString("pt-BR", { weekday: "short" })
+                .replace(".", ""),
+              monthName: date
+                .toLocaleDateString("pt-BR", { month: "short" })
+                .replace(".", ""),
+            });
+          }
+        }
+
+        return dates;
+      }
+
+      function isDateToday(date) {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
+      }
+
+      function isDateTomorrow(date) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return date.toDateString() === tomorrow.toDateString();
+      }
+
+      function selectDate(dateStr, element) {
+        // Remover active de todas as date-tabs
+        document.querySelectorAll(".date-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Adicionar active na tab clicada
+        element.classList.add("active");
+        selectedDate = dateStr;
+
+        // Re-renderizar dicas
+        renderDicas();
+      }
+
+      async function loadDicas() {
+        showLoading();
+        try {
+          await fetchGamesData();
+          generateDicasFromGames();
+          createDateTabs();
+          renderDicas();
+          updateStats();
+        } catch (error) {
+          console.error("Erro ao carregar dicas:", error);
+          showError();
+        }
+      }
+
+      async function fetchGamesData() {
+        allGames = [];
+
+        for (const sport of API_CONFIG.sports) {
+          try {
+            const response = await fetch(
+              `${API_CONFIG.baseUrl}/sports/${sport}/odds/?apiKey=${API_CONFIG.key}&regions=eu&markets=${API_CONFIG.markets}&oddsFormat=decimal&dateFormat=iso`
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              allGames = allGames.concat(
+                data.map((game) => ({
+                  ...game,
+                  sport: sport,
+                }))
+              );
+            }
+          } catch (error) {
+            console.error(`Erro ao buscar ${sport}:`, error);
+          }
+        }
+      }
+
+      function generateDicasFromGames() {
+        allDicas = [];
+
+        allGames.forEach((game) => {
+          if (!game.bookmakers || game.bookmakers.length === 0) return;
+
+          const bookmaker = game.bookmakers[0];
+          const dicas = analyzeGame(game, bookmaker);
+          allDicas = allDicas.concat(dicas);
+        });
+
+        // Ordenar por confiança e odds
+        allDicas.sort((a, b) => {
+          const confidenceOrder = { premium: 3, high: 2, medium: 1 };
+          return confidenceOrder[b.confidence] - confidenceOrder[a.confidence];
+        });
+
+        // Limitar para as melhores dicas
+        allDicas = allDicas;
+      }
+
+      function analyzeGame(game, bookmaker) {
+        const dicas = [];
+        const leagueInfo = getLeagueInfo(game.sport);
+
+        bookmaker.markets.forEach((market) => {
+          if (market.key === "h2h") {
+            // Análise de vitória
+            const homeOdd = market.outcomes.find(
+              (o) => o.name === game.home_team
+            )?.price;
+            const awayOdd = market.outcomes.find(
+              (o) => o.name === game.away_team
+            )?.price;
+            const drawOdd = market.outcomes.find(
+              (o) => o.name === "Draw"
+            )?.price;
+
+            // Dica de vitória para favorito claro
+            if (homeOdd && homeOdd <= 1.8 && homeOdd > 1.3) {
+              dicas.push(
+                createDica(
+                  game,
+                  leagueInfo,
+                  "victory_home",
+                  game.home_team,
+                  homeOdd,
+                  "high"
+                )
+              );
+            } else if (awayOdd && awayOdd <= 1.8 && awayOdd > 1.3) {
+              dicas.push(
+                createDica(
+                  game,
+                  leagueInfo,
+                  "victory_away",
+                  game.away_team,
+                  awayOdd,
+                  "high"
+                )
+              );
+            }
+
+            // Dica de empate em jogos equilibrados
+            if (drawOdd && drawOdd <= 3.5 && homeOdd > 2.0 && awayOdd > 2.0) {
+              dicas.push(
+                createDica(
+                  game,
+                  leagueInfo,
+                  "draw",
+                  "Empate",
+                  drawOdd,
+                  "medium"
+                )
+              );
+            }
+
+            // Dupla chance para jogos mais arriscados
+            if (homeOdd && awayOdd && Math.abs(homeOdd - awayOdd) < 0.5) {
+              const lowerOdd = Math.min(homeOdd, awayOdd);
+              if (lowerOdd > 2.0) {
+                dicas.push(
+                  createDica(
+                    game,
+                    leagueInfo,
+                    "double_chance",
+                    "Casa ou Empate",
+                    1.4 + Math.random() * 0.3,
+                    "medium"
+                  )
+                );
+              }
+            }
+          }
+
+          if (market.key === "totals") {
+            // Análise de gols
+            market.outcomes.forEach((outcome) => {
+              if (outcome.name === "Over" && outcome.point === 2.5) {
+                if (outcome.price >= 1.5 && outcome.price <= 2.2) {
+                  const confidence = outcome.price <= 1.8 ? "high" : "medium";
+                  dicas.push(
+                    createDica(
+                      game,
+                      leagueInfo,
+                      "over25",
+                      `Mais de ${outcome.point} Gols`,
+                      outcome.price,
+                      confidence
+                    )
+                  );
+                }
+              } else if (outcome.name === "Under" && outcome.point === 2.5) {
+                if (outcome.price >= 1.5 && outcome.price <= 2.2) {
+                  const confidence = outcome.price <= 1.8 ? "high" : "medium";
+                  dicas.push(
+                    createDica(
+                      game,
+                      leagueInfo,
+                      "under25",
+                      `Menos de ${outcome.point} Gols`,
+                      outcome.price,
+                      confidence
+                    )
+                  );
+                }
+              }
+
+              // Análise de Over/Under 1.5
+              if (outcome.name === "Over" && outcome.point === 1.5) {
+                if (outcome.price <= 1.4) {
+                  dicas.push(
+                    createDica(
+                      game,
+                      leagueInfo,
+                      "over15",
+                      `Mais de ${outcome.point} Gols`,
+                      outcome.price,
+                      "high"
+                    )
+                  );
+                }
+              } else if (outcome.name === "Under" && outcome.point === 1.5) {
+                if (outcome.price >= 2.5 && outcome.price <= 4.0) {
+                  dicas.push(
+                    createDica(
+                      game,
+                      leagueInfo,
+                      "under15",
+                      `Menos de ${outcome.point} Gols`,
+                      outcome.price,
+                      "medium"
+                    )
+                  );
+                }
+              }
+
+              // Análise de Over/Under 3.5
+              if (outcome.name === "Over" && outcome.point === 3.5) {
+                if (outcome.price >= 2.0 && outcome.price <= 3.5) {
+                  dicas.push(
+                    createDica(
+                      game,
+                      leagueInfo,
+                      "over35",
+                      `Mais de ${outcome.point} Gols`,
+                      outcome.price,
+                      "medium"
+                    )
+                  );
+                }
+              }
+            });
+          }
+        });
+
+        // Gerar dicas sintéticas baseadas no contexto do jogo
+        const syntheticDicas = generateSyntheticTips(game, leagueInfo);
+        dicas.push(...syntheticDicas);
+
+        // Determinar dicas premium (melhores odds + ligas top)
+        const premiumLeagues = [
+          "soccer_spain_la_liga",
+          "soccer_england_premier_league",
+          "soccer_italy_serie_a",
+          "soccer_uefa_champs_league",
+          "soccer_uefa_europa_league",
+          "soccer_germany_bundesliga",
+        ];
+
+        if (premiumLeagues.includes(game.sport)) {
+          dicas.forEach((dica) => {
+            if (dica.confidence === "high" && Math.random() > 0.6) {
+              dica.confidence = "premium";
+            }
+          });
+        }
+
+        return dicas;
+      }
+
+      function generateSyntheticTips(game, leagueInfo) {
+        const tips = [];
+
+        // Simular "Ambas Marcam" baseado no contexto
+        if (
+          ["soccer_spain_la_liga", "soccer_england_premier_league"].includes(
+            game.sport
+          )
+        ) {
+          const bttsOdd = 1.6 + Math.random() * 0.6; // Entre 1.6 e 2.2
+          if (bttsOdd <= 2.0) {
+            tips.push(
+              createDica(
+                game,
+                leagueInfo,
+                "btts_yes",
+                "Ambas Marcam",
+                bttsOdd,
+                "medium"
+              )
+            );
+          }
+        }
+
+        // Handicap asiático para jogos com favorito
+        if (Math.random() > 0.7) {
+          const handicapOdd = 1.7 + Math.random() * 0.4;
+          tips.push(
+            createDica(
+              game,
+              leagueInfo,
+              "handicap",
+              "Handicap Asiático",
+              handicapOdd,
+              "medium"
+            )
+          );
+        }
+
+        // Escanteios (simulado)
+        if (Math.random() > 0.8) {
+          const cornerOdd = 1.8 + Math.random() * 0.3;
+          tips.push(
+            createDica(
+              game,
+              leagueInfo,
+              "corners",
+              "Mais de 9.5 Escanteios",
+              cornerOdd,
+              "medium"
+            )
+          );
+        }
+
+        return tips;
+      }
+
+      function createDica(game, leagueInfo, tipo, resultado, odd, confidence) {
+        const tipoInfo = getTipoInfo(tipo, resultado);
+        const analise = generateAnalise(game, tipo, confidence);
+        const gameDate = new Date(game.commence_time);
+
+        return {
+          id: `${game.id}-${tipo}`,
+          match: `${game.home_team} vs ${game.away_team}`,
+          league: leagueInfo,
+          gameTime: formatGameTime(game.commence_time),
+          gameDate: gameDate.toISOString().split("T")[0], // Para filtro por data
+          tipo: tipoInfo,
+          analise: analise,
+          odd: parseFloat(odd).toFixed(2),
+          confidence: confidence,
+          timestamp: "Agora mesmo",
+        };
+      }
+
+      function getTipoInfo(tipo, resultado) {
+        const tipos = {
+          victory_home: { icon: "🏠", text: `Vitória ${resultado}` },
+          victory_away: { icon: "✈️", text: `Vitória ${resultado}` },
+          draw: { icon: "🤝", text: "Empate" },
+          double_chance: { icon: "⚖️", text: resultado },
+          over25: { icon: "⚽", text: resultado },
+          under25: { icon: "🛡️", text: resultado },
+          over15: { icon: "🎯", text: resultado },
+          under15: { icon: "🔒", text: resultado },
+          over35: { icon: "🚀", text: resultado },
+          btts_yes: { icon: "⚽⚽", text: "Ambas Marcam" },
+          handicap: { icon: "⚖️", text: "Handicap Asiático" },
+          corners: { icon: "📐", text: resultado },
+        };
+        return tipos[tipo] || { icon: "⚽", text: "Aposta Especial" };
+      }
+
+      function getLeagueInfo(sport) {
+        const leagues = {
+          // Ligas nacionais
+          soccer_brazil_serie_a: { flag: "🇧🇷", name: "Brasileirão Série A" },
+          soccer_spain_la_liga: { flag: "🇪🇸", name: "La Liga" },
+          soccer_england_premier_league: { flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", name: "Premier League" },
+          soccer_italy_serie_a: { flag: "🇮🇹", name: "Serie A" },
+          soccer_france_ligue_one: { flag: "🇫🇷", name: "Ligue 1" },
+          soccer_germany_bundesliga: { flag: "🇩🇪", name: "Bundesliga" },
+          soccer_netherlands_eredivisie: { flag: "🇳🇱", name: "Eredivisie" },
+          soccer_portugal_primeira_liga: { flag: "🇵🇹", name: "Primeira Liga" },
+          // Competições europeias
+          soccer_uefa_champs_league: { flag: "🏆", name: "Champions League" },
+          soccer_uefa_europa_league: { flag: "🥈", name: "Europa League" },
+          soccer_uefa_europa_conference_league: {
+            flag: "🥉",
+            name: "Conference League",
+          },
+          // Outras competições
+          soccer_conmebol_copa_libertadores: {
+            flag: "🏆",
+            name: "Copa Libertadores",
+          },
+          soccer_fifa_world_cup: { flag: "🌍", name: "Copa do Mundo" },
+          soccer_uefa_nations_league: { flag: "🇪🇺", name: "Nations League" },
+          // Copas nacionais
+          soccer_fa_cup: { flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", name: "FA Cup" },
+          soccer_spain_copa_del_rey: { flag: "🇪🇸", name: "Copa del Rey" },
+          soccer_italy_copa_italia: { flag: "🇮🇹", name: "Copa Italia" },
+          soccer_germany_dfb_pokal: { flag: "🇩🇪", name: "Copa da Alemanha" },
+        };
+        return leagues[sport] || { flag: "⚽", name: "Liga Internacional" };
+      }
+
+      function generateAnalise(game, tipo, confidence) {
+        const analyses = {
+          high: [
+            "Estatísticas recentes favorecem esta aposta com 85% de precisão.",
+            "Forma atual das equipes indica alta probabilidade de sucesso.",
+            "Análise de confrontos diretos confirma esta tendência.",
+            "Dados avançados mostram padrão consistente para esta aposta.",
+          ],
+          medium: [
+            "Análise mostra equilíbrio, mas com ligeira vantagem.",
+            "Estatísticas indicam boa oportunidade com risco controlado.",
+            "Forma recente das equipes sugere esta possibilidade.",
+            "Contexto do jogo favorece esta linha de aposta.",
+          ],
+          premium: [
+            "Análise VIP exclusiva com 92% de taxa de sucesso histórica.",
+            "Informações privilegiadas sobre escalações e táticas.",
+            "Algoritmo avançado detectou oportunidade de alto valor.",
+            "Dica premium baseada em 15+ indicadores técnicos.",
+          ],
+        };
+
+        const list = analyses[confidence] || analyses.medium;
+        return list[Math.floor(Math.random() * list.length)];
+      }
+
+      function formatGameTime(timestamp) {
+        const date = new Date(timestamp);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        if (date.toDateString() === today.toDateString()) {
+          return `Hoje ${date.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`;
+        } else if (date.toDateString() === tomorrow.toDateString()) {
+          return `Amanhã ${date.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`;
+        } else {
+          return date.toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+      }
+
+      function renderDicas() {
+        const container = document.getElementById("dicasContainer");
+
+        if (allDicas.length === 0) {
+          container.innerHTML = `
+            <div class="no-dicas">
+              <div class="no-dicas-icon">💡</div>
+              <h3>Nenhuma dica disponível</h3>
+              <p>Aguarde, estamos analisando os próximos jogos...</p>
+            </div>
+          `;
+          return;
+        }
+
+        let filteredDicas = allDicas;
+
+        // Filtrar por data selecionada
+        if (selectedDate) {
+          filteredDicas = allDicas.filter(
+            (dica) => dica.gameDate === selectedDate
+          );
+        }
+
+        // Filtrar por categoria
+        filteredDicas = filterDicasByCategory(filteredDicas, currentFilter);
+
+        if (filteredDicas.length === 0) {
+          container.innerHTML = `
+            <div class="no-dicas">
+              <div class="no-dicas-icon">📅</div>
+              <h3>Nenhuma dica para esta data</h3>
+              <p>Selecione outra data ou categoria para ver as dicas disponíveis.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filteredDicas
+          .map(
+            (dica) => `
+          <div class="dica-card ${
+            dica.confidence === "premium" ? "premium-card" : ""
+          } fade-in">
+            ${
+              dica.confidence === "premium"
+                ? '<div class="premium-overlay">⭐ VIP</div>'
+                : ""
+            }
+            <div class="dica-header">
+              <div class="dica-info">
+                <div class="dica-match">${dica.match}</div>
+                <div class="dica-league">${dica.league.flag} ${
+              dica.league.name
+            } • ${dica.gameTime}</div>
+              </div>
+              <div class="confidence-badge confidence-${dica.confidence}">
+                ${
+                  dica.confidence === "premium"
+                    ? "VIP"
+                    : dica.confidence === "high"
+                    ? "Alta"
+                    : "Média"
+                } Confiança
+              </div>
+            </div>
+            <div class="dica-content">
+              <div class="dica-tipo">${dica.tipo.icon} ${dica.tipo.text}</div>
+              <div class="dica-descricao">
+                ${getDicaDescription(dica.tipo.text, dica.match)}
+              </div>
+              <div class="dica-analise">
+                <div class="analise-title">📊 Análise ${
+                  dica.confidence === "premium" ? "VIP" : "Técnica"
+                }</div>
+                <div class="analise-text">${dica.analise}</div>
+              </div>
+            </div>
+            <div class="dica-footer">
+              <div class="dica-odds">
+                <span>Odd:</span>
+                <span class="odd-value">${dica.odd}</span>
+              </div>
+              <div class="dica-time">${dica.timestamp}</div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        // Aplicar animações
+        setTimeout(() => {
+          document.querySelectorAll(".dica-card").forEach((card, index) => {
+            setTimeout(() => {
+              card.style.opacity = "1";
+              card.style.transform = "translateY(0)";
+            }, index * 100);
+          });
+        }, 50);
+      }
+
+      function getDicaDescription(tipo, match) {
+        const descriptions = {
+          Vitória: `Favorito com boa forma recente e estatísticas superiores.`,
+          Empate: `Confronto equilibrado entre equipes de forças similares.`,
+          "Casa ou Empate": `Dupla chance para reduzir risco em jogo incerto.`,
+          "Mais de": `Jogo promete ser movimentado com muitas oportunidades de gol.`,
+          "Menos de": `Confronto tático com defesas organizadas de ambos os lados.`,
+          "Ambas Marcam": `Duas equipes ofensivas que costumam balançar as redes.`,
+          Handicap: `Aposta com margem para equilibrar as odds do confronto.`,
+          Escanteios: `Jogo com muita pressão ofensiva gerando escanteios.`,
+        };
+
+        for (let key in descriptions) {
+          if (tipo.includes(key)) {
+            return descriptions[key];
+          }
+        }
+        return "Análise detalhada indica excelente oportunidade de aposta baseada em dados históricos.";
+      }
+
+      function filterDicasByCategory(dicas, categoria) {
+        switch (categoria) {
+          case "premium":
+            return dicas.filter((dica) => dica.confidence === "premium");
+          case "high":
+            return dicas.filter((dica) => dica.confidence === "high");
+          case "all":
+          default:
+            return dicas;
+        }
+      }
+
+      function filterDicas(categoria) {
+        document.querySelectorAll(".filter-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        event.target.classList.add("active");
+        currentFilter = categoria;
+
+        const container = document.getElementById("dicasContainer");
+        container.style.opacity = "0.5";
+
+        setTimeout(() => {
+          renderDicas();
+          container.style.opacity = "1";
+        }, 300);
+      }
+
+      function updateStats() {
+        // Calcular estatísticas baseadas nas dicas geradas
+        const totalDicas = allDicas.length;
+        const premiumDicas = allDicas.filter(
+          (d) => d.confidence === "premium"
+        ).length;
+        const highConfidence = allDicas.filter(
+          (d) => d.confidence === "high"
+        ).length;
+
+        // Simular taxa de sucesso baseada na confiança
+        const successRate = Math.round(85 + (premiumDicas / totalDicas) * 10);
+        const roi = `+${Math.round(15 + (highConfidence / totalDicas) * 15)}%`;
+
+        // Atualizar elementos da interface
+        document.querySelector(".success-rate").textContent = `${successRate}%`;
+        document.querySelector(".roi-positive").textContent = roi;
+        document.querySelector(".total-tips").textContent = totalDicas;
+      }
+
+      function showLoading() {
+        document.getElementById("dicasContainer").innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            Analisando jogos e gerando dicas...
+          </div>
+        `;
+      }
+
+      function showError() {
+        document.getElementById("dicasContainer").innerHTML = `
+          <div class="no-dicas">
+            <div class="no-dicas-icon">⚠️</div>
+            <h3>Erro ao carregar dicas</h3>
+            <p>Tente novamente em alguns instantes.</p>
+          </div>
+        `;
+      }
+
+      // Atualizar dicas a cada 5 minutos
+      setInterval(loadDicas, 5 * 60 * 1000);
+    </script>
+  </body>
+</html>

@@ -78,7 +78,7 @@
         content: "📈";
       }
       .nav-item:nth-child(4)::before {
-        content: "⚙️";
+        content: "💡";
       }
       /* Main Content */
       .main-content {
