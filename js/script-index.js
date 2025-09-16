@@ -521,7 +521,7 @@ function updateStats() {
 
   // === ATUALIZAR SALDO ATUAL (dados globais) ===
   document.getElementById("currentBalance").textContent = formatBRL(
-    2500 + totalGlobalReturn
+    2900 + totalGlobalReturn
   );
 
   // === ATUALIZAR ESTATÍSTICAS MENSAIS ===
