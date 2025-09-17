@@ -107,123 +107,14 @@
         </div>
 
         <!-- Tabs e Tabelas -->
+        <!-- Substitua toda a seção de tabs por isso: -->
         <div class="tabs-container">
-          <div class="tabs-header">
-            <div class="tab active" onclick="showMonth('setembro')">
-              Setembro
-            </div>
-            <div class="tab" onclick="showMonth('outubro')">Outubro</div>
-            <div class="tab" onclick="showMonth('novembro')">Novembro</div>
-            <div class="tab" onclick="showMonth('dezembro')">Dezembro</div>
+          <div class="tabs-header" id="tabs-header">
+            <!-- Tabs serão gerados pelo JS -->
           </div>
 
-          <!-- Conteúdo das abas -->
-          <div id="setembro" class="month-content">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Esporte</th>
-                    <th>Jogo</th>
-                    <th>Método</th>
-                    <th>Confiança</th>
-                    <th>Odd</th>
-                    <th>Unidade</th>
-                    <th>Retorno</th>
-                    <th>Resultado</th>
-                    <th>Casa de Apostas</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="setembro-tbody"></tbody>
-              </table>
-            </div>
-            <button class="add-btn" onclick="addNewBet('setembro')">
-              + Adicionar Aposta
-            </button>
-          </div>
-
-          <div id="outubro" class="month-content" style="display: none">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Esporte</th>
-                    <th>Jogo</th>
-                    <th>Método</th>
-                    <th>Confiança</th>
-                    <th>Odd</th>
-                    <th>Unidade</th>
-                    <th>Retorno</th>
-                    <th>Resultado</th>
-                    <th>Casa de Apostas</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="outubro-tbody"></tbody>
-              </table>
-            </div>
-            <button class="add-btn" onclick="addNewBet('outubro')">
-              + Adicionar Aposta
-            </button>
-          </div>
-
-          <div id="novembro" class="month-content" style="display: none">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Esporte</th>
-                    <th>Jogo</th>
-                    <th>Método</th>
-                    <th>Confiança</th>
-                    <th>Odd</th>
-                    <th>Unidade</th>
-                    <th>Retorno</th>
-                    <th>Resultado</th>
-                    <th>Casa de Apostas</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="novembro-tbody"></tbody>
-              </table>
-            </div>
-            <button class="add-btn" onclick="addNewBet('novembro')">
-              + Adicionar Aposta
-            </button>
-          </div>
-
-          <div id="dezembro" class="month-content" style="display: none">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Esporte</th>
-                    <th>Jogo</th>
-                    <th>Método</th>
-                    <th>Confiança</th>
-                    <th>Odd</th>
-                    <th>Unidade</th>
-                    <th>Retorno</th>
-                    <th>Resultado</th>
-                    <th>Casa de Apostas</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="dezembro-tbody"></tbody>
-              </table>
-            </div>
-            <button class="add-btn" onclick="addNewBet('dezembro')">
-              + Adicionar Aposta
-            </button>
+          <div id="month-contents">
+            <!-- Conteúdo dos meses será gerado pelo JS -->
           </div>
         </div>
 

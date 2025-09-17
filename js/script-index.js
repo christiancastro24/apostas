@@ -1,9 +1,20 @@
 let currentMultiplaRow = null;
-// Inicializa betsData a partir do localStorage se houver
+
+// CORREÇÃO: Primeiro definir storedBets a partir do localStorage
 let storedBets = localStorage.getItem("betsData");
+
+// Inicializa betsData a partir do localStorage se houver
 let betsData = storedBets
   ? JSON.parse(storedBets)
   : {
+      janeiro: [],
+      fevereiro: [],
+      março: [],
+      abril: [],
+      maio: [],
+      junho: [],
+      julho: [],
+      agosto: [],
       setembro: [],
       outubro: [],
       novembro: [],
@@ -27,7 +38,8 @@ function formatBRL(value) {
 }
 
 // Carregar dados salvos
-window.addEventListener("load", function () {
+document.addEventListener("DOMContentLoaded", function () {
+  initializeTabs();
   loadAllBets();
   updateStats();
 });
@@ -80,15 +92,20 @@ function showMonth(month) {
     content.classList.remove("active");
   });
 
-  // Adiciona active na tab clicada
-  document
-    .querySelector(`[onclick="showMonth('${month}')"]`)
-    .classList.add("active");
+  // CORREÇÃO: Encontrar a tab pelo texto ao invés do onclick
+  const tabs = document.querySelectorAll(".tab");
+  tabs.forEach((tab) => {
+    if (tab.textContent.toLowerCase() === month.toLowerCase()) {
+      tab.classList.add("active");
+    }
+  });
 
   // Mostra o conteúdo da aba selecionada
   const selectedContent = document.getElementById(month);
-  selectedContent.style.display = "block";
-  selectedContent.classList.add("active");
+  if (selectedContent) {
+    selectedContent.style.display = "block";
+    selectedContent.classList.add("active");
+  }
 
   // IMPORTANTE: Atualizar as estatísticas para o novo mês
   updateStats();
@@ -169,6 +186,73 @@ function addNewBet(month) {
       updateStats();
     });
   });
+}
+
+const months = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+];
+
+// Função para inicializar as tabs
+function initializeTabs() {
+  const tabsHeader = document.getElementById("tabs-header");
+  const monthContents = document.getElementById("month-contents");
+
+  // Gerar tabs
+  months.forEach((month, index) => {
+    const tab = document.createElement("div");
+    tab.className = index === 8 ? "tab active" : "tab"; // setembro ativo
+    tab.textContent = month.charAt(0).toUpperCase() + month.slice(1);
+    tab.onclick = () => showMonth(month);
+    tabsHeader.appendChild(tab);
+
+    // Gerar conteúdo do mês
+    const content = document.createElement("div");
+    content.id = month;
+    content.className = "month-content";
+    content.style.display = index === 8 ? "block" : "none";
+    content.innerHTML = createMonthContent(month);
+    monthContents.appendChild(content);
+  });
+}
+
+function createMonthContent(month) {
+  return `
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Esporte</th>
+            <th>Jogo</th>
+            <th>Método</th>
+            <th>Confiança</th>
+            <th>Odd</th>
+            <th>Unidade</th>
+            <th>Retorno</th>
+            <th>Resultado</th>
+            <th>Casa de Apostas</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="${month}-tbody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addNewBet('${month}')">
+      + Adicionar Aposta
+    </button>
+  `;
 }
 
 // Função corrigida para reordenar a tabela (do menor para o maior)
@@ -482,9 +566,8 @@ function updateStats() {
 
   // === SALDO TOTAL GERAL (para informações da banca) ===
   let totalGlobalReturn = 0;
-  const allMonths = ["setembro", "outubro", "novembro", "dezembro"];
 
-  allMonths.forEach((month) => {
+  months.forEach((month) => {
     const monthTbody = document.getElementById(month + "-tbody");
     const monthRows = monthTbody.querySelectorAll("tr");
 
@@ -558,8 +641,6 @@ function updateStats() {
 }
 
 function saveBetsData() {
-  const months = ["setembro", "outubro", "novembro", "dezembro"];
-
   months.forEach((month) => {
     const tbody = document.getElementById(month + "-tbody");
     const rows = tbody.querySelectorAll("tr");
@@ -606,8 +687,6 @@ function loadAllBets() {
 
   if (savedBets) betsData = JSON.parse(savedBets);
   if (savedMultiplas) multiplaData = JSON.parse(savedMultiplas);
-
-  const months = ["setembro", "outubro", "novembro", "dezembro"];
 
   months.forEach((month) => {
     const monthData = betsData[month] || [];
@@ -745,7 +824,7 @@ function loadAllBets() {
       resultSelect.classList.add(bet.resultado || "pending");
 
       newRow.querySelector(".cell-casa-apostas select").value =
-        bet.casaApostas || "Betano";
+        bet.casaApostas || "betano";
 
       calculateReturn(newRow.querySelector(".cell-odd input"));
 
