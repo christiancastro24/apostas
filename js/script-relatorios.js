@@ -79,7 +79,20 @@ function applyFilters() {
 
     const monthsToInclude =
       period === "todos"
-        ? ["setembro", "outubro", "novembro", "dezembro"]
+        ? [
+            "janeiro",
+            "fevereiro",
+            "marco",
+            "abril",
+            "maio",
+            "junho",
+            "julho",
+            "agosto",
+            "setembro",
+            "outubro",
+            "novembro",
+            "dezembro",
+          ]
         : [period];
 
     monthsToInclude.forEach((month) => {
