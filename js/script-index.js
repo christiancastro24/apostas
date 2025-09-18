@@ -1,5 +1,9 @@
 let currentMultiplaRow = null;
 
+// Variáveis para controle de filtro e estado
+let currentFilter = "all";
+let scrollPositions = {};
+
 // CORREÇÃO: Primeiro definir storedBets a partir do localStorage
 let storedBets = localStorage.getItem("betsData");
 
@@ -78,6 +82,9 @@ function showNotification(message) {
 }
 
 function showMonth(month) {
+  // Salvar posição de scroll da aba atual
+  saveScrollPosition();
+
   // Atualizar a variável do mês ativo
   currentActiveMonth = month;
 
@@ -106,6 +113,15 @@ function showMonth(month) {
     selectedContent.style.display = "block";
     selectedContent.classList.add("active");
   }
+
+  // Salvar aba ativa
+  localStorage.setItem("lastActiveTab", month);
+
+  // Aplicar filtro atual na nova aba
+  applyFilter(currentFilter);
+
+  // Restaurar posição de scroll
+  restoreScrollPosition(month);
 
   // IMPORTANTE: Atualizar as estatísticas para o novo mês
   updateStats();
@@ -506,6 +522,9 @@ function handleResultChange(select) {
   select.classList.add(select.value);
 
   updateStats();
+
+  // Reaplicar filtro após mudança de resultado
+  applyFilter(currentFilter);
 }
 
 function removeRow(button) {
@@ -836,6 +855,29 @@ function loadAllBets() {
       });
     });
   });
+
+  // === ADIÇÕES PARA RESTAURAR ESTADO ===
+  // Restaurar filtro salvo
+  const savedFilter = localStorage.getItem("currentFilter");
+  if (savedFilter) {
+    currentFilter = savedFilter;
+  }
+
+  // Restaurar aba ativa
+  const savedTab = localStorage.getItem("lastActiveTab");
+  if (savedTab && document.getElementById(savedTab)) {
+    currentActiveMonth = savedTab;
+    showMonth(savedTab);
+  } else {
+    // Aplicar filtro na aba padrão
+    applyFilter(currentFilter);
+  }
+
+  // Restaurar posições de scroll
+  const savedPositions = localStorage.getItem("scrollPositions");
+  if (savedPositions) {
+    scrollPositions = JSON.parse(savedPositions);
+  }
 }
 
 // Fechar modal ao clicar fora
@@ -887,4 +929,74 @@ function importData(event) {
   };
   reader.readAsText(file);
   event.target.value = "";
+}
+
+// Função de filtro
+function applyFilter(filterType) {
+  currentFilter = filterType;
+
+  // Atualizar botões de filtro
+  document.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  document
+    .querySelector(`[data-filter="${filterType}"]`)
+    .classList.add("active");
+
+  // Aplicar filtro na aba ativa
+  const activeTab = document.querySelector(
+    '.month-content:not([style*="display: none"])'
+  );
+  if (activeTab) {
+    const tbody = activeTab.querySelector("tbody");
+    const rows = tbody.querySelectorAll("tr");
+
+    rows.forEach((row) => {
+      const resultSelect = row.querySelector(".cell-resultado select");
+      const resultValue = resultSelect ? resultSelect.value : "";
+
+      if (filterType === "all") {
+        row.classList.remove("row-hidden");
+      } else {
+        if (resultValue === filterType) {
+          row.classList.remove("row-hidden");
+        } else {
+          row.classList.add("row-hidden");
+        }
+      }
+    });
+  }
+
+  // Salvar filtro no localStorage
+  localStorage.setItem("currentFilter", filterType);
+}
+
+// Salvar posição de scroll
+function saveScrollPosition() {
+  const activeContent = document.querySelector(
+    '.month-content:not([style*="display: none"])'
+  );
+  if (activeContent) {
+    const container = activeContent.querySelector(".table-container");
+    const tabId = activeContent.id;
+    if (container) {
+      scrollPositions[tabId] = container.scrollTop;
+      localStorage.setItem("scrollPositions", JSON.stringify(scrollPositions));
+    }
+  }
+}
+
+// Restaurar posição de scroll
+function restoreScrollPosition(tabId) {
+  const savedPositions = localStorage.getItem("scrollPositions");
+  if (savedPositions) {
+    scrollPositions = JSON.parse(savedPositions);
+  }
+
+  setTimeout(() => {
+    const container = document.querySelector(`#${tabId} .table-container`);
+    if (container && scrollPositions[tabId]) {
+      container.scrollTop = scrollPositions[tabId];
+    }
+  }, 100);
 }

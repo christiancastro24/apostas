@@ -107,10 +107,46 @@
         </div>
 
         <!-- Tabs e Tabelas -->
-        <!-- Substitua toda a seção de tabs por isso: -->
         <div class="tabs-container">
           <div class="tabs-header" id="tabs-header">
             <!-- Tabs serão gerados pelo JS -->
+          </div>
+
+          <!-- Filtros -->
+          <div class="filter-container">
+            <div class="filter-header">
+              <span class="filter-title">🔍 Filtros</span>
+              <div class="filter-buttons">
+                <button
+                  class="filter-btn active"
+                  data-filter="all"
+                  onclick="applyFilter('all')"
+                >
+                  Todos
+                </button>
+                <button
+                  class="filter-btn"
+                  data-filter="green"
+                  onclick="applyFilter('green')"
+                >
+                  🟢 Green
+                </button>
+                <button
+                  class="filter-btn"
+                  data-filter="red"
+                  onclick="applyFilter('red')"
+                >
+                  🔴 Red
+                </button>
+                <button
+                  class="filter-btn"
+                  data-filter="pending"
+                  onclick="applyFilter('pending')"
+                >
+                  ⏳ Pendente
+                </button>
+              </div>
+            </div>
           </div>
 
           <div id="month-contents">
