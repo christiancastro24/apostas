@@ -576,45 +576,125 @@ tr:hover {
 
 .daily-results-section {
   margin-top: 32px;
-  padding: 24px;
+  padding: 28px;
   background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.month-navigation {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #64748b;
+  font-size: 18px;
+}
+
+.nav-btn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.calendar-wrapper {
+  background: #fafbfc;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.weekdays-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  padding: 8px 0;
 }
 
 .daily-results-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  margin-top: 16px;
-  max-width: 600px;
 }
 
 .day-block {
   aspect-ratio: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 2px solid transparent;
+  position: relative;
+  min-height: 60px;
+  padding: 4px;
+}
+
+.day-number {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.day-profit {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.1;
+  opacity: 0.9;
 }
 
 .day-block.green {
-  background: #22c55e;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
 }
 
 .day-block.red {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .day-block.neutral {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: #64748b;
   border-color: #e2e8f0;
 }
@@ -625,6 +705,14 @@ tr:hover {
 }
 
 .day-block:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.day-block.green:hover {
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.day-block.red:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }

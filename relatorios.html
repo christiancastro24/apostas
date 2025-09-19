@@ -183,12 +183,31 @@
         </div>
 
 
-        <div class="daily-results-section">
-  <div class="section-title">
-    📅 Resultados Diários - <span id="monthYearDisplay">Setembro 2024</span>
+<div class="daily-results-section">
+  <div class="section-header">
+    <div class="section-title">
+      📅 Resultados Diários - <span id="monthYearDisplay">Setembro 2025</span>
+    </div>
+    <div class="month-navigation">
+      <button class="nav-btn" onclick="previousMonth()">‹</button>
+      <button class="nav-btn" onclick="nextMonth()">›</button>
+    </div>
   </div>
-  <div class="daily-results-grid" id="dailyResultsGrid">
-    <!-- Grid será preenchido via JavaScript -->
+  
+  <div class="calendar-wrapper">
+    <div class="weekdays-header">
+      <div class="weekday">Dom</div>
+      <div class="weekday">Seg</div>
+      <div class="weekday">Ter</div>
+      <div class="weekday">Qua</div>
+      <div class="weekday">Qui</div>
+      <div class="weekday">Sex</div>
+      <div class="weekday">Sáb</div>
+    </div>
+    
+    <div class="daily-results-grid" id="dailyResultsGrid">
+      <!-- Grid será preenchido via JavaScript -->
+    </div>
   </div>
 </div>
 

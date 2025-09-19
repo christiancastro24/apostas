@@ -1516,17 +1516,14 @@ function generateDailyResultsGrid() {
 
   if (!container) return;
 
-  // Corrigido: buscar o elemento DOM do filtro de período
   const periodFilter = document.getElementById("periodFilter");
 
-  // Pega o mês do filtro ou usa atual
   const selectedMonth =
     periodFilter && periodFilter.value !== "todos"
       ? getMonthNumberFromName(periodFilter.value)
       : new Date().getMonth() + 1;
   const selectedYear = new Date().getFullYear();
 
-  // Atualiza o display do mês/ano
   const monthNames = [
     "Janeiro",
     "Fevereiro",
@@ -1547,10 +1544,7 @@ function generateDailyResultsGrid() {
     } ${selectedYear}`;
   }
 
-  // Calcula resultados por dia
   const dailyResults = calculateDailyResults(selectedMonth, selectedYear);
-
-  // Gera o grid
   const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
   const firstDay = new Date(selectedYear, selectedMonth - 1, 1).getDay();
 
@@ -1565,22 +1559,40 @@ function generateDailyResultsGrid() {
   for (let day = 1; day <= daysInMonth; day++) {
     const result = dailyResults[day];
     let cssClass = "no-data";
+    let profitText = "";
 
     if (result) {
       cssClass =
         result.profit > 0 ? "green" : result.profit < 0 ? "red" : "neutral";
+      profitText = `<div class="day-profit">${formatCurrency(
+        result.profit
+      )}</div>`;
     }
 
     gridHTML += `
       <div class="day-block ${cssClass}" 
            title="Dia ${day}: ${
-      result ? formatCurrency(result.profit) : "Sem apostas"
+      result
+        ? formatCurrency(result.profit) + " (" + result.bets + " apostas)"
+        : "Sem apostas"
     }">
-        ${day}
+        <div class="day-number">${day}</div>
+        ${profitText}
       </div>`;
   }
 
   container.innerHTML = gridHTML;
+}
+
+// Funções de navegação entre meses
+function previousMonth() {
+  // Implementar lógica para mês anterior
+  console.log("Mês anterior");
+}
+
+function nextMonth() {
+  // Implementar lógica para próximo mês
+  console.log("Próximo mês");
 }
 
 // Função auxiliar para converter nome do mês em número
