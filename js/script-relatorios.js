@@ -1617,8 +1617,14 @@ function getMonthNumberFromName(monthName) {
 function calculateDailyResults(month, year) {
   const dailyResults = {};
 
-  filteredData.forEach((bet) => {
-    const betDate = new Date(bet.data.split("/").reverse().join("-"));
+  // Usar filteredData se existir, senão usar dados de exemplo
+  const dataToProcess =
+    filteredData.length > 0 ? filteredData : allBetsData.setembro || [];
+
+  dataToProcess.forEach((bet) => {
+    // Processar data no formato correto (2025-09-04)
+    const betDate = new Date(bet.data);
+
     if (betDate.getMonth() + 1 === month && betDate.getFullYear() === year) {
       const day = betDate.getDate();
 

@@ -649,7 +649,7 @@ tr:hover {
 .daily-results-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px; /* Aumentar gap para melhor aproveitamento */
+  gap: 10px; /* Reduzido de 12px para 10px */
   width: 100%;
 }
 
@@ -664,24 +664,24 @@ tr:hover {
   transition: all 0.2s ease;
   border: 2px solid transparent;
   position: relative;
-  min-height: 80px; /* Aumentar altura mínima */
-  padding: 8px 4px; /* Aumentar padding */
-  width: 100%; /* Ocupar largura total da célula */
+  min-height: 70px; /* Reduzido de 80px para 70px */
+  padding: 6px 4px; /* Reduzido padding */
+  width: 100%;
 }
 
 .day-number {
-  font-size: 16px; /* Aumentar tamanho da fonte */
+  font-size: 18px; /* Aumentado de 16px para 18px */
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .day-profit {
-  font-size: 11px; /* Aumentar tamanho da fonte */
+  font-size: 12px; /* Aumentado de 11px para 12px */
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
   opacity: 0.95;
-  word-break: break-all; /* Para quebrar valores longos */
+  word-break: break-all;
 }
 
 .day-block.green {
