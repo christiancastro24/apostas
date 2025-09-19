@@ -217,6 +217,8 @@ function calculateStats(data) {
       roi: 0,
       avgOdd: 0,
       bestSport: "N/A",
+      highestWonOdd: 0,
+      avgWonOdd: 0,
     };
 
   const totalBets = data.length;
@@ -255,19 +257,41 @@ function calculateStats(data) {
     totalStaked > 0 ? ((totalProfit / totalStaked) * 100).toFixed(1) : 0;
   const avgOdd = (totalOdd / totalBets).toFixed(2);
 
+  // Cálculos para odds acertadas
+  const wonBets = data.filter((bet) => bet.resultado === "green");
+  const highestWonOdd =
+    wonBets.length > 0
+      ? Math.max(...wonBets.map((bet) => parseFloat(bet.odd) || 1))
+      : 0;
+  const avgWonOdd =
+    wonBets.length > 0
+      ? (
+          wonBets.reduce((sum, bet) => sum + (parseFloat(bet.odd) || 1), 0) /
+          wonBets.length
+        ).toFixed(2)
+      : 0;
+
   // Melhor esporte
   let bestSport = "Futebol";
   let bestWinRate = 0;
   Object.entries(sportStats).forEach(([sport, stats]) => {
-    console.log(sport, "SPORT ANTES");
     const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
     if (winRate > bestWinRate && stats.total >= 3) {
       bestWinRate = winRate;
-      bestSport = "Futebol";
+      bestSport = sport;
     }
   });
 
-  return { totalBets, winRate, totalProfit, roi, avgOdd, bestSport };
+  return {
+    totalBets,
+    winRate,
+    totalProfit,
+    roi,
+    avgOdd,
+    bestSport,
+    highestWonOdd: highestWonOdd.toFixed(2),
+    avgWonOdd: avgWonOdd,
+  };
 }
 
 // Atualizar gráficos
@@ -603,7 +627,9 @@ function updateInsights() {
       esports: "🎮",
     };
     insights.push({
-      text: `${sportIcons[stats.bestSport] || "🏆"} Seu melhor esporte é ${
+      text: `${
+        sportIcons[stats.bestSport.toLowerCase()] || "🏆"
+      } Seu melhor esporte é ${
         stats.bestSport
       }. Continue focando nesta modalidade!`,
       trend: "up",
@@ -623,17 +649,44 @@ function updateInsights() {
     });
   }
 
-  // Insight sobre odd média
-  if (stats.avgOdd > 2.5) {
-    insights.push({
-      text: `🎲 Odd média alta (${stats.avgOdd}). Apostas de maior risco podem trazer mais retorno, mas cuidado com o bankroll.`,
-      trend: "stable",
-    });
-  } else if (stats.avgOdd < 1.8) {
-    insights.push({
-      text: `🛡️ Odd média conservadora (${stats.avgOdd}). Boa para preservar capital, mas pode limitar lucros.`,
-      trend: "stable",
-    });
+  // Insight sobre maior odd acertada
+  if (stats.highestWonOdd > 0) {
+    if (stats.highestWonOdd >= 5.0) {
+      insights.push({
+        text: `🎯 Impressionante! Sua maior odd acertada foi ${stats.highestWonOdd}. Você tem coragem para apostas arriscadas!`,
+        trend: "up",
+      });
+    } else if (stats.highestWonOdd >= 3.0) {
+      insights.push({
+        text: `🏆 Boa! Maior odd acertada: ${stats.highestWonOdd}. Equilíbrio entre risco e segurança.`,
+        trend: "up",
+      });
+    } else {
+      insights.push({
+        text: `🛡️ Maior odd acertada: ${stats.highestWonOdd}. Perfil conservador, focando em apostas mais seguras.`,
+        trend: "stable",
+      });
+    }
+  }
+
+  // Insight sobre média de odds acertadas
+  if (stats.avgWonOdd > 0) {
+    if (stats.avgWonOdd >= 3.0) {
+      insights.push({
+        text: `📊 Média das odds acertadas: ${stats.avgWonOdd}. Você acerta apostas de valor médio-alto!`,
+        trend: "up",
+      });
+    } else if (stats.avgWonOdd >= 2.0) {
+      insights.push({
+        text: `⚖️ Média das odds acertadas: ${stats.avgWonOdd}. Bom equilíbrio entre risco e acertos.`,
+        trend: "stable",
+      });
+    } else {
+      insights.push({
+        text: `🎯 Média das odds acertadas: ${stats.avgWonOdd}. Foca em apostas seguras e certeiras.`,
+        trend: "stable",
+      });
+    }
   }
 
   container.innerHTML = insights
