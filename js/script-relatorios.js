@@ -117,6 +117,7 @@ function applyFilters() {
 
     hideLoading();
     updateDashboard();
+    generateDailyResultsGrid();
   }, 1000);
 }
 
@@ -1508,6 +1509,101 @@ const pdfButtonCSS = `
   }
 }
 `;
+
+function generateDailyResultsGrid() {
+  const container = document.getElementById("dailyResultsGrid");
+  const monthYearDisplay = document.getElementById("monthYearDisplay");
+
+  if (!container) return;
+
+  // Pega o mês do filtro ou usa atual
+  const selectedMonth = monthFilter.value
+    ? parseInt(monthFilter.value)
+    : new Date().getMonth() + 1;
+  const selectedYear = new Date().getFullYear();
+
+  // Atualiza o display do mês/ano
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+  monthYearDisplay.textContent = `${
+    monthNames[selectedMonth - 1]
+  } ${selectedYear}`;
+
+  // Calcula resultados por dia
+  const dailyResults = calculateDailyResults(selectedMonth, selectedYear);
+
+  // Gera o grid
+  const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+  const firstDay = new Date(selectedYear, selectedMonth - 1, 1).getDay();
+
+  let gridHTML = "";
+
+  // Dias vazios do início
+  for (let i = 0; i < firstDay; i++) {
+    gridHTML += '<div class="day-block no-data"></div>';
+  }
+
+  // Dias do mês
+  for (let day = 1; day <= daysInMonth; day++) {
+    const result = dailyResults[day];
+    let cssClass = "no-data";
+
+    if (result) {
+      cssClass =
+        result.profit > 0 ? "green" : result.profit < 0 ? "red" : "neutral";
+    }
+
+    gridHTML += `
+      <div class="day-block ${cssClass}" 
+           title="Dia ${day}: ${
+      result ? formatBRL(result.profit) : "Sem apostas"
+    }">
+        ${day}
+      </div>`;
+  }
+
+  container.innerHTML = gridHTML;
+}
+
+function calculateDailyResults(month, year) {
+  const dailyResults = {};
+
+  filteredData.forEach((bet) => {
+    const betDate = new Date(bet.data.split("/").reverse().join("-"));
+    if (betDate.getMonth() + 1 === month && betDate.getFullYear() === year) {
+      const day = betDate.getDate();
+
+      if (!dailyResults[day]) {
+        dailyResults[day] = { profit: 0, bets: 0 };
+      }
+
+      const stake = (parseFloat(bet.unidade) || 1) * 50;
+      const odd = parseFloat(bet.odd) || 1;
+
+      if (bet.resultado === "green") {
+        dailyResults[day].profit += odd * stake - stake;
+      } else if (bet.resultado === "red") {
+        dailyResults[day].profit -= stake;
+      }
+
+      dailyResults[day].bets++;
+    }
+  });
+
+  return dailyResults;
+}
 
 // ==================== INICIALIZAÇÃO ====================
 function initPDFExport() {

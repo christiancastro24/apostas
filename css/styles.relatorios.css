@@ -334,8 +334,7 @@ body {
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 0;
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.15),
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
@@ -573,4 +572,59 @@ tr:hover {
   .filters-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.daily-results-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.daily-results-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+  max-width: 600px;
+}
+
+.day-block {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.day-block.green {
+  background: #22c55e;
+  color: white;
+}
+
+.day-block.red {
+  background: #ef4444;
+  color: white;
+}
+
+.day-block.neutral {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.day-block.no-data {
+  background: #f8fafc;
+  color: #cbd5e1;
+}
+
+.day-block:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
