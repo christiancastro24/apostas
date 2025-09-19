@@ -678,7 +678,7 @@ function saveBetsData() {
         data: row.querySelector(".cell-data input").value,
         tipo: row.querySelector(".cell-tipo select").value,
         esporte: isMultipla
-          ? "multiplos"
+          ? "Futebol"
           : row.querySelector(".cell-esporte select")?.value || "",
         evento: isMultipla
           ? "Múltipla"
@@ -824,7 +824,7 @@ function loadAllBets() {
         // Se for aposta simples, preencher os campos normalmente
         if (!bet.isMultipla) {
           newRow.querySelector(".cell-esporte select").value =
-            bet.esporte || "futebol";
+            bet.esporte || "Futebol";
           newRow.querySelector(".cell-evento input").value = bet.evento || "";
           newRow.querySelector(".cell-metodo input").value = bet.metodo || "";
         }
