@@ -622,9 +622,13 @@ function updateStats() {
   document.getElementById("assertividade").textContent = assertividade + "%";
 
   // === ATUALIZAR SALDO ATUAL (dados globais) ===
-  document.getElementById("currentBalance").textContent = formatBRL(
-    2900 + totalGlobalReturn
-  );
+  // === ATUALIZAR SALDO ATUAL E UNIDADES (dados globais) ===
+  const currentBalance = 2900 + totalGlobalReturn;
+  const currentUnits = Math.floor(currentBalance / 50);
+
+  document.getElementById("currentBalance").textContent =
+    formatBRL(currentBalance);
+  document.getElementById("currentUnits").textContent = currentUnits;
 
   // === ATUALIZAR ESTATÍSTICAS MENSAIS ===
   document.getElementById(
