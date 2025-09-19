@@ -1617,60 +1617,46 @@ function getMonthNumberFromName(monthName) {
 function calculateDailyResults(month, year) {
   console.log("=== calculateDailyResults ===");
   console.log("Month:", month, "Year:", year);
-  console.log("filteredData:", filteredData);
-  console.log("allBetsData:", allBetsData);
 
   const dailyResults = {};
-
-  // Usar filteredData se existir, senão usar dados de exemplo
   const dataToProcess =
     filteredData.length > 0 ? filteredData : allBetsData.setembro || [];
 
-  console.log("dataToProcess:", dataToProcess);
-  console.log("dataToProcess.length:", dataToProcess.length);
-
   dataToProcess.forEach((bet, index) => {
-    console.log(`Processing bet ${index}:`, bet);
+    // CORREÇÃO: Processar data como string para evitar problemas de fuso horário
+    const dateParts = bet.data.split("-"); // [2025, 09, 18]
+    const betYear = parseInt(dateParts[0]);
+    const betMonth = parseInt(dateParts[1]);
+    const betDay = parseInt(dateParts[2]);
 
-    // Processar data no formato correto (2025-09-04)
-    const betDate = new Date(bet.data);
-    console.log("bet.data:", bet.data);
-    console.log("betDate:", betDate);
-    console.log("betDate.getMonth() + 1:", betDate.getMonth() + 1);
-    console.log("betDate.getFullYear():", betDate.getFullYear());
+    console.log(
+      `Bet ${index}: ${bet.data} -> Year: ${betYear}, Month: ${betMonth}, Day: ${betDay}`
+    );
 
-    if (betDate.getMonth() + 1 === month && betDate.getFullYear() === year) {
-      const day = betDate.getDate();
-      console.log("Match found! Day:", day);
+    if (betMonth === month && betYear === year) {
+      console.log("Match found! Day:", betDay);
 
-      if (!dailyResults[day]) {
-        dailyResults[day] = { profit: 0, bets: 0 };
+      if (!dailyResults[betDay]) {
+        dailyResults[betDay] = { profit: 0, bets: 0 };
       }
 
       const stake = (parseFloat(bet.unidade) || 1) * 50;
       const odd = parseFloat(bet.odd) || 1;
 
-      console.log("stake:", stake, "odd:", odd, "resultado:", bet.resultado);
-
       if (bet.resultado === "green") {
-        dailyResults[day].profit += odd * stake - stake;
-        console.log("Green bet - profit added:", odd * stake - stake);
+        dailyResults[betDay].profit += odd * stake - stake;
       } else if (bet.resultado === "red") {
-        dailyResults[day].profit -= stake;
-        console.log("Red bet - loss added:", -stake);
+        dailyResults[betDay].profit -= stake;
       }
 
-      dailyResults[day].bets++;
-      console.log(`Day ${day} updated:`, dailyResults[day]);
-    } else {
-      console.log("Date does not match - skipping");
+      dailyResults[betDay].bets++;
+      console.log(`Day ${betDay} updated:`, dailyResults[betDay]);
     }
   });
 
   console.log("Final dailyResults:", dailyResults);
   return dailyResults;
 }
-
 // ==================== INICIALIZAÇÃO ====================
 function initPDFExport() {
   // Adicionar CSS
