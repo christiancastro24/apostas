@@ -580,9 +580,7 @@ tr:hover {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%; /* Remover max-width para ocupar todo container */
 }
 
 .section-header {
@@ -628,13 +626,15 @@ tr:hover {
   border-radius: 12px;
   padding: 20px;
   border: 1px solid #e2e8f0;
+  width: 100%; /* Garantir largura total */
 }
 
 .weekdays-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 12px; /* Aumentar gap */
   margin-bottom: 12px;
+  width: 100%;
 }
 
 .weekday {
@@ -649,7 +649,8 @@ tr:hover {
 .daily-results-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 12px; /* Aumentar gap para melhor aproveitamento */
+  width: 100%;
 }
 
 .day-block {
@@ -663,22 +664,24 @@ tr:hover {
   transition: all 0.2s ease;
   border: 2px solid transparent;
   position: relative;
-  min-height: 60px;
-  padding: 4px;
+  min-height: 80px; /* Aumentar altura mínima */
+  padding: 8px 4px; /* Aumentar padding */
+  width: 100%; /* Ocupar largura total da célula */
 }
 
 .day-number {
-  font-size: 14px;
+  font-size: 16px; /* Aumentar tamanho da fonte */
   font-weight: 700;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .day-profit {
-  font-size: 10px;
+  font-size: 11px; /* Aumentar tamanho da fonte */
   font-weight: 600;
   text-align: center;
-  line-height: 1.1;
-  opacity: 0.9;
+  line-height: 1.2;
+  opacity: 0.95;
+  word-break: break-all; /* Para quebrar valores longos */
 }
 
 .day-block.green {
