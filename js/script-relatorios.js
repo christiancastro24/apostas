@@ -1615,18 +1615,33 @@ function getMonthNumberFromName(monthName) {
 }
 
 function calculateDailyResults(month, year) {
+  console.log("=== calculateDailyResults ===");
+  console.log("Month:", month, "Year:", year);
+  console.log("filteredData:", filteredData);
+  console.log("allBetsData:", allBetsData);
+
   const dailyResults = {};
 
   // Usar filteredData se existir, senão usar dados de exemplo
   const dataToProcess =
     filteredData.length > 0 ? filteredData : allBetsData.setembro || [];
 
-  dataToProcess.forEach((bet) => {
+  console.log("dataToProcess:", dataToProcess);
+  console.log("dataToProcess.length:", dataToProcess.length);
+
+  dataToProcess.forEach((bet, index) => {
+    console.log(`Processing bet ${index}:`, bet);
+
     // Processar data no formato correto (2025-09-04)
     const betDate = new Date(bet.data);
+    console.log("bet.data:", bet.data);
+    console.log("betDate:", betDate);
+    console.log("betDate.getMonth() + 1:", betDate.getMonth() + 1);
+    console.log("betDate.getFullYear():", betDate.getFullYear());
 
     if (betDate.getMonth() + 1 === month && betDate.getFullYear() === year) {
       const day = betDate.getDate();
+      console.log("Match found! Day:", day);
 
       if (!dailyResults[day]) {
         dailyResults[day] = { profit: 0, bets: 0 };
@@ -1635,16 +1650,24 @@ function calculateDailyResults(month, year) {
       const stake = (parseFloat(bet.unidade) || 1) * 50;
       const odd = parseFloat(bet.odd) || 1;
 
+      console.log("stake:", stake, "odd:", odd, "resultado:", bet.resultado);
+
       if (bet.resultado === "green") {
         dailyResults[day].profit += odd * stake - stake;
+        console.log("Green bet - profit added:", odd * stake - stake);
       } else if (bet.resultado === "red") {
         dailyResults[day].profit -= stake;
+        console.log("Red bet - loss added:", -stake);
       }
 
       dailyResults[day].bets++;
+      console.log(`Day ${day} updated:`, dailyResults[day]);
+    } else {
+      console.log("Date does not match - skipping");
     }
   });
 
+  console.log("Final dailyResults:", dailyResults);
   return dailyResults;
 }
 

@@ -664,7 +664,7 @@ tr:hover {
   transition: all 0.2s ease;
   border: 2px solid transparent;
   position: relative;
-  min-height: 70px; /* Reduzido de 80px para 70px */
+  height: 120px; /* Reduzido de 80px para 70px */
   padding: 6px 4px; /* Reduzido padding */
   width: 100%;
 }
