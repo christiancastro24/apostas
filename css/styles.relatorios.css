@@ -670,18 +670,20 @@ tr:hover {
 }
 
 .day-number {
-  font-size: 18px; /* Aumentado de 16px para 18px */
+  font-size: 25px; /* Aumentado de 16px para 18px */
   font-weight: 700;
   margin-bottom: 3px;
 }
 
 .day-profit {
-  font-size: 12px; /* Aumentado de 11px para 12px */
+  font-size: 15px; /* Aumentado de 11px para 12px */
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
   opacity: 0.95;
   word-break: break-all;
+  position: relative;
+  top: 0.5rem;
 }
 
 .day-block.green {
