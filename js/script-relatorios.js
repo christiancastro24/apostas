@@ -1516,10 +1516,14 @@ function generateDailyResultsGrid() {
 
   if (!container) return;
 
+  // Corrigido: buscar o elemento DOM do filtro de período
+  const periodFilter = document.getElementById("periodFilter");
+
   // Pega o mês do filtro ou usa atual
-  const selectedMonth = monthFilter.value
-    ? parseInt(monthFilter.value)
-    : new Date().getMonth() + 1;
+  const selectedMonth =
+    periodFilter && periodFilter.value !== "todos"
+      ? getMonthNumberFromName(periodFilter.value)
+      : new Date().getMonth() + 1;
   const selectedYear = new Date().getFullYear();
 
   // Atualiza o display do mês/ano
@@ -1537,9 +1541,11 @@ function generateDailyResultsGrid() {
     "Novembro",
     "Dezembro",
   ];
-  monthYearDisplay.textContent = `${
-    monthNames[selectedMonth - 1]
-  } ${selectedYear}`;
+  if (monthYearDisplay) {
+    monthYearDisplay.textContent = `${
+      monthNames[selectedMonth - 1]
+    } ${selectedYear}`;
+  }
 
   // Calcula resultados por dia
   const dailyResults = calculateDailyResults(selectedMonth, selectedYear);
@@ -1568,13 +1574,32 @@ function generateDailyResultsGrid() {
     gridHTML += `
       <div class="day-block ${cssClass}" 
            title="Dia ${day}: ${
-      result ? formatBRL(result.profit) : "Sem apostas"
+      result ? formatCurrency(result.profit) : "Sem apostas"
     }">
         ${day}
       </div>`;
   }
 
   container.innerHTML = gridHTML;
+}
+
+// Função auxiliar para converter nome do mês em número
+function getMonthNumberFromName(monthName) {
+  const monthMap = {
+    janeiro: 1,
+    fevereiro: 2,
+    marco: 3,
+    abril: 4,
+    maio: 5,
+    junho: 6,
+    julho: 7,
+    agosto: 8,
+    setembro: 9,
+    outubro: 10,
+    novembro: 11,
+    dezembro: 12,
+  };
+  return monthMap[monthName.toLowerCase()] || new Date().getMonth() + 1;
 }
 
 function calculateDailyResults(month, year) {
