@@ -73,7 +73,7 @@ function applyFilters() {
     const period = document.getElementById("periodFilter").value;
     const sport = document.getElementById("sportFilter").value;
     const result = document.getElementById("resultFilter").value;
-    const confidence = document.getElementById("confidenceFilter").value;
+    const casaApostas = document.getElementById("casaApostasFilter").value; // NOVO
 
     filteredData = [];
 
@@ -102,11 +102,8 @@ function applyFilters() {
 
           if (sport !== "todos" && bet.esporte !== sport) include = false;
           if (result !== "todos" && bet.resultado !== result) include = false;
-          if (
-            confidence !== "todos" &&
-            parseInt(bet.confianca) !== parseInt(confidence)
-          )
-            include = false;
+          if (casaApostas !== "todos" && bet.casaApostas !== casaApostas)
+            include = false; // NOVO
 
           if (include) {
             filteredData.push({ ...bet, month });
@@ -118,10 +115,8 @@ function applyFilters() {
     hideLoading();
     updateDashboard();
     generateDailyResultsGrid();
-    checkLucroMilestone();
   }, 1000);
 }
-
 // Mostrar/ocultar loading
 function showLoading() {
   document.getElementById("loadingSpinner").style.display = "block";
@@ -302,7 +297,7 @@ function updateCharts() {
   updateMonthlyChart();
   updateSportChart();
   updateResultsChart();
-  updateConfidenceChart();
+  updateCasaApostasChart();
 }
 
 // Gráfico mensal
@@ -468,7 +463,7 @@ function updateResultsChart() {
   charts.results = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["🟢 Green", "🔴 Red", "💰 Cash Out", "⏳ Pendente"],
+      labels: ["🟢 Green", "🔴 Red", "⏳ Pendente"],
       datasets: [
         {
           label: "Quantidade",
@@ -505,54 +500,72 @@ function updateResultsChart() {
 }
 
 // Gráfico ROI por confiança
-function updateConfidenceChart() {
+// Substituir updateConfidenceChart por esta nova função
+function updateCasaApostasChart() {
   const ctx = document.getElementById("confidenceChart").getContext("2d");
 
   if (charts.confidence) {
     charts.confidence.destroy();
   }
 
-  const confidenceStats = {};
+  const casaStats = {};
   filteredData.forEach((bet) => {
-    const conf = parseInt(bet.confianca);
-    if (!confidenceStats[conf]) {
-      confidenceStats[conf] = { profit: 0, staked: 0 };
+    const casa = bet.casaApostas || "outros";
+    if (!casaStats[casa]) {
+      casaStats[casa] = { profit: 0, staked: 0, wins: 0, total: 0 };
     }
 
     const stake = (parseFloat(bet.unidade) || 1) * 50;
     const odd = parseFloat(bet.odd) || 1;
 
-    confidenceStats[conf].staked += stake;
+    casaStats[casa].staked += stake;
+    casaStats[casa].total++;
 
     if (bet.resultado === "green") {
-      confidenceStats[conf].profit += odd * stake - stake;
+      casaStats[casa].profit += odd * stake - stake;
+      casaStats[casa].wins++;
     } else if (bet.resultado === "red") {
-      confidenceStats[conf].profit -= stake;
+      casaStats[casa].profit -= stake;
     }
   });
 
-  const confidenceLevels = Object.keys(confidenceStats).sort((a, b) => a - b);
-  const rois = confidenceLevels.map((conf) => {
-    const stats = confidenceStats[conf];
-    return stats.staked > 0
-      ? ((stats.profit / stats.staked) * 100).toFixed(1)
-      : 0;
+  const casas = Object.keys(casaStats);
+  const winRates = casas.map((casa) => {
+    const stats = casaStats[casa];
+    return stats.total > 0 ? ((stats.wins / stats.total) * 100).toFixed(1) : 0;
   });
 
+  const casaNames = {
+    betano: "🔥 Betano",
+    superbet: "💎 SuperBet",
+    bet365: "🎯 Bet365",
+    estrelabet: "⭐ Estrelabet",
+    pixbet: "⚡ Pixbet",
+    sportingbet: "⭐ Sportingbet",
+    "1xbet": "🎰 1xBet",
+    outros: "🏪 Outros",
+  };
+
   charts.confidence = new Chart(ctx, {
-    type: "radar",
+    type: "bar",
     data: {
-      labels: confidenceLevels.map((conf) => `${conf}% Confiança`),
+      labels: casas.map((casa) => casaNames[casa] || casa),
       datasets: [
         {
-          label: "ROI (%)",
-          data: rois,
-          borderColor: "#764ba2",
-          backgroundColor: "rgba(118, 75, 162, 0.2)",
-          borderWidth: 3,
-          pointBackgroundColor: "#667eea",
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
+          label: "Taxa de Acerto (%)",
+          data: winRates,
+          backgroundColor: [
+            "#667eea",
+            "#f093fb",
+            "#4facfe",
+            "#43e97b",
+            "#fa709a",
+            "#ffecd2",
+            "#a8edea",
+            "#fed6e3",
+          ],
+          borderRadius: 8,
+          borderSkipped: false,
         },
       ],
     },
@@ -561,12 +574,13 @@ function updateConfidenceChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: "top",
+          display: false,
         },
       },
       scales: {
-        r: {
+        y: {
           beginAtZero: true,
+          max: 100,
           grid: {
             color: "rgba(0,0,0,0.1)",
           },

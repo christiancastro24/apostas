@@ -86,21 +86,19 @@
               <option value="todos">Todos os Resultados</option>
               <option value="green">Green</option>
               <option value="red">Red</option>
-              <option value="cash">Cash Out</option>
               <option value="pending">Pendente</option>
             </select>
           </div>
-          <div class="filter-group">
-            <label>💰 Confiança</label>
-            <select id="confidenceFilter">
-              <option value="todos">Todas as Confianças</option>
-              <option value="20">20%</option>
-              <option value="40">40%</option>
-              <option value="60">60%</option>
-              <option value="80">80%</option>
-              <option value="100">100%</option>
-            </select>
-          </div>
+<div class="filter-group">
+  <label>🏪 Casa de Apostas</label>
+  <select id="casaApostasFilter">
+    <option value="todos">Todas as Casas</option>
+    <option value="betano">🔥 Betano</option>
+    <option value="superbet">💎 SuperBet</option>
+    <option value="bet365">🎯 Bet365</option>
+    <option value="estrelabet">⭐ Estrelabet</option>
+  </select>
+</div>
           <div class="filter-group">
             <button class="apply-filters-btn" onclick="applyFilters()">
               🔍 Aplicar Filtros
@@ -144,7 +142,7 @@
         </div>
 
         <div class="chart-card">
-          <div class="chart-title">📊 ROI por Confiança</div>
+       <div class="chart-title">🏪 Performance por Casa de Apostas</div>
           <div class="chart-container">
             <canvas id="confidenceChart"></canvas>
           </div>

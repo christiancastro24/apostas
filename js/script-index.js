@@ -168,7 +168,6 @@ function addNewBet(month) {
         <option value="pending">Pendente</option>
         <option value="green">Green</option>
         <option value="red">Red</option>
-        <option value="cash">Cash</option>
       </select>
     </td>
     <td class="cell-casa-apostas">
