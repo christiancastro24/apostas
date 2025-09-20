@@ -879,17 +879,23 @@ function calculateTotalProfit() {
 // ==================== 1. CONFETTI QUANDO BATE 1000 REAIS ====================
 function checkLucroMilestone() {
   const lucroAtual = calculateTotalProfit();
-  const lucroAnterior = localStorage.getItem("ultimoLucroMilestone") || 0;
+  const lucroAnterior =
+    parseFloat(localStorage.getItem("ultimoLucroMilestone")) || 0;
 
+  // Calcular qual milestone (múltiplo de 1000) foi atingido
   const milestoneAtual = Math.floor(lucroAtual / 1000);
   const milestoneAnterior = Math.floor(lucroAnterior / 1000);
 
-  if (milestoneAtual > milestoneAnterior && lucroAtual > 0) {
-    triggerConfetti();
-    showMilestoneMessage(milestoneAtual * 1000);
+  // Disparar para CADA novo milestone atingido, não apenas o primeiro
+  if (milestoneAtual > milestoneAnterior && lucroAtual >= 1000) {
+    // Se saltou múltiplos milestones de uma vez, disparar para todos
+    for (let i = milestoneAnterior + 1; i <= milestoneAtual; i++) {
+      triggerConfetti();
+      showMilestoneMessage(i * 1000);
+    }
   }
 
-  localStorage.setItem("ultimoLucroMilestone", lucroAtual);
+  localStorage.setItem("ultimoLucroMilestone", lucroAtual.toString());
 }
 
 function triggerConfetti() {
@@ -953,7 +959,10 @@ function showMilestoneMessage(valor) {
       animation: slideIn 0.5s ease-out;
     ">
       <div style="font-size: 20px; margin-bottom: 5px;">🎉 Parabéns!</div>
-      <div>Você atingiu R$ ${valor.toFixed(2)} de lucro!</div>
+      <div>Você atingiu ${valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })} de lucro!</div>
     </div>
   `;
 
