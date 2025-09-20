@@ -468,3 +468,573 @@
           display: none;
         }
       }
+
+
+/* Modal melhorado */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: white;
+  margin: 3% auto;
+  padding: 0;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-header {
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #1a202c;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.close {
+  color: #64748b;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: rotate(90deg);
+}
+
+/* Estado vazio melhorado */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Conteúdo do carrinho */
+#cartContent {
+padding: 20px 28px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin: 12px 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cart-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.cart-item-info {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.cart-item-title {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.cart-item-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.cart-item-odd {
+  background: linear-gradient(135deg, #1e40af, #1d4ed8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  min-width: 60px;
+  text-align: center;
+  margin-right: 12px;
+}
+
+.cart-league {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.cart-market {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.cart-selection {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.remove-from-cart {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-from-cart:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: scale(1.05);
+}
+
+/* Footer do carrinho */
+.cart-footer {
+  padding: 20px 28px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 16px;
+}
+
+.cart-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-clear, .btn-export, .btn-betano, .btn-save {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+/* Estado vazio do carrinho */
+.cart-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.cart-empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.cart-empty h3 {
+  font-size: 18px;
+  color: #374151;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.cart-empty p {
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.btn-clear { 
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+}
+
+.btn-clear:hover {
+  background: linear-gradient(135deg, #c53030, #9c2626);
+  transform: translateY(-2px);
+}
+
+.btn-export {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.btn-export:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-2px);
+}
+
+.btn-betano {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+}
+
+.btn-betano:hover {
+  background: linear-gradient(135deg, #e879f9, #f43f5e);
+  transform: translateY(-2px);
+}
+
+.btn-save { 
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #38a169, #2f855a);
+  transform: translateY(-2px);
+}
+
+/* Cards dos bilhetes salvos */
+#savedTicketsContent {
+  padding: 20px 28px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.saved-ticket-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.saved-ticket-card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.ticket-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ticket-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.ticket-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.ticket-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Lista de jogos */
+.ticket-games {
+  padding: 16px 20px;
+  background: white;
+}
+
+.game-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.game-row:last-child {
+  border-bottom: none;
+}
+
+.game-match {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  flex: 1;
+}
+
+.game-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selection-name {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.selection-odd {
+  background: #1e40af;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Botões de ação dos bilhetes */
+.ticket-actions {
+  padding: 16px 20px;
+  background: #fafbfc;
+  border-top: 1px solid #e5e7eb;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon {
+  font-size: 14px;
+}
+
+.btn-load {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.btn-load:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+}
+
+.btn-copy {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.btn-copy:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-1px);
+}
+
+.btn-betano-saved {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.btn-betano-saved:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+}
+
+/* Seção do carrinho */
+.cart-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  justify-content: center;
+}
+
+.cart-button, .saved-tickets-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.cart-button:hover, .saved-tickets-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cart-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .modal-content {
+    margin: 5% auto;
+    width: 95%;
+  }
+  
+  .cart-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .ticket-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .ticket-stats {
+    gap: 20px;
+  }
+  
+  .ticket-actions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .game-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .cart-item-odd {
+    margin-right: 0;
+  }
+}

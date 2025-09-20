@@ -17,12 +17,7 @@
             <div class="nav-item" onclick="window.location.href='index.html'">Dashboard</div>
             <div class="nav-item active" onclick="window.location.href='jogos.html'">Jogos</div>
             <div class="nav-item" onclick="window.location.href='relatorios.html'">Relatórios</div>
-             <div
-            class="nav-item"
-            onclick="window.location.href='dicas.html'"
-          >
-            Dicas De Aposta
-          </div>
+             <div class="nav-item" onclick="window.location.href='dicas.html'">Dicas De Aposta</div>
         </div>
       </div>
 
@@ -40,6 +35,16 @@
           </button>
         </div>
 
+        <!-- 🆕 SEÇÃO DO CARRINHO ADICIONADA -->
+        <div class="cart-section">
+          <button class="cart-button" onclick="toggleCart()" id="cartButton">
+            🛒 Bilhete (0)
+          </button>
+          <button class="saved-tickets-button" onclick="showSavedTickets()">
+            📋 Bilhetes Salvos (<span id="savedCount">0</span>)
+          </button>
+        </div>
+
         <div id="credits-info" class="credits-info" style="display: none;">
           💳 Créditos restantes: <span id="credits-remaining">Carregando...</span>
         </div>
@@ -50,6 +55,43 @@
             <div class="spinner"></div>
             Carregando jogos do dia...
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🆕 MODAL DO CARRINHO -->
+    <div id="cartModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🛒 Meu Bilhete de Apostas</h3>
+          <span class="close" onclick="closeCart()">&times;</span>
+        </div>
+        <div id="cartContent">
+          <!-- Jogos selecionados aparecerão aqui -->
+        </div>
+<div class="cart-footer">
+  <div class="cart-summary">
+    <div>Total de jogos: <span id="totalGames">0</span></div>
+    <div>Odd combinada: <span id="combinedOdd">1.00</span></div>
+  </div>
+  <div class="cart-actions">
+    <button class="btn-clear" onclick="clearCart()">Limpar Tudo</button>
+    <button class="btn-betano" onclick="redirectToBetano()">🎯 Ir para Betano</button>
+    <button class="btn-save" onclick="saveTicket()">💾 Salvar Bilhete</button>
+  </div>
+</div>
+      </div>
+    </div>
+
+    <!-- 🆕 MODAL PARA BILHETES SALVOS -->
+    <div id="savedTicketsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📋 Bilhetes Salvos</h3>
+          <span class="close" onclick="closeSavedTickets()">&times;</span>
+        </div>
+        <div id="savedTicketsContent">
+          <!-- Bilhetes salvos aparecerão aqui -->
         </div>
       </div>
     </div>

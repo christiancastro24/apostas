@@ -485,14 +485,22 @@ function displayGames(leagues) {
 
     container.appendChild(section);
   });
+
+  // 🆕 LINHAS ADICIONADAS PARA INTEGRAÇÃO COM CARRINHO
+  currentGames = leagues;
+  allGames = convertLeaguesToGames(leagues);
+  updateCartButtons();
 }
+
 // Função para criar card de jogo individual
 function createGameCard(game) {
   const hasDraws = game.hasDraws !== false;
 
   if (game.odds.length === 0) {
     return `
-      <div class="game-card">
+      <div class="game-card" data-home="${game.homeTeam}" data-away="${
+      game.awayTeam
+    }">
         <div class="game-header">
           <div class="game-time">${game.time}</div>
           <div class="game-status status-${game.status}">
@@ -520,7 +528,9 @@ function createGameCard(game) {
   }
 
   return `
-    <div class="game-card">
+    <div class="game-card" data-home="${game.homeTeam}" data-away="${
+    game.awayTeam
+  }">
       <div class="game-header">
         <div>
           <div class="game-time">${game.time}</div>
@@ -551,25 +561,29 @@ function createGameCard(game) {
             <div class="odds-grid" style="grid-template-columns: ${
               hasDraws ? "1fr 1fr 1fr" : "1fr 1fr"
             };">
-              <div class="odd-button" onclick="selectOdd(this, '${
-                game.homeTeam
-              }', '${bookmaker.home}')">
+              <div class="odd-button" onclick="addToCart('${game.homeTeam}-${
+              game.awayTeam
+            }', 'h2h', '${game.homeTeam}', '${bookmaker.home}', '${
+              game.homeTeam
+            }', '${game.awayTeam}', 'Liga')">
                 <div class="odd-label">${game.homeTeam.split(" ")[0]}</div>
                 <div class="odd-value">${bookmaker.home}</div>
               </div>
               ${
                 hasDraws
                   ? `
-                <div class="odd-button" onclick="selectOdd(this, 'Empate', '${bookmaker.draw}')">
+                <div class="odd-button" onclick="addToCart('${game.homeTeam}-${game.awayTeam}', 'h2h', 'Empate', '${bookmaker.draw}', '${game.homeTeam}', '${game.awayTeam}', 'Liga')">
                   <div class="odd-label">Empate</div>
                   <div class="odd-value">${bookmaker.draw}</div>
                 </div>
               `
                   : ""
               }
-              <div class="odd-button" onclick="selectOdd(this, '${
-                game.awayTeam
-              }', '${bookmaker.away}')">
+              <div class="odd-button" onclick="addToCart('${game.homeTeam}-${
+              game.awayTeam
+            }', 'h2h', '${game.awayTeam}', '${bookmaker.away}', '${
+              game.homeTeam
+            }', '${game.awayTeam}', 'Liga')">
                 <div class="odd-label">${game.awayTeam.split(" ")[0]}</div>
                 <div class="odd-value">${bookmaker.away}</div>
               </div>
@@ -581,6 +595,88 @@ function createGameCard(game) {
       </div>
     </div>
   `;
+}
+
+// Função para converter leagues em formato compatível com carrinho
+function convertLeaguesToGames(leagues) {
+  const games = [];
+  leagues.forEach((league) => {
+    league.games.forEach((game) => {
+      games.push({
+        id: `${game.homeTeam}-${game.awayTeam}-${Date.now()}-${Math.random()}`,
+        home_team: game.homeTeam,
+        away_team: game.awayTeam,
+        gameTime: game.time,
+        league: { name: league.league, flag: league.icon },
+        bookmakers:
+          game.odds && game.odds[0]
+            ? [
+                {
+                  markets: [
+                    {
+                      key: "h2h",
+                      name: "Resultado",
+                      outcomes: [
+                        {
+                          name: game.homeTeam,
+                          price: parseFloat(game.odds[0].home) || 2.0,
+                        },
+                        {
+                          name: game.awayTeam,
+                          price: parseFloat(game.odds[0].away) || 2.0,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ]
+            : [],
+      });
+    });
+  });
+  return games;
+}
+
+// Função para atualizar botões do carrinho
+function updateCartButtons() {
+  document.querySelectorAll(".game-card").forEach((card) => {
+    const homeTeam = card.getAttribute("data-home");
+    const awayTeam = card.getAttribute("data-away");
+    const gameId = `${homeTeam}-${awayTeam}`;
+
+    // Verificar se alguma odd deste jogo está no carrinho
+    const gameInCart = cart.some((item) => item.gameId === gameId);
+
+    // Atualizar visual das odds se o jogo estiver no carrinho
+    const oddButtons = card.querySelectorAll(".odd-button");
+    oddButtons.forEach((btn) => {
+      if (gameInCart) {
+        // Verificar se esta odd específica está no carrinho
+        const oddText = btn.querySelector(".odd-value").textContent;
+        const labelText = btn.querySelector(".odd-label").textContent;
+
+        const isThisOddInCart = cart.some(
+          (item) =>
+            item.gameId === gameId &&
+            item.odd == parseFloat(oddText) &&
+            (item.selection === labelText ||
+              (item.selection === homeTeam &&
+                labelText.includes(homeTeam.split(" ")[0])) ||
+              (item.selection === awayTeam &&
+                labelText.includes(awayTeam.split(" ")[0])) ||
+              (item.selection === "Empate" && labelText === "Empate"))
+        );
+
+        if (isThisOddInCart) {
+          btn.classList.add("selected");
+        } else {
+          btn.classList.remove("selected");
+        }
+      } else {
+        btn.classList.remove("selected");
+      }
+    });
+  });
 }
 
 // Função para selecionar uma odd
@@ -1329,3 +1425,564 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }, 300000); // 5 minutos
 });
+
+// Variáveis para o carrinho
+let cart = [];
+let savedTickets = JSON.parse(localStorage.getItem("savedTickets")) || [];
+let currentGames = [];
+let allGames = []; // Para compatibilidade com o código do carrinho
+
+// Inicializar carrinho ao carregar a página
+document.addEventListener("DOMContentLoaded", function () {
+  updateCartButton();
+  updateSavedCount();
+});
+
+// Atualizar a função de renderizar jogos para incluir botão de carrinho
+function renderGames(games) {
+  const container = document.getElementById("gamesContainer");
+
+  if (games.length === 0) {
+    container.innerHTML = `
+      <div class="no-games">
+        <div class="no-games-icon">⚽</div>
+        <h3>Nenhum jogo encontrado</h3>
+        <p>Ajuste os filtros ou tente novamente mais tarde</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = games
+    .map((game) => {
+      const isInCart = cart.some((item) => item.id === game.id);
+
+      return `
+      <div class="game-card">
+        <div class="game-header">
+          <div class="game-league">
+            <span class="league-flag">${game.league.flag}</span>
+            <span class="league-name">${game.league.name}</span>
+          </div>
+          <div class="game-time">${game.gameTime}</div>
+        </div>
+        
+        <div class="game-teams">
+          <div class="team">${game.home_team}</div>
+          <div class="vs">vs</div>
+          <div class="team">${game.away_team}</div>
+        </div>
+        
+        <div class="game-markets">
+          ${game.markets
+            .map(
+              (market) => `
+            <div class="market">
+              <div class="market-name">${market.name}</div>
+              <div class="market-odds">
+                ${market.outcomes
+                  .map(
+                    (outcome) => `
+                  <button class="odd-button" onclick="addToCart('${game.id}', '${market.name}', '${outcome.name}', ${outcome.price}, '${game.home_team}', '${game.away_team}', '${game.league.name}')">
+                    <span class="outcome-name">${outcome.name}</span>
+                    <span class="outcome-price">${outcome.price}</span>
+                  </button>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+        
+        <button class="add-to-cart ${isInCart ? "added" : ""}" 
+                onclick="${
+                  isInCart
+                    ? `removeFromCart('${game.id}')`
+                    : `quickAddToCart('${game.id}', '${game.home_team}', '${game.away_team}', '${game.league.name}')`
+                }">
+          ${isInCart ? "❌ Remover do Bilhete" : "🛒 Adicionar ao Bilhete"}
+        </button>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+// Adicionar jogo específico ao carrinho
+function addToCart(
+  gameId,
+  marketName,
+  outcomeName,
+  price,
+  homeTeam,
+  awayTeam,
+  league
+) {
+  const existingIndex = cart.findIndex(
+    (item) => item.gameId === gameId && item.marketName === marketName
+  );
+
+  if (existingIndex > -1) {
+    cart[existingIndex] = {
+      id: `${gameId}-${marketName}`,
+      gameId: gameId,
+      match: `${homeTeam} vs ${awayTeam}`,
+      league: league,
+      marketName: marketName,
+      selection: outcomeName,
+      odd: price,
+      addedAt: new Date().toLocaleString(),
+    };
+  } else {
+    cart.push({
+      id: `${gameId}-${marketName}`,
+      gameId: gameId,
+      match: `${homeTeam} vs ${awayTeam}`,
+      league: league,
+      marketName: marketName,
+      selection: outcomeName,
+      odd: price,
+      addedAt: new Date().toLocaleString(),
+    });
+  }
+
+  updateCartButton();
+  showNotification(`${outcomeName} adicionado ao bilhete!`);
+}
+
+// Adicionar jogo rápido (primeira odd disponível)
+function quickAddToCart(gameId, homeTeam, awayTeam, league) {
+  // Encontrar o jogo nos dados
+  const game = allGames.find((g) => g.id === gameId);
+  if (
+    !game ||
+    !game.bookmakers ||
+    !game.bookmakers[0] ||
+    !game.bookmakers[0].markets
+  )
+    return;
+
+  const firstMarket = game.bookmakers[0].markets[0];
+  const firstOutcome = firstMarket.outcomes[0];
+
+  addToCart(
+    gameId,
+    firstMarket.key,
+    firstOutcome.name,
+    firstOutcome.price,
+    homeTeam,
+    awayTeam,
+    league
+  );
+  renderGames(currentGames); // Re-renderizar para atualizar botões
+}
+
+// Remover do carrinho
+function removeFromCart(gameId) {
+  cart = cart.filter((item) => item.gameId !== gameId);
+  updateCartButton();
+  renderGames(currentGames);
+  updateCartContent();
+  showNotification("Jogo removido do bilhete!");
+}
+
+// Atualizar botão do carrinho
+function updateCartButton() {
+  const cartButton = document.getElementById("cartButton");
+  cartButton.textContent = `🛒 Bilhete (${cart.length})`;
+}
+
+// Toggle carrinho
+function toggleCart() {
+  const modal = document.getElementById("cartModal");
+  modal.style.display = "block";
+  updateCartContent();
+}
+
+// Fechar carrinho
+function closeCart() {
+  document.getElementById("cartModal").style.display = "none";
+}
+
+// Atualizar conteúdo do carrinho
+// Na função updateCartContent, modificar a seção cart-actions
+function updateCartContent() {
+  const cartContent = document.getElementById("cartContent");
+  const totalGames = document.getElementById("totalGames");
+  const combinedOdd = document.getElementById("combinedOdd");
+
+  if (cart.length === 0) {
+    cartContent.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <h3>Seu bilhete está vazio</h3>
+        <p>Clique nas odds dos jogos para adicionar ao seu bilhete de apostas</p>
+      </div>
+    `;
+    totalGames.textContent = "0";
+    combinedOdd.textContent = "1.00";
+    return;
+  }
+
+  cartContent.innerHTML = cart
+    .map(
+      (item) => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-title">${item.match}</div>
+        <div class="cart-item-details">
+          <span class="cart-league">${item.league}</span>
+          <span class="cart-market">${item.marketName}</span>
+          <span class="cart-selection">${item.selection}</span>
+        </div>
+      </div>
+      <div class="cart-item-odd">${item.odd}</div>
+      <button class="remove-from-cart" onclick="removeFromCartModal('${item.id}')" title="Remover aposta">×</button>
+    </div>
+  `
+    )
+    .join("");
+
+  totalGames.textContent = cart.length;
+
+  const combined = cart.reduce((acc, item) => acc * item.odd, 1);
+  combinedOdd.textContent = combined.toFixed(2);
+}
+
+// Remover do carrinho via modal
+function removeFromCartModal(itemId) {
+  cart = cart.filter((item) => item.id !== itemId);
+  updateCartButton();
+  updateCartContent();
+  renderGames(currentGames);
+}
+
+// Limpar carrinho
+function clearCart() {
+  cart = [];
+  updateCartButton();
+  updateCartContent();
+  renderGames(currentGames);
+  showNotification("Bilhete limpo!");
+}
+
+// Salvar bilhete
+function saveTicket() {
+  if (cart.length === 0) {
+    alert("Adicione jogos ao bilhete antes de salvar!");
+    return;
+  }
+
+  const ticketName =
+    prompt("Nome do bilhete (opcional):") ||
+    `Bilhete ${savedTickets.length + 1}`;
+
+  const ticket = {
+    id: Date.now(),
+    name: ticketName,
+    games: [...cart],
+    combinedOdd: cart.reduce((acc, item) => acc * item.odd, 1).toFixed(2),
+    createdAt: new Date().toLocaleString(),
+    gamesCount: cart.length,
+  };
+
+  savedTickets.push(ticket);
+  localStorage.setItem("savedTickets", JSON.stringify(savedTickets));
+
+  updateSavedCount();
+  closeCart();
+  clearCart();
+
+  showNotification(`Bilhete "${ticketName}" salvo com sucesso!`);
+}
+
+// Mostrar bilhetes salvos
+function showSavedTickets() {
+  const modal = document.getElementById("savedTicketsModal");
+  const content = document.getElementById("savedTicketsContent");
+
+  if (savedTickets.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Nenhum bilhete salvo</h3>
+        <p>Crie e salve bilhetes para acessá-los depois</p>
+      </div>
+    `;
+  } else {
+    content.innerHTML = savedTickets
+      .map(
+        (ticket) => `
+      <div class="saved-ticket-card">
+        <div class="ticket-header">
+          <div class="ticket-info">
+            <h4 class="ticket-title">${ticket.name}</h4>
+            <span class="ticket-date">${ticket.createdAt}</span>
+          </div>
+          <div class="ticket-stats">
+            <div class="stat-item">
+              <span class="stat-label">Jogos</span>
+              <span class="stat-value">${ticket.gamesCount}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Odd</span>
+              <span class="stat-value">${ticket.combinedOdd}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ticket-games">
+          ${ticket.games
+            .map(
+              (game) => `
+            <div class="game-row">
+              <div class="game-match">${game.match}</div>
+              <div class="game-selection">
+                <span class="selection-name">${game.selection}</span>
+                <span class="selection-odd">${game.odd}</span>
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+        
+        <div class="ticket-actions">
+          <button class="btn-action btn-load" onclick="loadTicket(${
+            ticket.id
+          })">
+            <span class="btn-icon">⚡</span>
+            Carregar
+          </button>
+          <button class="btn-action btn-copy" onclick="exportSavedTicket(${
+            ticket.id
+          })">
+            <span class="btn-icon">📋</span>
+            Copiar
+          </button>
+          <button class="btn-action btn-betano" onclick="loadAndRedirect(${
+            ticket.id
+          })">
+            <span class="btn-icon">🎯</span>
+            Betano
+          </button>
+          <button class="btn-action btn-delete" onclick="deleteTicket(${
+            ticket.id
+          })">
+            <span class="btn-icon">🗑️</span>
+            Excluir
+          </button>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  modal.style.display = "block";
+}
+
+// Exportar bilhete atual
+function exportTicket() {
+  if (cart.length === 0) {
+    showNotification("Carrinho vazio!");
+    return;
+  }
+
+  const ticketText = cart
+    .map((item) => `${item.match} - ${item.selection} @${item.odd}`)
+    .join("\n");
+
+  const fullText = `BILHETE DE APOSTAS:\n\n${ticketText}\n\nOdd Total: ${cart
+    .reduce((acc, item) => acc * item.odd, 1)
+    .toFixed(2)}`;
+
+  navigator.clipboard
+    .writeText(fullText)
+    .then(() => {
+      showNotification("Bilhete copiado para área de transferência!");
+    })
+    .catch(() => {
+      // Fallback para navegadores mais antigos
+      const textArea = document.createElement("textarea");
+      textArea.value = fullText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      showNotification("Bilhete copiado!");
+    });
+}
+
+// Exportar bilhete salvo
+function exportSavedTicket(ticketId) {
+  const ticket = savedTickets.find((t) => t.id === ticketId);
+  if (!ticket) return;
+
+  const ticketText = ticket.games
+    .map((game) => `${game.match} - ${game.selection} @${game.odd}`)
+    .join("\n");
+
+  const fullText = `BILHETE: ${ticket.name}\n\n${ticketText}\n\nOdd Total: ${ticket.combinedOdd}`;
+
+  navigator.clipboard
+    .writeText(fullText)
+    .then(() => {
+      showNotification(`Bilhete "${ticket.name}" copiado!`);
+    })
+    .catch(() => {
+      const textArea = document.createElement("textarea");
+      textArea.value = fullText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      showNotification(`Bilhete "${ticket.name}" copiado!`);
+    });
+}
+
+// Redirecionar para Betano
+// Substituir sua função redirectToBetano existente por esta:
+function redirectToBetano() {
+  if (cart.length === 0) {
+    window.open("https://www.betano.bet.br/sport/", "_blank");
+    showNotification("Betano aberta! Carrinho vazio.");
+    return;
+  }
+
+  const instructions = `INSTRUÇÕES PARA GERAR LINK DO BILHETE:
+
+1. Acesse: https://www.betano.bet.br/sport/futebol/
+2. Monte seu bilhete com estas apostas:
+
+${cart
+  .map((item) => `• ${item.match} - ${item.selection} @${item.odd}`)
+  .join("\n")}
+
+3. Após montar, clique em "Compartilhar bilhete"
+4. Copie o link gerado (bookingcode/XXXXX)
+5. Salve esse link para compartilhar sua aposta!
+
+Odd total esperada: ${cart
+    .reduce((acc, item) => acc * item.odd, 1)
+    .toFixed(2)}`;
+
+  // Copiar instruções
+  navigator.clipboard.writeText(instructions);
+
+  // Abrir Betano
+  window.open("https://www.betano.bet.br/sport/futebol/", "_blank");
+
+  showNotification(
+    "Instruções copiadas! Monte o bilhete na Betano e gere o código de compartilhamento."
+  );
+}
+
+// Carregar bilhete e redirecionar para Betano
+// Substituir sua função loadAndRedirect existente por esta:
+function loadAndRedirect(ticketId) {
+  const ticket = savedTickets.find((t) => t.id === ticketId);
+  if (!ticket) return;
+
+  const instructions = `INSTRUÇÕES PARA GERAR LINK DO BILHETE: ${ticket.name}
+
+1. Acesse: https://www.betano.bet.br/sport/futebol/
+2. Monte seu bilhete com estas apostas:
+
+${ticket.games
+  .map((game) => `• ${game.match} - ${game.selection} @${game.odd}`)
+  .join("\n")}
+
+3. Após montar, clique em "Compartilhar bilhete"
+4. Copie o link gerado (bookingcode/XXXXX)
+
+Odd total: ${ticket.combinedOdd}`;
+
+  navigator.clipboard.writeText(instructions);
+  window.open("https://www.betano.bet.br/sport/futebol/", "_blank");
+  showNotification(`Instruções do bilhete "${ticket.name}" copiadas!`);
+}
+
+// Fechar bilhetes salvos
+function closeSavedTickets() {
+  document.getElementById("savedTicketsModal").style.display = "none";
+}
+
+// Carregar bilhete
+function loadTicket(ticketId) {
+  const ticket = savedTickets.find((t) => t.id === ticketId);
+  if (!ticket) return;
+
+  // Carregar os jogos do bilhete para o carrinho atual
+  cart = [...ticket.games];
+
+  // Atualizar interface do carrinho
+  updateCartButton();
+  updateCartButtons();
+
+  // Fechar modal de bilhetes salvos
+  closeSavedTickets();
+
+  // Abrir o carrinho para mostrar os jogos carregados
+  toggleCart();
+
+  showNotification(
+    `Bilhete "${ticket.name}" carregado com ${ticket.games.length} jogos!`
+  );
+}
+
+// Excluir bilhete
+function deleteTicket(ticketId) {
+  if (!confirm("Tem certeza que deseja excluir este bilhete?")) return;
+
+  savedTickets = savedTickets.filter((t) => t.id !== ticketId);
+  localStorage.setItem("savedTickets", JSON.stringify(savedTickets));
+
+  updateSavedCount();
+  showSavedTickets(); // Refresh da lista
+
+  showNotification("Bilhete excluído!");
+}
+
+// Atualizar contador de bilhetes salvos
+function updateSavedCount() {
+  document.getElementById("savedCount").textContent = savedTickets.length;
+}
+
+// Notificação
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 10000;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => notification.remove(), 3000);
+}
+
+// Fechar modais ao clicar fora
+window.onclick = function (event) {
+  const cartModal = document.getElementById("cartModal");
+  const savedModal = document.getElementById("savedTicketsModal");
+
+  if (event.target === cartModal) {
+    closeCart();
+  }
+  if (event.target === savedModal) {
+    closeSavedTickets();
+  }
+};
