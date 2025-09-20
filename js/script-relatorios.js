@@ -1571,6 +1571,8 @@ function generateDailyResultsGrid() {
 
     gridHTML += `
       <div class="day-block ${cssClass}" 
+           onclick="showDayBets(${day}, ${selectedMonth}, ${selectedYear})"
+           style="cursor: pointer;"
            title="Dia ${day}: ${
       result
         ? formatCurrency(result.profit) + " (" + result.bets + " apostas)"
@@ -1657,6 +1659,123 @@ function calculateDailyResults(month, year) {
   console.log("Final dailyResults:", dailyResults);
   return dailyResults;
 }
+
+// Função para mostrar apostas do dia
+function showDayBets(day, month, year) {
+  const dayBets = getDayBets(day, month, year);
+
+  if (dayBets.length === 0) {
+    alert("Nenhuma aposta encontrada para este dia");
+    return;
+  }
+
+  const modal = document.getElementById("betsModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalContent = document.getElementById("modalBetsContent");
+
+  modalTitle.textContent = `Apostas do dia ${day}/${month
+    .toString()
+    .padStart(2, "0")}/${year}`;
+
+  // Contar greens e reds
+  const greens = dayBets.filter((bet) => bet.resultado === "green").length;
+  const reds = dayBets.filter((bet) => bet.resultado === "red").length;
+  const total = dayBets.length;
+
+  let betsHTML = `
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; justify-content: center;">
+            <div style="background: #d4edda; color: #155724; padding: 10px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                <span style="background: #28a745; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">✓</span>
+                ${greens} Green${greens !== 1 ? "s" : ""}
+            </div>
+            <div style="background: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 20px; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                <span style="background: #dc3545; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">✗</span>
+                ${reds} Red${reds !== 1 ? "s" : ""}
+            </div>
+            <div style="background: #e9ecef; color: #495057; padding: 10px 15px; border-radius: 20px; font-weight: bold;">
+                Total: ${total}
+            </div>
+        </div>
+    `;
+
+  dayBets.forEach((bet) => {
+    const unidade = parseFloat(bet.unidade) || 1;
+    const stake = unidade * 50;
+    const odd = parseFloat(bet.odd) || 1;
+    let profit = 0;
+
+    if (bet.resultado === "green") {
+      profit = odd * stake - stake;
+    } else if (bet.resultado === "red") {
+      profit = stake;
+    }
+
+    const unidadeText = unidade === 1 ? "Unidade" : "Unidades";
+
+    betsHTML += `
+            <div class="bet-item ${bet.resultado}">
+                <div class="bet-details">
+                    <div class="bet-detail">
+                        <label>Unidade</label>
+                        <span>${bet.unidade} ${unidadeText} (${formatCurrency(
+      stake
+    )})</span>
+                    </div>
+                    <div class="bet-detail">
+                        <label>Odd</label>
+                        <span>${bet.odd}</span>
+                    </div>
+                    <div class="bet-detail">
+                        <label>Resultado</label>
+                        <span class="profit-badge ${
+                          bet.resultado === "green" ? "positive" : "negative"
+                        }">
+                            ${bet.resultado.toUpperCase()} ${
+      bet.resultado === "red" ? "-" : ""
+    }${formatCurrency(profit)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+  });
+
+  modalContent.innerHTML = betsHTML;
+  modal.style.display = "block";
+}
+// Função para buscar apostas de um dia específico
+function getDayBets(day, month, year) {
+  const dataToProcess =
+    filteredData.length > 0 ? filteredData : allBetsData.setembro || [];
+
+  return dataToProcess.filter((bet) => {
+    const dateParts = bet.data.split("-");
+    const betYear = parseInt(dateParts[0]);
+    const betMonth = parseInt(dateParts[1]);
+    const betDay = parseInt(dateParts[2]);
+
+    return betDay === day && betMonth === month && betYear === year;
+  });
+}
+
+// Event listeners para fechar o modal
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("betsModal");
+  const closeBtn = document.querySelector(".close");
+
+  // Fechar modal ao clicar no X
+  closeBtn.onclick = function () {
+    modal.style.display = "none";
+  };
+
+  // Fechar modal ao clicar fora dele
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+});
+
 // ==================== INICIALIZAÇÃO ====================
 function initPDFExport() {
   // Adicionar CSS
