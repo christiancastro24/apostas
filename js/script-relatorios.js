@@ -118,6 +118,7 @@ function applyFilters() {
     hideLoading();
     updateDashboard();
     generateDailyResultsGrid();
+    checkLucroMilestone();
   }, 1000);
 }
 
@@ -207,6 +208,7 @@ function updateStatsOverview() {
             <div class="stat-label">Melhor Esporte</div>
           </div>
         `;
+  checkLucroMilestone();
 }
 // Calcular estatísticas
 function calculateStats(data) {
@@ -838,6 +840,28 @@ document.querySelector(".filters-section").insertAdjacentHTML(
       `
 );
 
+function calculateTotalProfit() {
+  let totalProfit = 0;
+
+  // Usar todos os dados, não apenas filtrados
+  Object.values(allBetsData).forEach((monthData) => {
+    if (Array.isArray(monthData)) {
+      monthData.forEach((bet) => {
+        const stake = (parseFloat(bet.unidade) || 1) * 50;
+        const odd = parseFloat(bet.odd) || 1;
+
+        if (bet.resultado === "green") {
+          totalProfit += odd * stake - stake;
+        } else if (bet.resultado === "red") {
+          totalProfit -= stake;
+        }
+      });
+    }
+  });
+
+  return totalProfit;
+}
+
 // ==================== 1. CONFETTI QUANDO BATE 1000 REAIS ====================
 function checkLucroMilestone() {
   const lucroAtual = calculateTotalProfit();
@@ -877,12 +901,12 @@ function createConfettiPiece() {
     z-index: 10000;
     pointer-events: none;
     border-radius: 50%;
-    animation: confetti-fall ${2 + Math.random() * 3}s ease-out forwards;
+    animation: confetti-fall ${4 + Math.random() * 4}s ease-out forwards;
   `;
 
   document.body.appendChild(confetti);
 
-  setTimeout(() => confetti.remove(), 5000);
+  setTimeout(() => confetti.remove(), 8000); // Aumentar também o timeout
 }
 
 // CSS para animação do confetti (adicionar ao <style>)
@@ -893,7 +917,7 @@ const confettiCSS = `
     opacity: 1;
   }
   100% {
-    transform: translateY(100vh) rotateZ(720deg);
+    transform: translateY(100vh) rotateZ(1080deg);
     opacity: 0;
   }
 }
@@ -1789,3 +1813,100 @@ function initPDFExport() {
 
 // Chamar quando a página carregar
 document.addEventListener("DOMContentLoaded", initPDFExport);
+
+// ==================== CONFETTI FUNCTIONS ====================
+function calculateTotalProfit() {
+  let totalProfit = 0;
+
+  months.forEach((month) => {
+    const monthTbody = document.getElementById(month + "-tbody");
+    const monthRows = monthTbody.querySelectorAll("tr");
+
+    monthRows.forEach((row) => {
+      const resultSelect = row.querySelector(".cell-resultado select");
+      const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
+      const unidade =
+        parseFloat(row.querySelector(".cell-unidade input").value) || 0;
+      const apostado = unidade * 50;
+      let lucro = 0;
+
+      if (resultSelect.value === "green") {
+        lucro = odd * unidade * 50 - apostado;
+      } else if (resultSelect.value === "red") {
+        lucro = -apostado;
+      }
+
+      totalProfit += lucro;
+    });
+  });
+
+  return totalProfit;
+}
+
+function checkLucroMilestone() {
+  const lucroAtual = calculateTotalProfit();
+  const lucroAnterior = localStorage.getItem("ultimoLucroMilestone") || 0;
+
+  const milestoneAtual = Math.floor(lucroAtual / 1000);
+  const milestoneAnterior = Math.floor(lucroAnterior / 1000);
+
+  if (milestoneAtual > milestoneAnterior && lucroAtual > 0) {
+    triggerConfetti();
+    showMilestoneMessage(milestoneAtual * 1000);
+  }
+
+  localStorage.setItem("ultimoLucroMilestone", lucroAtual);
+}
+
+function triggerConfetti() {
+  for (let i = 0; i < 50; i++) {
+    createConfettiPiece();
+  }
+}
+
+function createConfettiPiece() {
+  const confetti = document.createElement("div");
+  confetti.style.cssText = `
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: ${
+      ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57"][
+        Math.floor(Math.random() * 5)
+      ]
+    };
+    left: ${Math.random() * 100}vw;
+    top: -10px;
+    z-index: 10000;
+    pointer-events: none;
+    border-radius: 50%;
+    animation: confetti-fall ${4 + Math.random() * 4}s ease-out forwards;
+  `;
+
+  document.body.appendChild(confetti);
+  setTimeout(() => confetti.remove(), 8000);
+}
+
+function showMilestoneMessage(valor) {
+  const toast = document.createElement("div");
+  toast.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      z-index: 10001;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: slideIn 0.5s ease-out;
+    ">
+      <div style="font-size: 20px; margin-bottom: 5px;">🎉 Parabéns!</div>
+      <div>Você atingiu R$ ${valor.toFixed(2)} de lucro!</div>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
