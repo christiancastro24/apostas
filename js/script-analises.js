@@ -1,13 +1,31 @@
+// Função para analisar times do usuário (CORRIGIDA)
 function analyzeUserTeams() {
+  console.log("=== INÍCIO analyzeUserTeams ===");
+
   const teams = Object.values(userData.teams);
-  if (teams.length === 0) return [];
+  console.log("Teams encontrados:", teams.length);
+  console.log("Teams data:", teams);
+
+  if (teams.length === 0) {
+    console.log("Nenhum time encontrado, retornando array vazio");
+    return [];
+  }
 
   return teams
     .map((team) => {
+      console.log(`--- Analisando team: ${team.name} ---`);
+      console.log("Team ID:", team.id);
+      console.log("Team characteristics:", team.characteristics);
+      console.log("Type of characteristics:", typeof team.characteristics);
+      console.log("Is Array:", Array.isArray(team.characteristics));
+
       // Calcular estatísticas dos jogos
       const teamMatches = userData.matches.filter(
         (m) => m.homeTeam === team.id || m.awayTeam === team.id
       );
+
+      console.log(`Matches encontrados para ${team.name}:`, teamMatches.length);
+      console.log("Matches:", teamMatches);
 
       const wins = teamMatches.filter(
         (m) =>
@@ -21,24 +39,50 @@ function analyzeUserTeams() {
           (m.awayTeam === team.id && m.awayScore < m.homeScore)
       ).length;
 
+      const draws = teamMatches.filter(
+        (m) => m.homeScore === m.awayScore
+      ).length;
+
+      console.log(`Stats para ${team.name}: ${wins}W - ${losses}L - ${draws}E`);
+
       const winRate =
         teamMatches.length > 0
           ? Math.round((wins / teamMatches.length) * 100)
           : 0;
 
-      return {
+      console.log(`Win rate para ${team.name}: ${winRate}%`);
+
+      // CORREÇÃO AQUI - garantir que characteristics seja array
+      let characteristics = team.characteristics;
+      if (!Array.isArray(characteristics)) {
+        console.log("ERRO: characteristics não é array, convertendo...");
+        console.log("Valor original:", characteristics);
+        characteristics = [];
+      }
+
+      const result = {
         id: team.id,
         name: team.name,
         wins: wins,
         losses: losses,
+        draws: draws,
         winRate: winRate,
-        league: team.league,
-        characteristics: team.characteristics || [],
+        league: team.league || "Não definida",
+        characteristics: characteristics,
         totalMatches: teamMatches.length,
         notes: team.notes || "",
       };
+
+      console.log(`Resultado final para ${team.name}:`, result);
+
+      return result;
     })
-    .sort((a, b) => b.winRate - a.winRate);
+    .sort((a, b) => {
+      console.log(
+        `Ordenando: ${a.name} (${a.winRate}%) vs ${b.name} (${b.winRate}%)`
+      );
+      return b.winRate - a.winRate;
+    });
 }
 
 function showTeamDetailsModal(teamId) {
@@ -243,6 +287,28 @@ function showTeamDetailsModal(teamId) {
   showModal("", modalContent);
 }
 
+function loadMarketChart() {
+  const markets = analyzeUserMarkets();
+  const container = document.getElementById("marketChart");
+
+  // Filtrar apenas pelos mercados dos times cadastrados
+  const userTeamMatches = userData.matches.filter(
+    (match) => userData.teams[match.homeTeam] || userData.teams[match.awayTeam]
+  );
+
+  if (userTeamMatches.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 30px; color: #718096;">
+        <div style="font-size: 36px; margin-bottom: 12px;">📊</div>
+        <p>Adicione jogos dos seus times para ver análise de mercados</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Resto da função permanece igual...
+}
+
 function loadTeamPerformance() {
   const teams = analyzeUserTeams();
   const container = document.getElementById("teamPerformance");
@@ -354,14 +420,16 @@ function loadAISuggestions() {
     // Análise baseada nas características dos times
     const teamsByCharacteristic = {};
     teams.forEach((team) => {
-      if (team.characteristics) {
-        team.characteristics.forEach((char) => {
-          if (!teamsByCharacteristic[char]) {
-            teamsByCharacteristic[char] = [];
-          }
-          teamsByCharacteristic[char].push(team);
-        });
-      }
+      // CORREÇÃO: Verificar se características é array
+      const teamCharacteristics = Array.isArray(team.characteristics)
+        ? team.characteristics
+        : [];
+      teamCharacteristics.forEach((char) => {
+        if (!teamsByCharacteristic[char]) {
+          teamsByCharacteristic[char] = [];
+        }
+        teamsByCharacteristic[char].push(team);
+      });
     });
 
     // Sugestões baseadas nas características mais comuns
@@ -438,6 +506,211 @@ function loadAISuggestions() {
     .join("");
 }
 
+function addCharacteristicFilter() {
+  const container = document.getElementById("teamPerformance");
+  const parent = container.parentElement;
+
+  // Verificar se já existe
+  if (parent.querySelector(".characteristic-filter")) return;
+
+  const teams = Object.values(userData.teams);
+  if (teams.length === 0) return;
+
+  // Coletar todas as características
+  const allCharacteristics = new Set();
+  teams.forEach((team) => {
+    if (team.characteristics) {
+      team.characteristics.forEach((char) => allCharacteristics.add(char));
+    }
+  });
+
+  if (allCharacteristics.size === 0) return;
+
+  const characteristicLabels = {
+    gols: "⚽ Gols",
+    vitoria: "🏆 Vitória",
+    derrota: "📉 Derrota",
+    over: "📈 Over",
+    under: "📉 Under",
+    ambas_marcam: "🎯 Ambas Marcam",
+    casa_forte: "🏠 Forte em Casa",
+    visitante_forte: "✈️ Bom Visitante",
+    imprevisivel: "❓ Imprevisível",
+  };
+
+  const filterDiv = document.createElement("div");
+  filterDiv.className = "characteristic-filter";
+
+  const buttonsHTML = Array.from(allCharacteristics)
+    .map(
+      (char) => `
+        <button onclick="filterTeamsByCharacteristic('${char}')" style="padding: 4px 8px; background: #e2e8f0; color: #4a5568; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; transition: background 0.2s;" onmouseover="this.style.background='#d1d5db'" onmouseout="this.style.background='#e2e8f0'">
+          ${characteristicLabels[char] || char}
+        </button>
+      `
+    )
+    .join("");
+
+  filterDiv.innerHTML = `
+    <div style="margin: 12px 0; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+      <div style="font-size: 12px; color: #4a5568; margin-bottom: 8px; font-weight: 500;">Filtrar por característica:</div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <button onclick="loadTeamPerformance()" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+          Todos
+        </button>
+        ${buttonsHTML}
+      </div>
+    </div>
+  `;
+
+  container.insertAdjacentElement("beforebegin", filterDiv);
+}
+
+// 4. Função filterTeamsByCharacteristic que estava faltando
+function filterTeamsByCharacteristic(characteristic) {
+  const teams = analyzeUserTeams();
+  const filteredTeams = teams.filter(
+    (team) =>
+      team.characteristics && team.characteristics.includes(characteristic)
+  );
+
+  if (filteredTeams.length === 0) {
+    showNotification(
+      `Nenhum time encontrado com a característica "${characteristic}"`,
+      "info"
+    );
+    return;
+  }
+
+  const modalContent = `
+    <h3>Times com característica: ${characteristic}</h3>
+    <div style="display: grid; gap: 12px;">
+      ${filteredTeams
+        .map(
+          (team) => `
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer;" onclick="closeModal(); showTeamDetailsModal('${team.id}')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: #2d3748;">${team.name}</div>
+              <div style="font-size: 12px; color: #718096; margin-top: 2px;">
+                ${team.league} • ${team.wins}W-${team.losses}L • ${team.winRate}%
+              </div>
+            </div>
+            <div style="color: #667eea; font-size: 14px;">→</div>
+          </div>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+  `;
+
+  showModal(`Filtro: ${characteristic}`, modalContent);
+}
+
+// 5. Corrigir a inicialização - REMOVER as funções que causam erro
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    updateQuickStats();
+    loadTeamPerformance();
+    loadMarketChart();
+    loadAISuggestions();
+
+    setTimeout(() => {
+      addAdvancedControls();
+    }, 1000);
+  } catch (error) {
+    console.error("Erro na inicialização:", error);
+    showNotification("Erro ao carregar sistema", "error");
+  }
+});
+
+// 6. Atualizar o loadTeamPerformance para incluir o filtro
+const originalLoadTeamPerformance = loadTeamPerformance;
+loadTeamPerformance = function () {
+  const teams = analyzeUserTeams();
+  const container = document.getElementById("teamPerformance");
+
+  if (teams.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+        <h3 style="margin: 0 0 8px 0; color: #2d3748;">Nenhum time cadastrado</h3>
+        <p style="margin: 0 0 20px 0; color: #718096;">Clique no botão abaixo para adicionar seus primeiros times</p>
+        <button onclick="showAddTeamModal()" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          + Adicionar Time
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = teams
+    .slice(0, 6)
+    .map((team) => {
+      const characteristicLabels = {
+        gols: "⚽ Gols",
+        vitoria: "🏆 Vitória",
+        derrota: "📉 Derrota",
+        over: "📈 Over",
+        under: "📉 Under",
+        ambas_marcam: "🎯 Ambas",
+        casa_forte: "🏠 Casa",
+        visitante_forte: "✈️ Fora",
+        imprevisivel: "❓ Variável",
+      };
+
+      return `
+      <div class="team-item" onclick="showTeamDetailsModal('${
+        team.id
+      }')" style="position: relative;">
+        <div class="team-info">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="team-name">${team.name}</span>
+            ${
+              team.characteristics.length > 0
+                ? `
+              <div style="display: flex; gap: 4px;">
+                ${team.characteristics
+                  .slice(0, 2)
+                  .map(
+                    (char) => `
+                  <span style="background: #e2e8f0; color: #4a5568; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 500;">
+                    ${characteristicLabels[char]?.split(" ")[0] || char}
+                  </span>
+                `
+                  )
+                  .join("")}
+                ${
+                  team.characteristics.length > 2
+                    ? `
+                  <span style="background: #d69e2e; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 500;">
+                    +${team.characteristics.length - 2}
+                  </span>
+                `
+                    : ""
+                }
+              </div>
+            `
+                : ""
+            }
+          </div>
+          <span class="team-record">${team.wins}W - ${team.losses}L${
+        team.totalMatches !== team.wins + team.losses
+          ? ` - ${team.totalMatches - team.wins - team.losses}E`
+          : ""
+      }</span>
+        </div>
+        <div class="win-rate">${team.winRate}%</div>
+      </div>
+    `;
+    })
+    .join("");
+
+  // Adicionar filtro após renderizar
+  setTimeout(() => addCharacteristicFilter(), 100);
+};
+
 // Função para filtrar times por característica
 function filterTeamsByCharacteristic(characteristic) {
   const teams = analyzeUserTeams();
@@ -482,24 +755,60 @@ function filterTeamsByCharacteristic(characteristic) {
 
 // Adicionar botão de filtro por características
 function addCharacteristicFilter() {
+  console.log("[addCharacteristicFilter] Iniciando...");
+
   const container = document.getElementById("teamPerformance");
+  if (!container) {
+    console.warn(
+      "[addCharacteristicFilter] Elemento #teamPerformance não encontrado."
+    );
+    return;
+  }
+
   const parent = container.parentElement;
 
   // Verificar se já existe
-  if (parent.querySelector(".characteristic-filter")) return;
+  if (parent.querySelector(".characteristic-filter")) {
+    console.log("[addCharacteristicFilter] Filtro já existe. Saindo...");
+    return;
+  }
 
   const teams = Object.values(userData.teams);
-  if (teams.length === 0) return;
+  console.log(`[addCharacteristicFilter] ${teams.length} times encontrados.`);
+
+  if (teams.length === 0) {
+    console.log("[addCharacteristicFilter] Nenhum time disponível. Saindo...");
+    return;
+  }
 
   // Coletar todas as características
   const allCharacteristics = new Set();
-  teams.forEach((team) => {
+  teams.forEach((team, index) => {
+    console.log(
+      `[addCharacteristicFilter] Processando time ${index + 1}:`,
+      team
+    );
     if (team.characteristics) {
-      team.characteristics.forEach((char) => allCharacteristics.add(char));
+      team.characteristics.forEach((char) => {
+        allCharacteristics.add(char);
+        console.log(
+          `[addCharacteristicFilter] Característica adicionada: ${char}`
+        );
+      });
     }
   });
 
-  if (allCharacteristics.size === 0) return;
+  if (allCharacteristics.size === 0) {
+    console.log(
+      "[addCharacteristicFilter] Nenhuma característica encontrada. Saindo..."
+    );
+    return;
+  }
+
+  console.log(
+    "[addCharacteristicFilter] Características únicas coletadas:",
+    Array.from(allCharacteristics)
+  );
 
   const characteristicLabels = {
     gols: "⚽ Gols",
@@ -515,6 +824,17 @@ function addCharacteristicFilter() {
 
   const filterDiv = document.createElement("div");
   filterDiv.className = "characteristic-filter";
+
+  const buttonsHTML = Array.from(allCharacteristics)
+    .map(
+      (char) => `
+      <button onclick="filterTeamsByCharacteristic('${char}')" style="padding: 4px 8px; background: #e2e8f0; color: #4a5568; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; transition: background 0.2s;" onmouseover="this.style.background='#d1d5db'" onmouseout="this.style.background='#e2e8f0'">
+        ${characteristicLabels[char] || char}
+      </button>
+    `
+    )
+    .join("");
+
   filterDiv.innerHTML = `
     <div style="margin: 12px 0; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
       <div style="font-size: 12px; color: #4a5568; margin-bottom: 8px; font-weight: 500;">Filtrar por característica:</div>
@@ -522,28 +842,16 @@ function addCharacteristicFilter() {
         <button onclick="loadTeamPerformance()" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
           Todos
         </button>
-        ${Array.from(allCharacteristics)
-          .map(
-            (char) => `
-          <button onclick="filterTeamsByCharacteristic('${char}')" style="padding: 4px 8px; background: #e2e8f0; color: #4a5568; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; transition: background 0.2s;" onmouseover="this.style.background='#d1d5db'" onmouseout="this.style.background='#e2e8f0'">
-            ${characteristicLabels[char] || char}
-          </button>
-        `
-          )
-          .join("")}
+        ${buttonsHTML}
       </div>
     </div>
   `;
 
   container.insertAdjacentElement("beforebegin", filterDiv);
+  console.log("[addCharacteristicFilter] Filtro adicionado com sucesso!");
 }
 
 // Atualizar o loadTeamPerformance para incluir o filtro
-const originalLoadTeamPerformance = loadTeamPerformance;
-loadTeamPerformance = function () {
-  originalLoadTeamPerformance();
-  setTimeout(() => addCharacteristicFilter(), 100);
-}; // Configuração da API
 const API_KEY = "e6151727b9b3162bb023a5d9283dc608";
 const API_BASE_URL = "https://api.the-odds-api.com/v4";
 
@@ -570,26 +878,21 @@ function saveUserData() {
 }
 
 function addTeam(teamData) {
-  const teamId = teamData.name.toLowerCase().replace(/\s+/g, "_");
+  const teamId =
+    teamData.name.toLowerCase().replace(/\s+/g, "_") + "_" + Date.now();
+
+  // Coletar características selecionadas
+  const characteristics = [];
+  if (teamData.getAll) {
+    const selectedCharacteristics = teamData.getAll("characteristics");
+    characteristics.push(...selectedCharacteristics);
+  }
+
   userData.teams[teamId] = {
     id: teamId,
     name: teamData.name,
     league: teamData.league || "Não definida",
-    stats: {
-      homeWins: parseInt(teamData.homeWins) || 0,
-      homeLosses: parseInt(teamData.homeLosses) || 0,
-      awayWins: parseInt(teamData.awayWins) || 0,
-      awayLosses: parseInt(teamData.awayLosses) || 0,
-      totalGames: parseInt(teamData.totalGames) || 0,
-    },
-    characteristics: {
-      offensiveStrength: parseInt(teamData.offensiveStrength) || 5,
-      defensiveStrength: parseInt(teamData.defensiveStrength) || 5,
-      homeAdvantage: parseInt(teamData.homeAdvantage) || 5,
-      form: parseInt(teamData.form) || 5,
-      goalsFor: parseInt(teamData.goalsFor) || 0,
-      goalsAgainst: parseInt(teamData.goalsAgainst) || 0,
-    },
+    characteristics: characteristics, // Array com as características selecionadas
     notes: teamData.notes || "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -654,60 +957,144 @@ function analyzeUserTeams() {
 
   return teams
     .map((team) => {
-      const homeWinRate =
-        team.stats.homeWins + team.stats.homeLosses > 0
-          ? Math.round(
-              (team.stats.homeWins /
-                (team.stats.homeWins + team.stats.homeLosses)) *
-                100
-            )
-          : 0;
+      // Calcular estatísticas dos jogos
+      const teamMatches = userData.matches.filter(
+        (m) => m.homeTeam === team.id || m.awayTeam === team.id
+      );
 
-      const awayWinRate =
-        team.stats.awayWins + team.stats.awayLosses > 0
-          ? Math.round(
-              (team.stats.awayWins /
-                (team.stats.awayWins + team.stats.awayLosses)) *
-                100
-            )
-          : 0;
+      const wins = teamMatches.filter(
+        (m) =>
+          (m.homeTeam === team.id && m.homeScore > m.awayScore) ||
+          (m.awayTeam === team.id && m.awayScore > m.homeScore)
+      ).length;
 
-      const totalWins = team.stats.homeWins + team.stats.awayWins;
-      const totalLosses = team.stats.homeLosses + team.stats.awayLosses;
-      const overallWinRate =
-        totalWins + totalLosses > 0
-          ? Math.round((totalWins / (totalWins + totalLosses)) * 100)
+      const losses = teamMatches.filter(
+        (m) =>
+          (m.homeTeam === team.id && m.homeScore < m.awayScore) ||
+          (m.awayTeam === team.id && m.awayScore < m.homeScore)
+      ).length;
+
+      const draws = teamMatches.filter(
+        (m) => m.homeScore === m.awayScore
+      ).length;
+
+      const winRate =
+        teamMatches.length > 0
+          ? Math.round((wins / teamMatches.length) * 100)
           : 0;
 
       return {
         id: team.id,
         name: team.name,
-        wins: totalWins,
-        losses: totalLosses,
-        winRate: overallWinRate,
-        homeWinRate: homeWinRate,
-        awayWinRate: awayWinRate,
+        wins: wins,
+        losses: losses,
+        draws: draws,
+        winRate: winRate,
         league: team.league,
-        form: team.characteristics.form,
-        offensiveStrength: team.characteristics.offensiveStrength,
-        defensiveStrength: team.characteristics.defensiveStrength,
+        characteristics: team.characteristics || [],
+        totalMatches: teamMatches.length,
+        notes: team.notes || "",
       };
     })
     .sort((a, b) => b.winRate - a.winRate);
 }
 
+// Função para carregar performance dos times
+function loadTeamPerformance() {
+  const teams = analyzeUserTeams();
+  const container = document.getElementById("teamPerformance");
+
+  if (teams.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+        <h3 style="margin: 0 0 8px 0; color: #2d3748;">Nenhum time cadastrado</h3>
+        <p style="margin: 0 0 20px 0; color: #718096;">Clique no botão abaixo para adicionar seus primeiros times</p>
+        <button onclick="showAddTeamModal()" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          + Adicionar Time
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = teams
+    .slice(0, 6)
+    .map((team) => {
+      const characteristicLabels = {
+        gols: "⚽ Gols",
+        vitoria: "🏆 Vitória",
+        derrota: "📉 Derrota",
+        over: "📈 Over",
+        under: "📉 Under",
+        ambas_marcam: "🎯 Ambas",
+        casa_forte: "🏠 Casa",
+        visitante_forte: "✈️ Fora",
+        imprevisivel: "❓ Variável",
+      };
+
+      return `
+      <div class="team-item" onclick="showTeamDetailsModal('${
+        team.id
+      }')" style="position: relative;">
+        <div class="team-info">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="team-name">${team.name}</span>
+            ${
+              team.characteristics.length > 0
+                ? `
+              <div style="display: flex; gap: 4px;">
+                ${team.characteristics
+                  .slice(0, 2)
+                  .map(
+                    (char) => `
+                  <span style="background: #e2e8f0; color: #4a5568; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 500;">
+                    ${characteristicLabels[char]?.split(" ")[0] || char}
+                  </span>
+                `
+                  )
+                  .join("")}
+                ${
+                  team.characteristics.length > 2
+                    ? `
+                  <span style="background: #d69e2e; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 500;">
+                    +${team.characteristics.length - 2}
+                  </span>
+                `
+                    : ""
+                }
+              </div>
+            `
+                : ""
+            }
+          </div>
+          <span class="team-record">${team.wins}W - ${team.losses}L${
+        team.draws > 0 ? ` - ${team.draws}E` : ""
+      }</span>
+        </div>
+        <div class="win-rate">${team.winRate}%</div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
 function analyzeUserMarkets() {
   if (userData.matches.length === 0) {
-    return {
-      "Resultado Final": 0,
-      "Over/Under Gols": 0,
-      "Ambas Marcam": 0,
-      "Dupla Chance": 0,
-    };
+    return {};
+  }
+
+  // Filtrar apenas jogos dos times cadastrados
+  const userTeamMatches = userData.matches.filter(
+    (match) => userData.teams[match.homeTeam] || userData.teams[match.awayTeam]
+  );
+
+  if (userTeamMatches.length === 0) {
+    return {};
   }
 
   const marketStats = {};
-  userData.matches.forEach((match) => {
+  userTeamMatches.forEach((match) => {
     if (match.market && match.result) {
       if (!marketStats[match.market]) {
         marketStats[match.market] = { wins: 0, total: 0 };
@@ -1037,18 +1424,114 @@ async function analyzeLiveTrends() {
 
 // ==================== UI FUNCTIONS ====================
 
-async function updateQuickStats() {
+function updateQuickStats() {
   const patterns = analyzeUserPatterns();
+  const teams = analyzeUserTeams();
+  const markets = analyzeUserMarkets();
 
+  // Sequência atual
   if (patterns) {
     document.getElementById("hotStreak").textContent = patterns.currentStreak;
-    document.getElementById("bestMarket").textContent = "Seus Dados";
-    document.getElementById("bestLeague").textContent = "Personalizado";
   } else {
     document.getElementById("hotStreak").textContent = "0";
-    document.getElementById("bestMarket").textContent = "Sem dados";
-    document.getElementById("bestLeague").textContent = "Adicione times";
   }
+
+  // Melhor mercado
+  const bestMarket = Object.entries(markets).sort(([, a], [, b]) => b - a)[0];
+  if (bestMarket && bestMarket[1] > 0) {
+    document.getElementById(
+      "bestMarket"
+    ).textContent = `${bestMarket[0]} (${bestMarket[1]}%)`;
+  } else {
+    document.getElementById("bestMarket").textContent = "Sem dados";
+  }
+
+  // Melhor time
+  if (teams.length > 0 && teams[0].winRate > 0) {
+    document.getElementById(
+      "bestTeam"
+    ).textContent = `${teams[0].name} (${teams[0].winRate}%)`;
+  } else {
+    document.getElementById("bestTeam").textContent = "Adicione times";
+  }
+}
+
+// Função para analisar padrões do usuário
+function analyzeUserPatterns() {
+  if (userData.matches.length === 0) return null;
+
+  const matches = userData.matches;
+
+  // Calcular sequência atual
+  let currentStreak = 0;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (matches[i].result === "Green") {
+      currentStreak++;
+    } else if (matches[i].result === "Red") {
+      break;
+    }
+  }
+
+  // Melhor sequência
+  let bestStreak = 0;
+  let tempStreak = 0;
+  matches.forEach((match) => {
+    if (match.result === "Green") {
+      tempStreak++;
+      bestStreak = Math.max(bestStreak, tempStreak);
+    } else {
+      tempStreak = 0;
+    }
+  });
+
+  // Análise por dia da semana
+  const dayStats = {};
+  matches.forEach((match) => {
+    const day = new Date(match.date).toLocaleDateString("pt-BR", {
+      weekday: "long",
+    });
+    if (!dayStats[day]) {
+      dayStats[day] = { wins: 0, total: 0 };
+    }
+    dayStats[day].total++;
+    if (match.result === "Green") {
+      dayStats[day].wins++;
+    }
+  });
+
+  const bestDay = Object.entries(dayStats)
+    .map(([day, stats]) => ({
+      day,
+      winRate: stats.total > 0 ? stats.wins / stats.total : 0,
+    }))
+    .sort((a, b) => b.winRate - a.winRate)[0];
+
+  // Faixa de odd ideal
+  const greenMatches = matches.filter(
+    (m) => m.result === "Green" && m.odds > 0
+  );
+  const avgGreenOdd =
+    greenMatches.length > 0
+      ? greenMatches.reduce((sum, m) => sum + m.odds, 0) / greenMatches.length
+      : 2.0;
+
+  return {
+    currentStreak,
+    bestStreak,
+    bestDay: bestDay ? bestDay.day : "Sem dados",
+    idealOddRange: `${(avgGreenOdd * 0.9).toFixed(2)} - ${(
+      avgGreenOdd * 1.1
+    ).toFixed(2)}`,
+    totalMatches: matches.length,
+    greenRate:
+      matches.length > 0
+        ? Math.round(
+            (matches.filter((m) => m.result === "Green").length /
+              matches.length) *
+              100
+          )
+        : 0,
+  };
 }
 
 function loadTeamPerformance() {
@@ -1095,13 +1578,17 @@ function loadMarketChart() {
     container.innerHTML = `
       <div style="text-align: center; padding: 30px; color: #718096;">
         <div style="font-size: 36px; margin-bottom: 12px;">📊</div>
-        <p>Adicione jogos para ver análise de mercados</p>
+        <p>Adicione jogos dos seus times para ver análise de mercados</p>
+        <button onclick="showAddMatchModal()" style="padding: 10px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 12px;">
+          + Adicionar Jogo
+        </button>
       </div>
     `;
     return;
   }
 
   container.innerHTML = Object.entries(markets)
+    .slice(0, 5) // Limitar a 5 mercados
     .map(
       ([market, rate]) => `
     <div class="market-bar">
@@ -1215,6 +1702,7 @@ function loadAISuggestions() {
 
 // ==================== MODALS ====================
 
+// Função para exibir modal de adicionar time (atualizada)
 function showAddTeamModal() {
   const modalContent = `
     <h3 style="margin: 0 0 24px 0; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">Adicionar Novo Time</h3>
@@ -1243,24 +1731,6 @@ function showAddTeamModal() {
         <p style="margin: 0 0 16px 0; font-size: 13px; color: #718096;">Selecione uma ou mais características que definem este time (pode marcar várias opções)</p>
         
         <div style="display: grid; gap: 12px;">
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" name="characteristics" value="gols" style="cursor: pointer;">
-            <span style="font-weight: 500;">⚽ Time bom para Gols</span>
-            <span style="font-size: 12px; color: #718096;">- Jogos com muitos gols</span>
-          </label>
-          
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" name="characteristics" value="vitoria" style="cursor: pointer;">
-            <span style="font-weight: 500;">🏆 Time bom para Vitória</span>
-            <span style="font-size: 12px; color: #718096;">- Favorito confiável</span>
-          </label>
-          
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" name="characteristics" value="derrota" style="cursor: pointer;">
-            <span style="font-weight: 500;">📉 Time bom para Derrota</span>
-            <span style="font-size: 12px; color: #718096;">- Apostas contra</span>
-          </label>
-          
           <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='transparent'">
             <input type="checkbox" name="characteristics" value="over" style="cursor: pointer;">
             <span style="font-weight: 500;">📈 Time bom para Over</span>
@@ -1345,84 +1815,55 @@ function handleAddTeam(event) {
   }
 }
 
+// Função para mostrar detalhes do time (corrigida)
 function showTeamDetailsModal(teamId) {
   const team = userData.teams[teamId];
-  if (!team) return;
+  if (!team) {
+    showNotification("Time não encontrado!", "error");
+    return;
+  }
 
   const teamMatches = userData.matches.filter(
     (m) => m.homeTeam === teamId || m.awayTeam === teamId
   );
 
+  const characteristicLabels = {
+    gols: "⚽ Bom para Gols",
+    vitoria: "🏆 Bom para Vitória",
+    derrota: "📉 Bom para Derrota",
+    over: "📈 Bom para Over",
+    under: "📉 Bom para Under",
+    ambas_marcam: "🎯 Ambas Marcam",
+    casa_forte: "🏠 Forte em Casa",
+    visitante_forte: "✈️ Bom Visitante",
+    imprevisivel: "❓ Imprevisível",
+  };
+
+  // CORREÇÃO: Garantir que characteristics seja array
+  const teamCharacteristics = Array.isArray(team.characteristics)
+    ? team.characteristics
+    : [];
+
   const modalContent = `
-    <h3>${team.name}</h3>
+    <h3 style="margin: 0 0 20px 0; color: #2d3748; display: flex; align-items: center; gap: 12px;">
+      <span>${team.name}</span>
+      <span style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;">
+        ${team.league || "Liga não definida"}
+      </span>
+    </h3>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-      <div>
-        <h4 style="margin: 0 0 12px 0; color: #2d3748;">Estatísticas</h4>
-        <div style="background: #f7fafc; padding: 16px; border-radius: 8px;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
-            <div>Casa: ${team.stats.homeWins}W - ${team.stats.homeLosses}L</div>
-            <div>Fora: ${team.stats.awayWins}W - ${team.stats.awayLosses}L</div>
-          </div>
-        </div>
-      </div>
-      
-      <div>
-        <h4 style="margin: 0 0 12px 0; color: #2d3748;">Características</h4>
-        <div style="background: #f7fafc; padding: 16px; border-radius: 8px; font-size: 14px;">
-          <div>Ataque: ${team.characteristics.offensiveStrength}/10</div>
-          <div>Defesa: ${team.characteristics.defensiveStrength}/10</div>
-          <div>Casa: ${team.characteristics.homeAdvantage}/10</div>
-        </div>
-      </div>
-    </div>
-
     ${
-      team.notes
+      teamCharacteristics.length > 0
         ? `
-      <div style="margin-bottom: 20px;">
-        <h4 style="margin: 0 0 8px 0; color: #2d3748;">Notas</h4>
-        <p style="background: #fff5f5; padding: 12px; border-radius: 6px; margin: 0; border-left: 4px solid #f56565;">
-          ${team.notes}
-        </p>
-      </div>
-    `
-        : ""
-    }
-
-    ${
-      teamMatches.length > 0
-        ? `
-      <div style="margin-bottom: 20px;">
-        <h4 style="margin: 0 0 12px 0; color: #2d3748;">Últimos Jogos (${
-          teamMatches.length
-        })</h4>
-        <div style="max-height: 200px; overflow-y: auto;">
-          ${teamMatches
-            .slice(-5)
-            .reverse()
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px;">Características</h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          ${teamCharacteristics
             .map(
-              (match) => `
-            <div style="background: #f8fafc; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid ${
-              match.result === "Green"
-                ? "#38a169"
-                : match.result === "Red"
-                ? "#e53e3e"
-                : "#d69e2e"
-            };">
-              <div style="font-weight: 600; margin-bottom: 4px;">
-                ${userData.teams[match.homeTeam]?.name || match.homeTeam} ${
-                match.homeScore
-              } x ${match.awayScore} ${
-                userData.teams[match.awayTeam]?.name || match.awayTeam
-              }
-              </div>
-              <div style="font-size: 12px; color: #718096;">
-                ${new Date(match.date).toLocaleDateString("pt-BR")} • ${
-                match.market
-              } • ${match.result}
-              </div>
-            </div>
+              (char) => `
+            <span style="background: #667eea; color: white; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500;">
+              ${characteristicLabels[char] || char}
+            </span>
           `
             )
             .join("")}
@@ -1432,88 +1873,185 @@ function showTeamDetailsModal(teamId) {
         : ""
     }
 
-    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
-      <button onclick="showEditTeamModal('${teamId}')" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">Editar</button>
-      <button onclick="confirmDeleteTeam('${teamId}')" style="padding: 10px 20px; background: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer;">Excluir</button>
-      <button onclick="closeModal()" style="padding: 10px 20px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer;">Fechar</button>
+    ${
+      teamMatches.length > 0
+        ? `
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px;">Estatísticas (${
+          teamMatches.length
+        } jogos)</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px;">
+          <div style="background: #f0fff4; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #c6f6d5;">
+            <div style="font-size: 18px; font-weight: 600; color: #22543d;">${
+              teamMatches.filter(
+                (m) =>
+                  (m.homeTeam === teamId && m.homeScore > m.awayScore) ||
+                  (m.awayTeam === teamId && m.awayScore > m.homeScore)
+              ).length
+            }</div>
+            <div style="font-size: 11px; color: #22543d;">Vitórias</div>
+          </div>
+          <div style="background: #fff5f5; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #fed7d7;">
+            <div style="font-size: 18px; font-weight: 600; color: #c53030;">${
+              teamMatches.filter(
+                (m) =>
+                  (m.homeTeam === teamId && m.homeScore < m.awayScore) ||
+                  (m.awayTeam === teamId && m.awayScore < m.homeScore)
+              ).length
+            }</div>
+            <div style="font-size: 11px; color: #c53030;">Derrotas</div>
+          </div>
+          <div style="background: #fffbeb; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #fed7aa;">
+            <div style="font-size: 18px; font-weight: 600; color: #d97706;">${
+              teamMatches.filter((m) => m.homeScore === m.awayScore).length
+            }</div>
+            <div style="font-size: 11px; color: #d97706;">Empates</div>
+          </div>
+        </div>
+      </div>
+    `
+        : `
+      <div style="margin-bottom: 24px;">
+        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; color: #718096; text-align: center;">
+          <div style="font-size: 32px; margin-bottom: 8px;">⚽</div>
+          <div>Nenhum jogo cadastrado para este time</div>
+        </div>
+      </div>
+    `
+    }
+
+    ${
+      team.notes && team.notes.trim()
+        ? `
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px;">Notas</h4>
+        <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid #667eea; font-size: 14px; line-height: 1.6; color: #4a5568;">
+          ${team.notes
+            .split("\n")
+            .map((line) => `<p style="margin: 0 0 8px 0;">${line}</p>`)
+            .join("")}
+        </div>
+      </div>
+    `
+        : ""
+    }
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+      <button onclick="closeModal()" 
+              style="padding: 10px 16px; background: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+        Fechar
+      </button>
     </div>
   `;
 
-  showModal(`Detalhes - ${team.name}`, modalContent);
+  showModal("", modalContent);
+}
+
+// Função para adicionar time (corrigida)
+function handleAddTeam(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+
+  // Coletar características selecionadas
+  const characteristics = formData.getAll("characteristics");
+
+  try {
+    // Gerar ID único para o time
+    const teamId =
+      formData.get("name").toLowerCase().replace(/\s+/g, "_") +
+      "_" +
+      Date.now();
+
+    userData.teams[teamId] = {
+      id: teamId,
+      name: formData.get("name"),
+      league: formData.get("league") || "Não definida",
+      characteristics: characteristics || [],
+      notes: formData.get("notes") || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveUserData();
+    closeModal();
+    showNotification(
+      `Time ${formData.get("name")} adicionado com sucesso!`,
+      "success"
+    );
+
+    // Recarregar interfaces
+    loadTeamPerformance();
+    loadAISuggestions();
+    updateQuickStats();
+  } catch (error) {
+    console.error("Erro ao adicionar time:", error);
+    showNotification("Erro ao adicionar time", "error");
+  }
 }
 
 function showEditTeamModal(teamId) {
   const team = userData.teams[teamId];
   if (!team) return;
 
+  // CORREÇÃO: Garantir que characteristics seja array
+  const teamCharacteristics = Array.isArray(team.characteristics)
+    ? team.characteristics
+    : [];
+
   const modalContent = `
     <h3>Editar ${team.name}</h3>
     <form onsubmit="handleEditTeam(event, '${teamId}')" style="display: grid; gap: 16px;">
       <div>
         <label style="display: block; margin-bottom: 4px; font-weight: 600;">Nome do Time *</label>
-        <input type="text" name="name" value="${
-          team.name
-        }" required style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+        <input type="text" name="name" value="${team.name}" required 
+               style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
       </div>
       
       <div>
         <label style="display: block; margin-bottom: 4px; font-weight: 600;">Liga</label>
-        <input type="text" name="league" value="${
-          team.league || ""
-        }" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
+        <input type="text" name="league" value="${team.league || ""}" 
+               style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Vitórias em Casa</label>
-          <input type="number" name="homeWins" min="0" value="${
-            team.stats.homeWins
-          }" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Derrotas em Casa</label>
-          <input type="number" name="homeLosses" min="0" value="${
-            team.stats.homeLosses
-          }" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Vitórias Fora</label>
-          <input type="number" name="awayWins" min="0" value="${
-            team.stats.awayWins
-          }" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Derrotas Fora</label>
-          <input type="number" name="awayLosses" min="0" value="${
-            team.stats.awayLosses
-          }" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Força Ofensiva (1-10)</label>
-          <input type="range" name="offensiveStrength" min="1" max="10" value="${
-            team.characteristics.offensiveStrength
-          }" oninput="this.nextElementSibling.textContent = this.value" style="width: 100%;">
-          <span>${team.characteristics.offensiveStrength}</span>
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Força Defensiva (1-10)</label>
-          <input type="range" name="defensiveStrength" min="1" max="10" value="${
-            team.characteristics.defensiveStrength
-          }" oninput="this.nextElementSibling.textContent = this.value" style="width: 100%;">
-          <span>${team.characteristics.defensiveStrength}</span>
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 4px; font-weight: 600;">Vantagem Casa (1-10)</label>
-          <input type="range" name="homeAdvantage" min="1" max="10" value="${
-            team.characteristics.homeAdvantage
-          }" oninput="this.nextElementSibling.textContent = this.value" style="width: 100%;">
-          <span>${team.characteristics.homeAdvantage}</span>
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Características</label>
+        <div style="display: grid; gap: 8px;">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="gols" ${
+              teamCharacteristics.includes("gols") ? "checked" : ""
+            }>
+            <span>⚽ Bom para Gols</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="vitoria" ${
+              teamCharacteristics.includes("vitoria") ? "checked" : ""
+            }>
+            <span>🏆 Bom para Vitória</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="over" ${
+              teamCharacteristics.includes("over") ? "checked" : ""
+            }>
+            <span>📈 Bom para Over</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="under" ${
+              teamCharacteristics.includes("under") ? "checked" : ""
+            }>
+            <span>📉 Bom para Under</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="ambas_marcam" ${
+              teamCharacteristics.includes("ambas_marcam") ? "checked" : ""
+            }>
+            <span>🎯 Ambas Marcam</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" name="characteristics" value="casa_forte" ${
+              teamCharacteristics.includes("casa_forte") ? "checked" : ""
+            }>
+            <span>🏠 Forte em Casa</span>
+          </label>
         </div>
       </div>
 
@@ -1525,8 +2063,14 @@ function showEditTeamModal(teamId) {
       </div>
 
       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
-        <button type="button" onclick="closeModal()" style="padding: 10px 20px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
-        <button type="submit" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Atualizar</button>
+        <button type="button" onclick="closeModal()" 
+                style="padding: 10px 20px; background: #e2e8f0; border: none; border-radius: 6px; cursor: pointer;">
+          Cancelar
+        </button>
+        <button type="submit" 
+                style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+          Atualizar
+        </button>
       </div>
     </form>
   `;
@@ -1534,37 +2078,187 @@ function showEditTeamModal(teamId) {
   showModal("Editar Time", modalContent);
 }
 
+function showTeamDetailsModal(teamId) {
+  const team = userData.teams[teamId];
+  if (!team) return;
+
+  const teamMatches = userData.matches.filter(
+    (m) => m.homeTeam === teamId || m.awayTeam === teamId
+  );
+
+  const characteristicLabels = {
+    gols: "⚽ Bom para Gols",
+    vitoria: "🏆 Bom para Vitória",
+    derrota: "📉 Bom para Derrota",
+    over: "📈 Bom para Over",
+    under: "📉 Bom para Under",
+    ambas_marcam: "🎯 Ambas Marcam",
+    casa_forte: "🏠 Forte em Casa",
+    visitante_forte: "✈️ Bom Visitante",
+    imprevisivel: "❓ Imprevisível",
+  };
+
+  const modalContent = `
+    <h3 style="margin: 0 0 20px 0; color: #2d3748; display: flex; align-items: center; gap: 12px;">
+      <span>${team.name}</span>
+      <span style="background: #e2e8f0; color: #4a5568; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: normal;">
+        ${team.league}
+      </span>
+    </h3>
+    
+    ${
+      team.characteristics && team.characteristics.length > 0
+        ? `
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px;">Características</h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          ${team.characteristics
+            .map(
+              (char) => `
+            <span style="background: #667eea; color: white; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 500;">
+              ${characteristicLabels[char] || char}
+            </span>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `
+        : ""
+    }
+
+    ${
+      teamMatches.length > 0
+        ? `
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: #4a5568; font-size: 14px;">Estatísticas (${
+          teamMatches.length
+        } jogos)</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px;">
+          <div style="background: #f0fff4; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #c6f6d5;">
+            <div style="font-size: 18px; font-weight: 600; color: #22543d;">${
+              teamMatches.filter(
+                (m) =>
+                  (m.homeTeam === teamId && m.homeScore > m.awayScore) ||
+                  (m.awayTeam === teamId && m.awayScore > m.homeScore)
+              ).length
+            }</div>
+            <div style="font-size: 11px; color: #22543d;">Vitórias</div>
+          </div>
+          <div style="background: #fff5f5; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #fed7d7;">
+            <div style="font-size: 18px; font-weight: 600; color: #c53030;">${
+              teamMatches.filter(
+                (m) =>
+                  (m.homeTeam === teamId && m.homeScore < m.awayScore) ||
+                  (m.awayTeam === teamId && m.awayScore < m.homeScore)
+              ).length
+            }</div>
+            <div style="font-size: 11px; color: #c53030;">Derrotas</div>
+          </div>
+          <div style="background: #fffbeb; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #fed7aa;">
+            <div style="font-size: 18px; font-weight: 600; color: #d97706;">${
+              teamMatches.filter((m) => m.homeScore === m.awayScore).length
+            }</div>
+            <div style="font-size: 11px; color: #d97706;">Empates</div>
+          </div>
+        </div>
+      </div>
+    `
+        : ""
+    }
+
+    ${
+      team.notes
+        ? `
+      <div style="margin-bottom: 24px;">
+        <h4 style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px;">Notas</h4>
+        <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border-left: 4px solid #667eea; font-size: 14px; line-height: 1.6; color: #4a5568;">
+          ${team.notes
+            .split("\n")
+            .map((line) => `<p style="margin: 0 0 8px 0;">${line}</p>`)
+            .join("")}
+        </div>
+      </div>
+    `
+        : ""
+    }
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+      <button onclick="showEditTeamModal('${teamId}')" 
+              style="padding: 10px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+        Editar
+      </button>
+      <button onclick="confirmDeleteTeam('${teamId}')" 
+              style="padding: 10px 16px; background: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+        Excluir
+      </button>
+      <button onclick="closeModal()" 
+              style="padding: 10px 16px; background: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+        Fechar
+      </button>
+    </div>
+  `;
+
+  showModal("", modalContent);
+}
+
 function handleEditTeam(event, teamId) {
   event.preventDefault();
   const formData = new FormData(event.target);
-  const teamData = Object.fromEntries(formData.entries());
+
+  // Coletar características selecionadas
+  const characteristics = formData.getAll("characteristics");
 
   try {
-    updateTeam(teamId, {
-      name: teamData.name,
-      league: teamData.league,
-      stats: {
-        homeWins: parseInt(teamData.homeWins) || 0,
-        homeLosses: parseInt(teamData.homeLosses) || 0,
-        awayWins: parseInt(teamData.awayWins) || 0,
-        awayLosses: parseInt(teamData.awayLosses) || 0,
-      },
-      characteristics: {
-        offensiveStrength: parseInt(teamData.offensiveStrength) || 5,
-        defensiveStrength: parseInt(teamData.defensiveStrength) || 5,
-        homeAdvantage: parseInt(teamData.homeAdvantage) || 5,
-      },
-      notes: teamData.notes || "",
-    });
+    userData.teams[teamId] = {
+      ...userData.teams[teamId],
+      name: formData.get("name"),
+      league: formData.get("league"),
+      characteristics: characteristics,
+      notes: formData.get("notes"),
+      updatedAt: new Date().toISOString(),
+    };
 
+    saveUserData();
     closeModal();
     showNotification("Time atualizado com sucesso!", "success");
+
+    // Recarregar interfaces
     loadTeamPerformance();
-    loadPatterns();
     loadAISuggestions();
+    updateQuickStats();
   } catch (error) {
     console.error("Erro ao editar time:", error);
     showNotification("Erro ao atualizar time", "error");
+  }
+}
+
+// Função para confirmar exclusão de time (NOVA)
+function confirmDeleteTeam(teamId) {
+  const team = userData.teams[teamId];
+  if (!team) return;
+
+  if (
+    confirm(
+      `Tem certeza que deseja excluir ${team.name}? Esta ação não pode ser desfeita.`
+    )
+  ) {
+    delete userData.teams[teamId];
+
+    // Remover jogos relacionados
+    userData.matches = userData.matches.filter(
+      (match) => match.homeTeam !== teamId && match.awayTeam !== teamId
+    );
+
+    saveUserData();
+    closeModal();
+    showNotification(`Time ${team.name} excluído com sucesso!`, "success");
+
+    // Recarregar interfaces
+    loadTeamPerformance();
+    loadAISuggestions();
+    updateQuickStats();
+    loadMarketChart();
   }
 }
 
@@ -1699,16 +2393,107 @@ function handleAddMatch(event) {
   }
 
   try {
-    addMatch(matchData);
+    const match = {
+      id: Date.now().toString(),
+      homeTeam: matchData.homeTeam,
+      awayTeam: matchData.awayTeam,
+      homeScore: parseInt(matchData.homeScore) || 0,
+      awayScore: parseInt(matchData.awayScore) || 0,
+      date: matchData.date,
+      league: matchData.league || "",
+      market: matchData.market || "",
+      result: matchData.result || "",
+      odds: parseFloat(matchData.odds) || 0,
+      stake: parseFloat(matchData.stake) || 0,
+      profit: parseFloat(matchData.profit) || 0,
+      notes: matchData.notes || "",
+      createdAt: new Date().toISOString(),
+    };
+
+    userData.matches.push(match);
+    saveUserData();
+
     closeModal();
     showNotification("Jogo adicionado com sucesso!", "success");
+
+    // Recarregar interfaces
     loadMarketChart();
-    loadPatterns();
     loadAISuggestions();
+    updateQuickStats();
+    loadTeamPerformance(); // Atualizar estatísticas dos times
   } catch (error) {
     console.error("Erro ao adicionar jogo:", error);
     showNotification("Erro ao adicionar jogo", "error");
   }
+}
+
+// Função showStatsModal (estava faltando)
+function showStatsModal() {
+  const teams = Object.values(userData.teams);
+  const matches = userData.matches;
+
+  if (matches.length === 0) {
+    showNotification(
+      "Adicione alguns jogos primeiro para ver estatísticas detalhadas.",
+      "info"
+    );
+    return;
+  }
+
+  const greenMatches = matches.filter((m) => m.result === "Green");
+  const redMatches = matches.filter((m) => m.result === "Red");
+  const totalProfit = matches.reduce((sum, m) => sum + (m.profit || 0), 0);
+
+  const modalContent = `
+    <h3>📊 Estatísticas Detalhadas</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center; border-left: 4px solid #38a169;">
+        <div style="font-size: 24px; font-weight: 600; color: #22543d;">${
+          greenMatches.length
+        }</div>
+        <div style="font-size: 12px; color: #22543d;">Greens</div>
+      </div>
+      <div style="background: #fff5f5; padding: 16px; border-radius: 8px; text-align: center; border-left: 4px solid #e53e3e;">
+        <div style="font-size: 24px; font-weight: 600; color: #c53030;">${
+          redMatches.length
+        }</div>
+        <div style="font-size: 12px; color: #c53030;">Reds</div>
+      </div>
+      <div style="background: #f7fafc; padding: 16px; border-radius: 8px; text-align: center; border-left: 4px solid #667eea;">
+        <div style="font-size: 24px; font-weight: 600; color: #4c51bf;">${(
+          (greenMatches.length / matches.length) *
+          100
+        ).toFixed(1)}%</div>
+        <div style="font-size: 12px; color: #4c51bf;">Taxa de Acerto</div>
+      </div>
+      <div style="background: ${
+        totalProfit >= 0 ? "#f0fff4" : "#fff5f5"
+      }; padding: 16px; border-radius: 8px; text-align: center; border-left: 4px solid ${
+    totalProfit >= 0 ? "#38a169" : "#e53e3e"
+  };">
+        <div style="font-size: 24px; font-weight: 600; color: ${
+          totalProfit >= 0 ? "#22543d" : "#c53030"
+        };">R$ ${totalProfit.toFixed(2)}</div>
+        <div style="font-size: 12px; color: ${
+          totalProfit >= 0 ? "#22543d" : "#c53030"
+        };">Lucro Total</div>
+      </div>
+    </div>
+
+    <div style="background: #edf2f7; padding: 16px; border-radius: 8px;">
+      <h4 style="margin: 0 0 8px 0;">Resumo Geral</h4>
+      <div style="font-size: 14px; color: #4a5568;">
+        <div>Total de jogos: <strong>${matches.length}</strong></div>
+        <div>Times cadastrados: <strong>${teams.length}</strong></div>
+        <div>Melhor sequência: <strong>${
+          analyzeUserPatterns()?.bestStreak || 0
+        } greens</strong></div>
+      </div>
+    </div>
+  `;
+
+  showModal("Estatísticas Completas", modalContent);
 }
 
 // ==================== MODAL FUNCTIONS ====================
@@ -1826,6 +2611,7 @@ async function refreshTeamAnalysis() {
 
   try {
     loadTeamPerformance();
+    updateQuickStats();
     showNotification("Dados dos times atualizados!", "success");
   } catch (error) {
     console.error("Erro ao atualizar teams:", error);
@@ -1836,7 +2622,9 @@ async function refreshTeamAnalysis() {
 }
 
 function filterMarkets(filter) {
+  // Filtrar com base nos dados do usuário
   loadMarketChart();
+  showNotification(`Filtro aplicado: ${filter}`, "info");
 }
 
 function toggleLeagueView(view) {
@@ -1950,6 +2738,28 @@ function showNotification(message, type = "success") {
   }, 5000);
 }
 
+// Inicialização
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    updateQuickStats();
+    loadTeamPerformance();
+    loadMarketChart();
+    loadAISuggestions();
+
+    setTimeout(() => {
+      addAdvancedControls();
+    }, 1000);
+
+    showNotification(
+      "Sistema personalizado carregado! Adicione seus times e jogos.",
+      "success"
+    );
+  } catch (error) {
+    console.error("Erro na inicialização:", error);
+    showNotification("Erro ao carregar sistema", "error");
+  }
+});
+
 // ==================== ADVANCED CONTROLS ====================
 
 function addAdvancedControls() {
@@ -1965,11 +2775,8 @@ function addAdvancedControls() {
         <button onclick="showAddMatchModal()" style="padding: 10px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
           ⚽ Adicionar Jogo
         </button>
-        <button onclick="findValueBets()" style="padding: 10px 16px; background: #d69e2e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
-          💰 Value Bets (API)
-        </button>
-        <button onclick="analyzeLiveTrends()" style="padding: 10px 16px; background: #9f7aea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
-          📈 Tendências (API)
+        <button onclick="showStatsModal()" style="padding: 10px 16px; background: #805ad5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+          📊 Estatísticas
         </button>
       </div>
     `;
@@ -2262,9 +3069,6 @@ function updateAdvancedControls() {
         <button onclick="showAddTeamModal()" style="padding: 8px 12px; background: #38a169; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
           + Time
         </button>
-        <button onclick="showAddMatchModal()" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
-          + Jogo
-        </button>
         <button onclick="showStatsModal()" style="padding: 8px 12px; background: #805ad5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
           Estatísticas
         </button>
@@ -2274,13 +3078,6 @@ function updateAdvancedControls() {
         </button>
         <button onclick="analyzeLiveTrends()" style="padding: 8px 12px; background: #ed8936; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
           Tendências
-        </button>
-        <div style="border-left: 1px solid #e2e8f0; height: 24px; margin: 0 4px;"></div>
-        <button onclick="exportUserData()" style="padding: 8px 12px; background: #4a5568; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
-          Exportar
-        </button>
-        <button onclick="importUserData()" style="padding: 8px 12px; background: #2d3748; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
-          Importar
         </button>
       </div>
     `;
@@ -2395,3 +3192,234 @@ if (!document.getElementById("notification-styles")) {
   `;
   document.head.appendChild(style);
 }
+
+// ==================== INICIALIZAÇÃO FINAL ====================
+
+// Inicialização automática com migração
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    console.log("Iniciando sistema...");
+
+    // 1. Executar migração automática dos dados existentes
+    const hasOldData = Object.keys(userData.teams).length > 0;
+    if (hasOldData) {
+      console.log("Dados existentes detectados, executando migração...");
+    }
+
+    // 2. Carregar todas as interfaces
+    updateQuickStats();
+    loadTeamPerformance();
+    loadMarketChart();
+    loadAISuggestions();
+
+    // 3. Adicionar controles avançados após um pequeno delay
+    setTimeout(() => {
+      addAdvancedControls();
+    }, 1000);
+
+    // 4. Mostrar mensagem de boas-vindas
+  } catch (error) {
+    console.error("Erro na inicialização:", error);
+    showNotification("Erro ao carregar sistema", "error");
+  }
+});
+
+// Função para verificar integridade dos dados
+function checkDataIntegrity() {
+  const issues = [];
+
+  // Verificar times
+  Object.keys(userData.teams).forEach((teamId) => {
+    const team = userData.teams[teamId];
+
+    if (!team.name) {
+      issues.push(`Time ${teamId} sem nome`);
+    }
+
+    if (!Array.isArray(team.characteristics)) {
+      issues.push(`Time ${team.name || teamId} com características inválidas`);
+    }
+
+    if (typeof team.notes !== "string") {
+      issues.push(`Time ${team.name || teamId} com notas inválidas`);
+    }
+  });
+
+  // Verificar jogos
+  userData.matches.forEach((match, index) => {
+    if (!match.homeTeam || !match.awayTeam) {
+      issues.push(`Jogo ${index} com times inválidos`);
+    }
+
+    if (
+      typeof match.homeScore !== "number" ||
+      typeof match.awayScore !== "number"
+    ) {
+      issues.push(`Jogo ${index} com placar inválido`);
+    }
+
+    if (!match.date) {
+      issues.push(`Jogo ${index} sem data`);
+    }
+  });
+
+  if (issues.length > 0) {
+    console.warn("Problemas encontrados nos dados:", issues);
+    return false;
+  }
+
+  console.log("Integridade dos dados OK");
+  return true;
+}
+
+// Auto-backup dos dados (executar periodicamente)
+function autoBackup() {
+  try {
+    const backupData = {
+      teams: userData.teams,
+      matches: userData.matches,
+      settings: userData.settings,
+      backupDate: new Date().toISOString(),
+      version: "2.0",
+    };
+
+    localStorage.setItem("userDataBackup", JSON.stringify(backupData));
+    console.log("Backup automático realizado");
+  } catch (error) {
+    console.error("Erro no backup automático:", error);
+  }
+}
+
+// Executar backup a cada 5 minutos
+setInterval(autoBackup, 5 * 60 * 1000);
+
+// Função para restaurar backup
+function restoreFromBackup() {
+  try {
+    const backup = localStorage.getItem("userDataBackup");
+    if (!backup) {
+      showNotification("Nenhum backup encontrado", "warning");
+      return;
+    }
+
+    const backupData = JSON.parse(backup);
+
+    if (
+      confirm(
+        `Restaurar backup de ${new Date(backupData.backupDate).toLocaleString(
+          "pt-BR"
+        )}?`
+      )
+    ) {
+      userData.teams = backupData.teams || {};
+      userData.matches = backupData.matches || [];
+      userData.settings = backupData.settings || {};
+
+      saveUserData();
+
+      // Recarregar todas as interfaces
+      updateQuickStats();
+      loadTeamPerformance();
+      loadMarketChart();
+      loadAISuggestions();
+
+      showNotification("Backup restaurado com sucesso!", "success");
+    }
+  } catch (error) {
+    console.error("Erro ao restaurar backup:", error);
+    showNotification("Erro ao restaurar backup", "error");
+  }
+}
+
+// Função para limpar dados corrompidos
+function cleanCorruptedData() {
+  try {
+    let cleaned = 0;
+
+    // Limpar times com dados inválidos
+    Object.keys(userData.teams).forEach((teamId) => {
+      const team = userData.teams[teamId];
+      let modified = false;
+
+      // Corrigir características
+      if (!Array.isArray(team.characteristics)) {
+        team.characteristics = [];
+        modified = true;
+      }
+
+      // Corrigir notas
+      if (typeof team.notes !== "string") {
+        team.notes = "";
+        modified = true;
+      }
+
+      // Corrigir liga
+      if (!team.league || typeof team.league !== "string") {
+        team.league = "Não definida";
+        modified = true;
+      }
+
+      if (modified) {
+        cleaned++;
+      }
+    });
+
+    // Limpar jogos inválidos
+    const validMatches = userData.matches.filter((match) => {
+      return (
+        match.homeTeam &&
+        match.awayTeam &&
+        typeof match.homeScore === "number" &&
+        typeof match.awayScore === "number" &&
+        match.date
+      );
+    });
+
+    if (validMatches.length !== userData.matches.length) {
+      cleaned += userData.matches.length - validMatches.length;
+      userData.matches = validMatches;
+    }
+
+    if (cleaned > 0) {
+      saveUserData();
+      showNotification(`${cleaned} dados corrompidos foram limpos`, "info");
+    } else {
+      showNotification("Nenhum dado corrompido encontrado", "success");
+    }
+  } catch (error) {
+    console.error("Erro ao limpar dados:", error);
+    showNotification("Erro ao limpar dados", "error");
+  }
+}
+
+// Adicionar função de limpeza aos controles de debug
+function addAdvancedDebugControls() {
+  const debugControls = document.querySelector(".debug-controls");
+  if (debugControls) {
+    const advancedDiv = document.createElement("div");
+    advancedDiv.innerHTML = `
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #fed7d7;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="checkDataIntegrity()" 
+                  style="padding: 6px 12px; background: #805ad5; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+            Verificar Integridade
+          </button>
+          <button onclick="cleanCorruptedData()" 
+                  style="padding: 6px 12px; background: #d69e2e; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+            Limpar Corrompidos
+          </button>
+          <button onclick="restoreFromBackup()" 
+                  style="padding: 6px 12px; background: #38a169; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+            Restaurar Backup
+          </button>
+        </div>
+      </div>
+    `;
+    debugControls.appendChild(advancedDiv);
+  }
+}
+
+// Adicionar controles avançados após 2 segundos
+setTimeout(() => {
+  addAdvancedDebugControls();
+}, 2000);

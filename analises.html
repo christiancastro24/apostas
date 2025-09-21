@@ -64,15 +64,15 @@
           <div class="quick-stat">
             <div class="stat-icon">⭐</div>
             <div class="stat-info">
-              <span class="stat-value" id="bestMarket">-</span>
+              <span class="stat-value" id="bestMarket">Sem dados</span>
               <span class="stat-label">Melhor Mercado</span>
             </div>
           </div>
           <div class="quick-stat">
             <div class="stat-icon">🎯</div>
             <div class="stat-info">
-              <span class="stat-value" id="bestLeague">-</span>
-              <span class="stat-label">Liga Favorita</span>
+              <span class="stat-value" id="bestTeam">Adicione times</span>
+              <span class="stat-label">Time Favorito</span>
             </div>
           </div>
         </div>
@@ -89,27 +89,7 @@
             </div>
             <div class="card-content">
               <div class="team-list" id="teamPerformance">
-                <div class="team-item">
-                  <div class="team-info">
-                    <span class="team-name">Manchester City</span>
-                    <span class="team-record">8W - 2L</span>
-                  </div>
-                  <div class="win-rate">80%</div>
-                </div>
-                <div class="team-item">
-                  <div class="team-info">
-                    <span class="team-name">Barcelona</span>
-                    <span class="team-record">6W - 3L</span>
-                  </div>
-                  <div class="win-rate">67%</div>
-                </div>
-                <div class="team-item">
-                  <div class="team-info">
-                    <span class="team-name">Bayern Munich</span>
-                    <span class="team-record">5W - 4L</span>
-                  </div>
-                  <div class="win-rate">56%</div>
-                </div>
+                <!-- Conteúdo será carregado dinamicamente -->
               </div>
             </div>
           </div>
@@ -130,149 +110,7 @@
             </div>
             <div class="card-content">
               <div class="market-chart" id="marketChart">
-                <div class="market-bar">
-                  <div class="market-name">Resultado Final</div>
-                  <div class="bar-container">
-                    <div class="bar" style="width: 75%"></div>
-                    <span class="percentage">75%</span>
-                  </div>
-                </div>
-                <div class="market-bar">
-                  <div class="market-name">Over/Under Gols</div>
-                  <div class="bar-container">
-                    <div class="bar" style="width: 68%"></div>
-                    <span class="percentage">68%</span>
-                  </div>
-                </div>
-                <div class="market-bar">
-                  <div class="market-name">Ambas Marcam</div>
-                  <div class="bar-container">
-                    <div class="bar" style="width: 62%"></div>
-                    <span class="percentage">62%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- League Insights -->
-          <div class="analysis-card">
-            <div class="card-header">
-              <h3>🌍 Insights por Liga</h3>
-              <div class="toggle-buttons">
-                <button
-                  class="toggle-btn active"
-                  onclick="toggleLeagueView('goals')"
-                >
-                  Gols
-                </button>
-                <button
-                  class="toggle-btn"
-                  onclick="toggleLeagueView('results')"
-                >
-                  Resultados
-                </button>
-              </div>
-            </div>
-            <div class="card-content">
-              <div id="leagueInsights">
-                <div class="league-insight">
-                  <div class="league-header">
-                    <span class="league-flag">🇬🇧</span>
-                    <span class="league-name">Premier League</span>
-                    <span class="league-badge green">Ideal para Gols</span>
-                  </div>
-                  <div class="league-stats">
-                    <span>Média 2.8 gols/jogo • 82% acerto em Over 2.5</span>
-                  </div>
-                </div>
-                <div class="league-insight">
-                  <div class="league-header">
-                    <span class="league-flag">🇪🇸</span>
-                    <span class="league-name">La Liga</span>
-                    <span class="league-badge blue">Bom para Resultados</span>
-                  </div>
-                  <div class="league-stats">
-                    <span>73% acerto em favoritos • Casa forte</span>
-                  </div>
-                </div>
-                <div class="league-insight">
-                  <div class="league-header">
-                    <span class="league-flag">🇩🇪</span>
-                    <span class="league-name">Bundesliga</span>
-                    <span class="league-badge purple">Ambas Marcam</span>
-                  </div>
-                  <div class="league-stats">
-                    <span>78% jogos com gols dos dois times</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Time Patterns -->
-          <div class="analysis-card">
-            <div class="card-header">
-              <h3>⏰ Padrões de Horário</h3>
-              <button class="info-btn" onclick="showTimeInfo()">ℹ️</button>
-            </div>
-            <div class="card-content">
-              <div class="time-heatmap" id="timeHeatmap">
-                <div class="time-slot">
-                  <span class="time-label">14:00 - 16:00</span>
-                  <div class="heat-bar hot" style="width: 85%">85%</div>
-                </div>
-                <div class="time-slot">
-                  <span class="time-label">16:00 - 18:00</span>
-                  <div class="heat-bar warm" style="width: 72%">72%</div>
-                </div>
-                <div class="time-slot">
-                  <span class="time-label">18:00 - 20:00</span>
-                  <div class="heat-bar cool" style="width: 58%">58%</div>
-                </div>
-                <div class="time-slot">
-                  <span class="time-label">20:00 - 22:00</span>
-                  <div class="heat-bar cold" style="width: 45%">45%</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Streaks & Patterns -->
-          <div class="analysis-card">
-            <div class="card-header">
-              <h3>🔥 Sequências e Padrões</h3>
-            </div>
-            <div class="card-content">
-              <div class="pattern-grid">
-                <div class="pattern-item">
-                  <div class="pattern-icon">📈</div>
-                  <div class="pattern-info">
-                    <div class="pattern-title">Melhor Sequência</div>
-                    <div class="pattern-value">7 Greens</div>
-                  </div>
-                </div>
-                <div class="pattern-item">
-                  <div class="pattern-icon">📅</div>
-                  <div class="pattern-info">
-                    <div class="pattern-title">Dia da Sorte</div>
-                    <div class="pattern-value">Sábado</div>
-                  </div>
-                </div>
-                <div class="pattern-item">
-                  <div class="pattern-icon">💰</div>
-                  <div class="pattern-info">
-                    <div class="pattern-title">Odd Ideal</div>
-                    <div class="pattern-value">1.60 - 2.20</div>
-                  </div>
-                </div>
-                <div class="pattern-item">
-                  <div class="pattern-icon">🎯</div>
-                  <div class="pattern-info">
-                    <div class="pattern-title">Confiança Ideal</div>
-                    <div class="pattern-value">80%</div>
-                  </div>
-                </div>
+                <!-- Conteúdo será carregado dinamicamente -->
               </div>
             </div>
           </div>
@@ -288,30 +126,7 @@
             </div>
             <div class="card-content">
               <div class="suggestion-list" id="aiSuggestions">
-                <div class="suggestion-item">
-                  <div class="suggestion-icon">⚡</div>
-                  <div class="suggestion-text">
-                    <strong>Foco em jogos da Premier League às 14h</strong
-                    ><br />
-                    Sua taxa de acerto nesse horário é 15% maior que a média
-                  </div>
-                </div>
-                <div class="suggestion-item">
-                  <div class="suggestion-icon">🎯</div>
-                  <div class="suggestion-text">
-                    <strong>Evite apostas com confiança abaixo de 60%</strong
-                    ><br />
-                    Histórico mostra apenas 32% de acerto nessa faixa
-                  </div>
-                </div>
-                <div class="suggestion-item">
-                  <div class="suggestion-icon">📊</div>
-                  <div class="suggestion-text">
-                    <strong>Manchester City é seu time mais lucrativo</strong
-                    ><br />
-                    Considere aumentar stakes quando apostar neles
-                  </div>
-                </div>
+                <!-- Conteúdo será carregado dinamicamente -->
               </div>
             </div>
           </div>
@@ -332,6 +147,6 @@
       </div>
     </div>
 
-    <script src="./js/analises.js"></script>
+    <script src="./js/script-analises.js"></script>
   </body>
 </html>
