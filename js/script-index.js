@@ -547,12 +547,13 @@ function removeRow(button) {
   showNotification("A Aposta foi Atualizada!");
 }
 
+// FUNÇÃO CORRIGIDA - Calcula stats do mês ativo + saldo total geral
 function updateStats() {
+  // === STATS DO MÊS ATIVO (para cards superiores) ===
   let monthlyGreen = 0,
     monthlyRed = 0,
     monthlyCash = 0,
-    monthlyReturn = 0,
-    monthlyUnits = 0; // NOVA VARIÁVEL
+    monthlyReturn = 0;
 
   // IMPORTANTE: Usa apenas o mês atual para Green/Red/Assertividade
   const tbody = document.getElementById(currentActiveMonth + "-tbody");
@@ -570,11 +571,9 @@ function updateStats() {
     if (resultSelect.value === "green") {
       lucro = odd * unidade * 50 - apostado;
       monthlyGreen++;
-      monthlyUnits += lucro / 50; // CALCULAR UNIDADES GANHAS
     } else if (resultSelect.value === "red") {
       lucro = -apostado;
       monthlyRed++;
-      monthlyUnits -= unidade; // UNIDADES PERDIDAS
     } else if (resultSelect.value === "cash") {
       lucro = 0;
       monthlyCash++;
@@ -615,18 +614,13 @@ function updateStats() {
   const assertividade =
     totalBets > 0 ? ((monthlyGreen / totalBets) * 100).toFixed(1) : 0;
 
+  // === CALCULAR UNIDADES DO MÊS ===
+  const monthlyUnits = monthlyReturn / 50;
+
   // === ATUALIZAR CARDS SUPERIORES (dados do mês) ===
   document.getElementById("totalGreen").textContent = monthlyGreen;
   document.getElementById("totalRed").textContent = monthlyRed;
   document.getElementById("totalReturn").textContent = formatBRL(monthlyReturn);
-
-  // ATUALIZAR UNIDADES DO MÊS
-  const unitsText =
-    monthlyUnits > 0
-      ? `+${monthlyUnits.toFixed(1)} unidades`
-      : `${monthlyUnits.toFixed(1)} unidades`;
-  document.getElementById("totalUnits").textContent = unitsText;
-
   document.getElementById("assertividade").textContent = assertividade + "%";
 
   // === ATUALIZAR SALDO ATUAL E UNIDADES (dados globais) ===
@@ -656,16 +650,25 @@ function updateStats() {
     assertividadeElement.className = "stat-change negative";
   }
 
-  // === VARIAÇÃO DO RETORNO MENSAL ===
+  // === VARIAÇÃO DO RETORNO MENSAL COM UNIDADES ===
   const changeReturnElement = document.getElementById("changeReturn");
+  const unitsText =
+    monthlyUnits >= 0
+      ? `+${monthlyUnits.toFixed(1)} unidades`
+      : `${monthlyUnits.toFixed(1)} unidades`;
+
   if (monthlyReturn > 0) {
-    changeReturnElement.innerHTML = `↗ +${formatBRL(monthlyReturn)} este mês`;
+    changeReturnElement.innerHTML = `↗ +${formatBRL(
+      monthlyReturn
+    )}  (${unitsText}) este mês`;
     changeReturnElement.className = "stat-change positive";
   } else if (monthlyReturn < 0) {
-    changeReturnElement.innerHTML = `↘ ${formatBRL(monthlyReturn)} este mês`;
+    changeReturnElement.innerHTML = `↘ ${formatBRL(
+      monthlyReturn
+    )} (${unitsText}) este mês`;
     changeReturnElement.className = "stat-change negative";
   } else {
-    changeReturnElement.innerHTML = "→ Sem alteração este mês";
+    changeReturnElement.innerHTML = `→ Sem alteração este mês (${unitsText})`;
     changeReturnElement.className = "stat-change";
   }
 }
