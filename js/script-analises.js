@@ -67,15 +67,39 @@ function updateQuickStats() {
   });
 
   const mostCommon = Object.entries(charCount).sort(([, a], [, b]) => b - a)[0];
+  const mostCommonKey = mostCommon ? mostCommon[0] : null;
 
-  // Atualizar elementos
+  // Traduzir para nome amigável
+  let mostCommonLabel = "-";
+  switch (mostCommonKey) {
+    case "over":
+      mostCommonLabel = "📈 Bom para Over";
+      break;
+    case "under":
+      mostCommonLabel = "📉 Bom para Under";
+      break;
+    case "ambas_marcam":
+      mostCommonLabel = "🎯 Ambas Marcam";
+      break;
+    case "casa_forte":
+      mostCommonLabel = "🏠 Forte em Casa";
+      break;
+    case "visitante_forte":
+      mostCommonLabel = "✈️ Bom Visitante";
+      break;
+    case "imprevisivel":
+      mostCommonLabel = "❓ Imprevisível";
+      break;
+    default:
+      mostCommonLabel = "-";
+  }
+
+  // Atualizar elementos na UI
   document.getElementById("totalTeams").textContent = totalTeams;
   document.getElementById("totalCharacteristics").textContent = new Set(
     allCharacteristics
   ).size;
-  document.getElementById("mostCommon").textContent = mostCommon
-    ? mostCommon[0]
-    : "-";
+  document.getElementById("mostCommon").textContent = mostCommonLabel;
 }
 
 // ==================== TEAM ANALYSIS ====================
@@ -826,7 +850,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadCharacteristicAnalysis();
     loadAISuggestions();
   } catch (error) {
-    console.error("Erro na inicialização:", error);
     showNotification("Erro ao carregar sistema", "error");
   }
 });
