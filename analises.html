@@ -50,29 +50,55 @@
           <p class="page-subtitle">
             Descubra padrões ocultos e potencialize suas estratégias
           </p>
+
+          <br />
+
+          <button
+            class="toggle-btn"
+            onclick="showAddTeamModal()"
+            id="toggleMain"
+            style="
+              background-color: #667eea;
+              color: white;
+              padding: 12px 20px;
+              font-size: 14px;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+              transition: background-color 0.2s ease, transform 0.1s ease;
+            "
+            onmouseover="this.style.backgroundColor='#5a67d8';"
+            onmouseout="this.style.backgroundColor='#667eea';"
+            onmousedown="this.style.transform='scale(0.97)'"
+            onmouseup="this.style.transform='scale(1)'"
+          >
+            + Adicionar Time
+          </button>
         </div>
 
         <!-- Quick Stats -->
         <div class="quick-stats">
           <div class="quick-stat">
-            <div class="stat-icon">🔥</div>
+            <div class="stat-icon">📊</div>
             <div class="stat-info">
-              <span class="stat-value" id="hotStreak">0</span>
-              <span class="stat-label">Sequência Atual</span>
+              <span class="stat-value" id="totalTeams">0</span>
+              <span class="stat-label">Times Cadastrados</span>
+            </div>
+          </div>
+          <div class="quick-stat">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-info">
+              <span class="stat-value" id="totalCharacteristics">0</span>
+              <span class="stat-label">Características</span>
             </div>
           </div>
           <div class="quick-stat">
             <div class="stat-icon">⭐</div>
             <div class="stat-info">
-              <span class="stat-value" id="bestMarket">Sem dados</span>
-              <span class="stat-label">Melhor Mercado</span>
-            </div>
-          </div>
-          <div class="quick-stat">
-            <div class="stat-icon">🎯</div>
-            <div class="stat-info">
-              <span class="stat-value" id="bestTeam">Adicione times</span>
-              <span class="stat-label">Time Favorito</span>
+              <span class="stat-value" id="mostCommon">-</span>
+              <span class="stat-label">Mais Comum</span>
             </div>
           </div>
         </div>
@@ -82,35 +108,124 @@
           <!-- Teams Performance -->
           <div class="analysis-card">
             <div class="card-header">
-              <h3>🏆 Performance por Times</h3>
-              <button class="refresh-btn" onclick="refreshTeamAnalysis()">
+              <h3>🏆 Seus Times</h3>
+              <button class="refresh-btn" onclick="loadTeamPerformance()">
                 🔄
               </button>
             </div>
             <div class="card-content">
               <div class="team-list" id="teamPerformance">
-                <!-- Conteúdo será carregado dinamicamente -->
+                <!-- Times serão carregados aqui -->
               </div>
             </div>
           </div>
 
-          <!-- Market Analysis -->
+          <!-- Characteristic Filter -->
           <div class="analysis-card">
             <div class="card-header">
-              <h3>📊 Análise de Mercados</h3>
+              <h3>🏷️ Filtrar por Características</h3>
               <select
                 class="filter-select"
-                onchange="filterMarkets(this.value)"
+                onchange="filterTeamsByCharacteristic(this.value)"
+                id="characteristicFilter"
               >
-                <option value="all">Todos os Mercados</option>
-                <option value="goals">Gols</option>
-                <option value="result">Resultado</option>
-                <option value="corners">Escanteios</option>
+                <option value="">Todas as Características</option>
+                <option value="over">📈 Bom para Over</option>
+                <option value="under">📉 Bom para Under</option>
+                <option value="ambas_marcam">🎯 Ambas Marcam</option>
+                <option value="casa_forte">🏠 Forte em Casa</option>
+                <option value="visitante_forte">✈️ Bom Visitante</option>
+                <option value="imprevisivel">❓ Imprevisível</option>
               </select>
             </div>
             <div class="card-content">
-              <div class="market-chart" id="marketChart">
-                <!-- Conteúdo será carregado dinamicamente -->
+              <div id="filteredTeams">
+                <div style="text-align: center; padding: 30px; color: #718096">
+                  <div style="font-size: 36px; margin-bottom: 12px">🏷️</div>
+                  <p>Selecione uma característica para filtrar seus times</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- League Insights -->
+          <div class="analysis-card">
+            <div class="card-header">
+              <h3>🌍 Times por Liga</h3>
+              <div class="toggle-buttons">
+                <button
+                  class="toggle-btn active"
+                  onclick="toggleLeagueView('all')"
+                  id="toggleAll"
+                >
+                  Todas
+                </button>
+                <button
+                  class="toggle-btn"
+                  onclick="toggleLeagueView('main')"
+                  id="toggleMain"
+                >
+                  Principais
+                </button>
+              </div>
+            </div>
+            <div class="card-content">
+              <div id="leagueInsights">
+                <!-- Insights por liga serão carregados aqui -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Statistics -->
+          <div class="analysis-card">
+            <div class="card-header">
+              <h3>📊 Estatísticas Gerais</h3>
+            </div>
+            <div class="card-content">
+              <div class="pattern-grid" id="generalStats">
+                <div class="pattern-item">
+                  <div class="pattern-icon">📝</div>
+                  <div class="pattern-info">
+                    <div class="pattern-title">Times Cadastrados</div>
+                    <div class="pattern-value" id="statsTeamsCount">0</div>
+                  </div>
+                </div>
+                <div class="pattern-item">
+                  <div class="pattern-icon">🏆</div>
+                  <div class="pattern-info">
+                    <div class="pattern-title">Liga Mais Comum</div>
+                    <div class="pattern-value" id="statsMostLeague">-</div>
+                  </div>
+                </div>
+                <div class="pattern-item">
+                  <div class="pattern-icon">🏷️</div>
+                  <div class="pattern-info">
+                    <div class="pattern-title">Características</div>
+                    <div class="pattern-value" id="statsCharCount">0</div>
+                  </div>
+                </div>
+                <div class="pattern-item">
+                  <div class="pattern-icon">⭐</div>
+                  <div class="pattern-info">
+                    <div class="pattern-title">Mais Popular</div>
+                    <div class="pattern-value" id="statsMostChar">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Characteristic Analysis -->
+          <div class="analysis-card">
+            <div class="card-header">
+              <h3>📈 Análise de Características</h3>
+              <button class="info-btn" onclick="showCharacteristicInfo()">
+                ℹ️
+              </button>
+            </div>
+            <div class="card-content">
+              <div id="characteristicAnalysis">
+                <!-- Análise de características será carregada aqui -->
               </div>
             </div>
           </div>
@@ -126,7 +241,7 @@
             </div>
             <div class="card-content">
               <div class="suggestion-list" id="aiSuggestions">
-                <!-- Conteúdo será carregado dinamicamente -->
+                <!-- Sugestões serão carregadas aqui -->
               </div>
             </div>
           </div>
