@@ -297,6 +297,30 @@ function loadGeneralStats() {
   const mostCommonChar = Object.entries(charCount).sort(
     ([, a], [, b]) => b - a
   )[0];
+  const mostCommonCharKey = mostCommonChar ? mostCommonChar[0] : null;
+
+  // Traduzir característica para rótulo amigável
+  let mostCommonCharLabel = "-";
+  switch (mostCommonCharKey) {
+    case "over":
+      mostCommonCharLabel = "📈 Bom para Over";
+      break;
+    case "under":
+      mostCommonCharLabel = "📉 Bom para Under";
+      break;
+    case "ambas_marcam":
+      mostCommonCharLabel = "🎯 Ambas Marcam";
+      break;
+    case "casa_forte":
+      mostCommonCharLabel = "🏠 Forte em Casa";
+      break;
+    case "visitante_forte":
+      mostCommonCharLabel = "✈️ Bom Visitante";
+      break;
+    case "imprevisivel":
+      mostCommonCharLabel = "❓ Imprevisível";
+      break;
+  }
 
   // Atualizar elementos
   document.getElementById("statsTeamsCount").textContent = teams.length;
@@ -306,9 +330,7 @@ function loadGeneralStats() {
   document.getElementById("statsCharCount").textContent = new Set(
     allChars
   ).size;
-  document.getElementById("statsMostChar").textContent = mostCommonChar
-    ? mostCommonChar[0]
-    : "-";
+  document.getElementById("statsMostChar").textContent = mostCommonCharLabel;
 }
 
 function loadCharacteristicAnalysis() {
