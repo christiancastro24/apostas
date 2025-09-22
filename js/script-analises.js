@@ -216,11 +216,7 @@ function loadTeamPerformance() {
               : ""
           }
         </div>
-        <span class="team-record">${team.wins}W - ${team.losses}L${
-        team.draws > 0 ? ` - ${team.draws}E` : ""
-      }</span>
       </div>
-      <div class="win-rate">${team.winRate}%</div>
     </div>
   `
     )
