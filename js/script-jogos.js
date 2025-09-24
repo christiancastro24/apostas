@@ -2,6 +2,14 @@
 const API_KEY = "e6151727b9b3162bb023a5d9283dc608";
 const API_BASE_URL = "https://api.the-odds-api.com/v4";
 
+// Configuração da API Football-data.org
+const FOOTBALL_DATA_API_KEY = "4acf7c9cdcea47df8d841279263b4a07";
+const FOOTBALL_DATA_BASE_URL = "https://api.football-data.org/v4";
+
+// Cache para armazenar dados já buscados
+let lineupsCache = {};
+let currentTab = "lineups";
+
 let isLoading = false;
 
 // Mapeamento de bookmakers
@@ -9,6 +17,22 @@ const BOOKMAKER_MAP = {
   bet365: { name: "Bet365", logo: "🎯" },
   betano: { name: "Betano", logo: "🔥" },
   superbet: { name: "SuperBet", logo: "💎" },
+};
+
+// Mapeamento de times brasileiros para IDs da API
+const TEAM_ID_MAP = {
+  Grêmio: 1023,
+  Botafogo: 1957,
+  "Vasco da Gama": 1963,
+  Bahia: 1945,
+  "Athletic Club (MG)": 1942,
+  "Atlético Paranaense": 1942,
+  "Clube de Regatas Brasil": 1950,
+  "Vila Nova": 1960,
+  "Operario PR": 1958,
+  Cuiabá: 1952,
+  "Amazonas FC": 1961,
+  // Adicionar mais conforme necessário
 };
 
 // Função para buscar odds reais da API
@@ -520,6 +544,14 @@ function createGameCard(game) {
           </div>
         </div>
         
+        <div class="game-actions">
+          <button class="lineup-btn" onclick="showLineups('${
+            game.homeTeam
+          }', '${game.awayTeam}')">
+            📋 Ver Escalação
+          </button>
+        </div>
+        
         <div style="text-align: center; color: #666; padding: 20px;">
           Odds indisponíveis
         </div>
@@ -551,6 +583,14 @@ function createGameCard(game) {
           <span>${game.awayTeam}</span>
           <div class="team-logo">${game.awayIcon}</div>
         </div>
+      </div>
+      
+      <div class="game-actions">
+        <button class="lineup-btn" onclick="showLineups('${game.homeTeam}', '${
+    game.awayTeam
+  }')">
+          📋 Ver Escalação
+        </button>
       </div>
       
       <div class="odds-container">
@@ -1986,3 +2026,716 @@ window.onclick = function (event) {
     closeSavedTickets();
   }
 };
+
+async function getTeamData(teamName) {
+  try {
+    // Mapear nome do time para ID da API (você pode expandir este mapeamento)
+    const teamMapping = {
+      "Manchester City": 65,
+      Arsenal: 57,
+      Chelsea: 61,
+      Liverpool: 64,
+      "Manchester United": 66,
+      Tottenham: 73,
+      // Adicione mais times conforme necessário
+    };
+
+    const teamId = teamMapping[teamName];
+
+    if (!teamId) {
+      // Se não tiver o ID mapeado, retornar dados simulados
+      return generateMockTeamData(teamName);
+    }
+
+    const headers = {
+      "X-Auth-Token": FOOTBALL_DATA_API_KEY,
+    };
+
+    // Buscar informações básicas do time
+    const teamResponse = await fetch(
+      `https://cors-anywhere.herokuapp.com/${FOOTBALL_DATA_BASE_URL}/teams/${teamId}`,
+      { headers }
+    );
+
+    const teamData = await teamResponse.json();
+
+    // Buscar últimas partidas
+    const matchesResponse = await fetch(
+      `${FOOTBALL_DATA_BASE_URL}/teams/${teamId}/matches?limit=5`,
+      { headers }
+    );
+    const matchesData = await matchesResponse.json();
+
+    return {
+      name: teamData.name,
+      squad: teamData.squad || [],
+      recentMatches: matchesData.matches || [],
+      injuries: [], // A API gratuita não tem lesões, simularemos
+    };
+  } catch (error) {
+    console.error(`Erro ao buscar dados do ${teamName}:`, error);
+    return generateMockTeamData(teamName);
+  }
+}
+
+async function getTeamDataFromAPI(teamName) {
+  const teamId = TEAM_ID_MAP[teamName];
+
+  if (!teamId) {
+    throw new Error(`Time ${teamName} não encontrado no mapeamento da API`);
+  }
+
+  const headers = {
+    "X-Auth-Token": FOOTBALL_DATA_API_KEY,
+  };
+
+  try {
+    // Buscar informações do time
+    const teamResponse = await fetch(
+      `${FOOTBALL_DATA_BASE_URL}/teams/${teamId}`,
+      { headers }
+    );
+
+    if (!teamResponse.ok) {
+      if (teamResponse.status === 429) {
+        throw new Error("Limite de requisições excedido (10/min)");
+      }
+      if (teamResponse.status === 403) {
+        throw new Error("Acesso negado - verifique a chave da API");
+      }
+      throw new Error(`Erro HTTP ${teamResponse.status}`);
+    }
+
+    const teamData = await teamResponse.json();
+
+    // Buscar últimas partidas
+    const matchesResponse = await fetch(
+      `${FOOTBALL_DATA_BASE_URL}/teams/${teamId}/matches?status=FINISHED&limit=5`,
+      { headers }
+    );
+    let matchesData = { matches: [] };
+
+    if (matchesResponse.ok) {
+      matchesData = await matchesResponse.json();
+    }
+
+    return {
+      name: teamData.name || teamName,
+      squad: teamData.squad || [],
+      recentMatches: matchesData.matches || [],
+      injuries: [], // API gratuita não tem lesões
+      venue: teamData.venue || {},
+      founded: teamData.founded,
+      colors: teamData.clubColors,
+    };
+  } catch (error) {
+    console.error(`Erro ao buscar ${teamName}:`, error);
+    throw error;
+  }
+}
+
+async function showLineups(homeTeam, awayTeam) {
+  const modal = document.getElementById("lineups-modal");
+  const teamNames = document.getElementById("modal-team-names");
+  const content = document.getElementById("lineups-content");
+
+  teamNames.textContent = `${homeTeam} vs ${awayTeam}`;
+  modal.style.display = "block";
+
+  // Resetar tabs
+  currentTab = "lineups";
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+  document.querySelector(".tab-btn").classList.add("active");
+
+  content.innerHTML = `
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      Consultando API Football-data.org...
+    </div>
+  `;
+
+  try {
+    // Buscar dados reais dos times
+    const [homeData, awayData] = await Promise.all([
+      getTeamDataFromAPI(homeTeam),
+      getTeamDataFromAPI(awayTeam),
+    ]);
+
+    lineupsCache[`${homeTeam}_vs_${awayTeam}`] = {
+      home: homeData,
+      away: awayData,
+    };
+
+    displayTabContent();
+  } catch (error) {
+    console.error("Erro na API:", error);
+    content.innerHTML = `
+      <div class="no-data">
+        <div class="no-data-icon">⚠️</div>
+        <h4>API Football-data.org indisponível</h4>
+        <p>Erro: ${error.message}</p>
+        <p style="font-size: 14px; margin-top: 8px;">
+          Verifique se a chave da API está válida ou se não excedeu o limite de requisições
+        </p>
+        <button onclick="retryAPICall('${homeTeam}', '${awayTeam}')" class="lineup-btn" style="margin-top: 16px;">
+          🔄 Tentar Novamente
+        </button>
+      </div>
+    `;
+  }
+}
+
+function retryAPICall(homeTeam, awayTeam) {
+  showLineups(homeTeam, awayTeam);
+}
+
+// Função auxiliar para obter classe CSS da posição
+function getPositionClass(position) {
+  const pos = position?.toLowerCase() || "";
+  if (pos.includes("goalkeeper") || pos.includes("goleiro"))
+    return "goalkeeper";
+  if (
+    pos.includes("defender") ||
+    pos.includes("zagueiro") ||
+    pos.includes("lateral")
+  )
+    return "defender";
+  if (
+    pos.includes("midfielder") ||
+    pos.includes("meio") ||
+    pos.includes("volante")
+  )
+    return "midfielder";
+  if (
+    pos.includes("forward") ||
+    pos.includes("atacante") ||
+    pos.includes("centroavante")
+  )
+    return "forward";
+  return "midfielder";
+}
+
+// Função para fechar modal
+function closeLineupsModal() {
+  document.getElementById("lineups-modal").style.display = "none";
+  lineupsCache = {};
+}
+
+// Fechar modal clicando fora
+document.addEventListener("click", function (event) {
+  const modal = document.getElementById("lineups-modal");
+  if (event.target === modal) {
+    closeLineupsModal();
+  }
+});
+
+function displayForm(homeData, awayData) {
+  return `
+    <div class="lineups-container">
+      <div class="team-lineup">
+        <div class="team-name">🏠 ${homeData.name} - Últimos 5 Jogos</div>
+        <div class="form-list">
+          ${homeData.recentMatches
+            .slice(0, 5)
+            .map((match) => {
+              const isHome = match.homeTeam.name === homeData.name;
+              const opponent = isHome
+                ? match.awayTeam.name
+                : match.homeTeam.name;
+              const homeScore = match.score?.fullTime?.homeTeam || 0;
+              const awayScore = match.score?.fullTime?.awayTeam || 0;
+
+              let result = "draw";
+              if (isHome) {
+                result =
+                  homeScore > awayScore
+                    ? "win"
+                    : homeScore < awayScore
+                    ? "loss"
+                    : "draw";
+              } else {
+                result =
+                  awayScore > homeScore
+                    ? "win"
+                    : awayScore < homeScore
+                    ? "loss"
+                    : "draw";
+              }
+
+              return `
+              <div class="form-match">
+                <div class="match-info">
+                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
+                  <span>${homeScore}-${awayScore}</span>
+                </div>
+                <div class="match-result ${result}">
+                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
+                </div>
+              </div>
+            `;
+            })
+            .join("")}
+        </div>
+      </div>
+      
+      <div class="team-lineup">
+        <div class="team-name">✈️ ${awayData.name} - Últimos 5 Jogos</div>
+        <div class="form-list">
+          ${awayData.recentMatches
+            .slice(0, 5)
+            .map((match) => {
+              const isHome = match.homeTeam.name === awayData.name;
+              const opponent = isHome
+                ? match.awayTeam.name
+                : match.homeTeam.name;
+              const homeScore = match.score?.fullTime?.homeTeam || 0;
+              const awayScore = match.score?.fullTime?.awayTeam || 0;
+
+              let result = "draw";
+              if (isHome) {
+                result =
+                  homeScore > awayScore
+                    ? "win"
+                    : homeScore < awayScore
+                    ? "loss"
+                    : "draw";
+              } else {
+                result =
+                  awayScore > homeScore
+                    ? "win"
+                    : awayScore < homeScore
+                    ? "loss"
+                    : "draw";
+              }
+
+              return `
+              <div class="form-match">
+                <div class="match-info">
+                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
+                  <span>${homeScore}-${awayScore}</span>
+                </div>
+                <div class="match-result ${result}">
+                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
+                </div>
+              </div>
+            `;
+            })
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Função para exibir lesões
+function displayInjuries(homeData, awayData) {
+  const allInjuries = [...homeData.injuries, ...awayData.injuries];
+
+  if (allInjuries.length === 0) {
+    return `
+      <div class="no-data">
+        <div class="no-data-icon">🏥</div>
+        <p>Nenhuma lesão reportada</p>
+        <p style="font-size: 14px; margin-top: 8px;">
+          Todos os jogadores estão disponíveis
+        </p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="injuries-list">
+      ${allInjuries
+        .map(
+          (injury) => `
+        <div class="injury-item">
+          <div class="injury-player">${injury.player}</div>
+          <div class="injury-details">
+            ${injury.injury} - Retorno previsto: ${injury.expectedReturn}
+          </div>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+// Função para exibir escalações
+function displayLineups(homeData, awayData) {
+  return `
+    <div class="lineups-container">
+      <div class="team-lineup">
+        <div class="team-name">
+          🏠 ${homeData.name}
+          <span class="formation">4-3-3</span>
+        </div>
+        <div class="players-list">
+          ${homeData.squad
+            .slice(0, 11)
+            .map(
+              (player) => `
+            <div class="player-item ${getPositionClass(player.position)}">
+              <div class="player-number">${player.shirtNumber || "?"}</div>
+              <div class="player-info">
+                <div class="player-name">${player.name}</div>
+                <div class="player-position">${player.position}</div>
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+      
+      <div class="team-lineup">
+        <div class="team-name">
+          ✈️ ${awayData.name}
+          <span class="formation">4-3-3</span>
+        </div>
+        <div class="players-list">
+          ${awayData.squad
+            .slice(0, 11)
+            .map(
+              (player) => `
+            <div class="player-item ${getPositionClass(player.position)}">
+              <div class="player-number">${player.shirtNumber || "?"}</div>
+              <div class="player-info">
+                <div class="player-name">${player.name}</div>
+                <div class="player-position">${player.position}</div>
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function displayRealLineups(homeData, awayData) {
+  // Organizar jogadores por posição
+  const organizeByPosition = (squad) => {
+    const positions = {
+      goalkeepers: squad.filter((p) => p.position === "Goalkeeper"),
+      defenders: squad.filter((p) => p.position === "Defence"),
+      midfielders: squad.filter((p) => p.position === "Midfield"),
+      forwards: squad.filter((p) => p.position === "Offence"),
+    };
+    return positions;
+  };
+
+  const homePositions = organizeByPosition(homeData.squad);
+  const awayPositions = organizeByPosition(awayData.squad);
+
+  return `
+    <div class="lineups-container">
+      <div class="team-lineup">
+        <div class="team-name">
+          🏠 ${homeData.name}
+          <span class="formation">Elenco Completo</span>
+        </div>
+        ${renderPositionGroup(
+          "Goleiros",
+          homePositions.goalkeepers,
+          "goalkeeper"
+        )}
+        ${renderPositionGroup(
+          "Defensores",
+          homePositions.defenders,
+          "defender"
+        )}
+        ${renderPositionGroup(
+          "Meio-campo",
+          homePositions.midfielders,
+          "midfielder"
+        )}
+        ${renderPositionGroup("Atacantes", homePositions.forwards, "forward")}
+      </div>
+      
+      <div class="team-lineup">
+        <div class="team-name">
+          ✈️ ${awayData.name}
+          <span class="formation">Elenco Completo</span>
+        </div>
+        ${renderPositionGroup(
+          "Goleiros",
+          awayPositions.goalkeepers,
+          "goalkeeper"
+        )}
+        ${renderPositionGroup(
+          "Defensores",
+          awayPositions.defenders,
+          "defender"
+        )}
+        ${renderPositionGroup(
+          "Meio-campo",
+          awayPositions.midfielders,
+          "midfielder"
+        )}
+        ${renderPositionGroup("Atacantes", awayPositions.forwards, "forward")}
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 16px; background: #f8fafc; border-radius: 8px; font-size: 14px; color: #64748b;">
+      <strong>📋 Nota:</strong> Escalações oficiais são divulgadas aproximadamente 1 hora antes do jogo. 
+      Os dados acima mostram o elenco completo disponível.
+    </div>
+  `;
+}
+
+function renderPositionGroup(title, players, className) {
+  if (players.length === 0) {
+    return `<div style="margin: 16px 0;"><strong>${title}:</strong> Não disponível</div>`;
+  }
+
+  return `
+    <div style="margin: 16px 0;">
+      <h4 style="margin-bottom: 8px; color: #374151;">${title} (${
+    players.length
+  })</h4>
+      <div class="players-list">
+        ${players
+          .map(
+            (player) => `
+          <div class="player-item ${className}">
+            <div class="player-number">${player.shirtNumber || "?"}</div>
+            <div class="player-info">
+              <div class="player-name">${player.name}</div>
+              <div class="player-position">
+                ${player.nationality ? `🏳️ ${player.nationality}` : ""} 
+                ${
+                  player.dateOfBirth
+                    ? `• ${calculateAge(player.dateOfBirth)} anos`
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+// Função para exibir conteúdo da tab ativa
+function displayTabContent() {
+  const content = document.getElementById("lineups-content");
+  const cacheKey = Object.keys(lineupsCache)[0];
+
+  if (!cacheKey || !lineupsCache[cacheKey]) {
+    return;
+  }
+
+  const data = lineupsCache[cacheKey];
+
+  switch (currentTab) {
+    case "lineups":
+      content.innerHTML = displayRealLineups(data.home, data.away);
+      break;
+    case "injuries":
+      content.innerHTML = displayInjuriesTab(data.home, data.away);
+      break;
+    case "form":
+      content.innerHTML = displayFormTab(data.home, data.away);
+      break;
+  }
+}
+
+function displayFormTab(homeData, awayData) {
+  return `
+    <div class="lineups-container">
+      <div class="team-lineup">
+        <div class="team-name">🏠 ${homeData.name} - Últimos 5 Jogos</div>
+        <div class="form-list">
+          ${
+            homeData.recentMatches.length > 0
+              ? homeData.recentMatches
+                  .slice(0, 5)
+                  .map((match) => {
+                    const isHome = match.homeTeam.name === homeData.name;
+                    const opponent = isHome
+                      ? match.awayTeam.name
+                      : match.homeTeam.name;
+                    const homeScore = match.score?.fullTime?.homeTeam || 0;
+                    const awayScore = match.score?.fullTime?.awayTeam || 0;
+
+                    let result = "draw";
+                    if (isHome) {
+                      result =
+                        homeScore > awayScore
+                          ? "win"
+                          : homeScore < awayScore
+                          ? "loss"
+                          : "draw";
+                    } else {
+                      result =
+                        awayScore > homeScore
+                          ? "win"
+                          : awayScore < homeScore
+                          ? "loss"
+                          : "draw";
+                    }
+
+                    return `
+              <div class="form-match">
+                <div class="match-info">
+                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
+                  <span>${homeScore}-${awayScore}</span>
+                  <span style="font-size: 12px; color: #666;">
+                    ${new Date(match.utcDate).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+                <div class="match-result ${result}">
+                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
+                </div>
+              </div>
+            `;
+                  })
+                  .join("")
+              : '<div class="no-data"><p>Dados de jogos não disponíveis</p></div>'
+          }
+        </div>
+      </div>
+      
+      <div class="team-lineup">
+        <div class="team-name">✈️ ${awayData.name} - Últimos 5 Jogos</div>
+        <div class="form-list">
+          ${
+            awayData.recentMatches.length > 0
+              ? awayData.recentMatches
+                  .slice(0, 5)
+                  .map((match) => {
+                    const isHome = match.homeTeam.name === awayData.name;
+                    const opponent = isHome
+                      ? match.awayTeam.name
+                      : match.homeTeam.name;
+                    const homeScore = match.score?.fullTime?.homeTeam || 0;
+                    const awayScore = match.score?.fullTime?.awayTeam || 0;
+
+                    let result = "draw";
+                    if (isHome) {
+                      result =
+                        homeScore > awayScore
+                          ? "win"
+                          : homeScore < awayScore
+                          ? "loss"
+                          : "draw";
+                    } else {
+                      result =
+                        awayScore > homeScore
+                          ? "win"
+                          : awayScore < homeScore
+                          ? "loss"
+                          : "draw";
+                    }
+
+                    return `
+              <div class="form-match">
+                <div class="match-info">
+                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
+                  <span>${homeScore}-${awayScore}</span>
+                  <span style="font-size: 12px; color: #666;">
+                    ${new Date(match.utcDate).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+                <div class="match-result ${result}">
+                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
+                </div>
+              </div>
+            `;
+                  })
+                  .join("")
+              : '<div class="no-data"><p>Dados de jogos não disponíveis</p></div>'
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function displayInjuriesTab(homeData, awayData) {
+  return `
+    <div class="no-data">
+      <div class="no-data-icon">🏥</div>
+      <h4>Dados de lesões não disponíveis</h4>
+      <p>A API Football-data.org gratuita não fornece informações sobre lesões.</p>
+      <p style="font-size: 14px; margin-top: 8px;">
+        Para informações de lesões, consulte sites especializados como Transfermarkt ou ESPN.
+      </p>
+    </div>
+  `;
+}
+
+// Função para trocar de tab
+function switchTab(event, tabName) {
+  if (event) {
+    event.preventDefault();
+    currentTab = tabName;
+
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((btn) => btn.classList.remove("active"));
+    event.target.classList.add("active");
+
+    displayTabContent();
+  }
+}
+// Função para gerar dados simulados quando a API não está disponível
+function generateMockTeamData(teamName) {
+  const positions = ["Goalkeeper", "Defender", "Midfielder", "Forward"];
+  const mockPlayers = [];
+
+  // Gerar escalação simulada
+  for (let i = 1; i <= 11; i++) {
+    mockPlayers.push({
+      id: i,
+      name: `Jogador ${i}`,
+      position: positions[Math.floor(Math.random() * positions.length)],
+      shirtNumber: i,
+    });
+  }
+
+  // Gerar lesões simuladas
+  const mockInjuries = [
+    {
+      player: "Jogador 12",
+      injury: "Lesão muscular",
+      expectedReturn: "2 semanas",
+    },
+  ];
+
+  // Gerar últimos jogos simulados
+  const mockMatches = [];
+  const results = ["WIN", "DRAW", "LOSS"];
+  const opponents = ["Time A", "Time B", "Time C", "Time D", "Time E"];
+
+  for (let i = 0; i < 5; i++) {
+    mockMatches.push({
+      homeTeam: { name: i % 2 === 0 ? teamName : opponents[i] },
+      awayTeam: { name: i % 2 === 0 ? opponents[i] : teamName },
+      score: {
+        fullTime: {
+          homeTeam: Math.floor(Math.random() * 3),
+          awayTeam: Math.floor(Math.random() * 3),
+        },
+      },
+      utcDate: new Date(
+        Date.now() - (i + 1) * 7 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      status: "FINISHED",
+    });
+  }
+
+  return {
+    name: teamName,
+    squad: mockPlayers,
+    recentMatches: mockMatches,
+    injuries: mockInjuries,
+  };
+}

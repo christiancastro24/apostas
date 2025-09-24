@@ -45,7 +45,7 @@
           </button>
         </div>
 
-        <!-- 🆕 SEÇÃO DO CARRINHO ADICIONADA -->
+        <!-- SEÇÃO DO CARRINHO -->
         <div class="cart-section">
           <button class="cart-button" onclick="toggleCart()" id="cartButton">
             🛒 Bilhete (0)
@@ -60,6 +60,7 @@
         </div>
 
         <div id="api-status"></div>
+
         <div id="games-container">
           <div class="loading-spinner">
             <div class="spinner"></div>
@@ -69,7 +70,7 @@
       </div>
     </div>
 
-    <!-- 🆕 MODAL DO CARRINHO -->
+    <!-- MODAL DO CARRINHO -->
     <div id="cartModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -92,7 +93,7 @@
       </div>
     </div>
 
-    <!-- 🆕 MODAL PARA BILHETES SALVOS -->
+    <!-- MODAL PARA BILHETES SALVOS -->
     <div id="savedTicketsModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -101,6 +102,27 @@
         </div>
         <div id="savedTicketsContent">
           <!-- Bilhetes salvos aparecerão aqui -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE ESCALAÇÕES -->
+    <div id="lineups-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-team-names">Escalações</h3>
+          <span class="close" onclick="closeLineupsModal()">&times;</span>
+        </div>
+        <div class="lineups-tabs">
+          <button class="tab-btn active" onclick="switchTab(event, 'lineups')">Escalações</button>
+          <button class="tab-btn" onclick="switchTab(event, 'injuries')">Lesões</button>
+          <button class="tab-btn" onclick="switchTab(event, 'form')">Últimos Jogos</button>
+        </div>
+        <div id="lineups-content">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            Carregando informações...
+          </div>
         </div>
       </div>
     </div>
