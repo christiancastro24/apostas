@@ -81,6 +81,10 @@ body {
   content: "💡";
 }
 
+.nav-item:nth-child(6)::before {
+  content: "⚙️";
+}
+
 /* Main Content */
 .main-content {
   flex: 1;

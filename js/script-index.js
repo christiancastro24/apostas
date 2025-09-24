@@ -158,7 +158,7 @@ function addNewBet(month) {
       </select>
     </td>
     <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
-    <td class="cell-metodo"><input type="text" placeholder="Método/Estratégia"></td>
+    <td class="cell-metodo"></td>
     <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
     <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
     <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
@@ -186,6 +186,11 @@ function addNewBet(month) {
 
   // Inserir a nova linha e reorganizar por data
   tbody.appendChild(newRow);
+
+  // AGORA SIM - Adicionar o select de métodos APÓS a linha estar no DOM
+  const metodoCell = newRow.querySelector(".cell-metodo");
+  metodoCell.innerHTML = createMethodSelect();
+
   sortTableByDate(month); // Reorganizar após adicionar
 
   // Adicionar event listener para reordenar quando a data for preenchida
@@ -201,6 +206,128 @@ function addNewBet(month) {
       updateStats();
     });
   });
+}
+
+// Função de debug para verificar o que está acontecendo
+function debugMethodSelect() {
+  console.log("=== DEBUG METHOD SELECT ===");
+
+  // Verificar o que tem no localStorage
+  const rawData = localStorage.getItem("userMethods");
+  console.log("Raw localStorage data:", rawData);
+
+  const userMethodsData = JSON.parse(rawData || '{"methods": {}}');
+  console.log("Parsed data:", userMethodsData);
+
+  const methods = userMethodsData.methods || {};
+  console.log("Methods object:", methods);
+  console.log("Methods count:", Object.keys(methods).length);
+
+  // Listar todos os métodos
+  Object.values(methods).forEach((method, index) => {
+    console.log(`Method ${index}:`, {
+      id: method.id,
+      name: method.name,
+      category: method.category,
+      icon: method.icon,
+      favorite: method.favorite,
+    });
+  });
+}
+
+// Função createMethodSelect com debug
+function createMethodSelect() {
+  // Buscar métodos do localStorage
+  const userMethodsData = JSON.parse(
+    localStorage.getItem("userMethods") || '{"methods": {}}'
+  );
+  const methods = userMethodsData.methods || userMethodsData; // <- MUDANÇA AQUI
+
+  let selectHTML = '<select class="method-select">';
+  selectHTML += '<option value="">Selecione um método...</option>';
+
+  // Verificar se existem métodos
+  if (Object.keys(methods).length === 0) {
+    selectHTML += '<option value="" disabled>Nenhum método cadastrado</option>';
+    selectHTML += "</select>";
+    return selectHTML;
+  }
+
+  // Agrupar métodos por categoria
+  const methodsByCategory = {};
+  Object.values(methods).forEach((method) => {
+    const category = method.category || "outros";
+    if (!methodsByCategory[category]) {
+      methodsByCategory[category] = [];
+    }
+    methodsByCategory[category].push(method);
+  });
+
+  // Função para obter o label da categoria
+  const getCategoryLabel = (category) => {
+    const labels = {
+      gols: "⚽ Gols",
+      resultado: "🏆 Resultado",
+      dupla: "🔄 Dupla Chance",
+      especial: "🎯 Especiais",
+      outros: "🏪 Outros",
+    };
+    return labels[category] || "🏪 Outros";
+  };
+
+  // Adicionar métodos favoritos primeiro
+  const favoritesMethods = Object.values(methods).filter(
+    (method) => method.favorite
+  );
+  if (favoritesMethods.length > 0) {
+    selectHTML += '<optgroup label="⭐ Favoritos">';
+    favoritesMethods.forEach((method) => {
+      selectHTML += `<option value="${method.id}">${method.icon} ${method.name}</option>`;
+    });
+    selectHTML += "</optgroup>";
+  }
+
+  // Adicionar métodos por categoria
+  Object.keys(methodsByCategory)
+    .sort()
+    .forEach((category) => {
+      const categoryMethods = methodsByCategory[category].filter(
+        (method) => !method.favorite
+      );
+      if (categoryMethods.length > 0) {
+        selectHTML += `<optgroup label="${getCategoryLabel(category)}">`;
+        categoryMethods
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .forEach((method) => {
+            selectHTML += `<option value="${method.id}">${method.icon} ${method.name}</option>`;
+          });
+        selectHTML += "</optgroup>";
+      }
+    });
+
+  selectHTML += "</select>";
+  return selectHTML;
+}
+
+// Versão simplificada sem agrupamento para testar
+function createMethodSelectSimple() {
+  const userMethodsData = JSON.parse(
+    localStorage.getItem("userMethods") || '{"methods": {}}'
+  );
+  const methods = userMethodsData.methods || {};
+
+  let selectHTML = '<select class="method-select">';
+  selectHTML += '<option value="">Selecione um método...</option>';
+
+  // Adicionar todos os métodos sem agrupamento
+  Object.values(methods).forEach((method) => {
+    selectHTML += `<option value="${method.id}">${method.icon || ""} ${
+      method.name
+    }</option>`;
+  });
+
+  selectHTML += "</select>";
+  return selectHTML;
 }
 
 const months = [
@@ -300,9 +427,8 @@ function handleTipoChange(select) {
     currentMultiplaRow = row;
     openMultiplaModal();
   } else {
-    // Resetar para simples
-    metodoCell.innerHTML =
-      '<input type="text" placeholder="Método/Estratégia">';
+    // Resetar para simples - AGORA COM SELECT DE MÉTODOS
+    metodoCell.innerHTML = createMethodSelect();
     esporteCell.innerHTML = `
       <select>
         <option value="futebol">⚽ Futebol</option>
@@ -338,6 +464,34 @@ function openMultiplaModal() {
 
   addGameToMultipla();
   addGameToMultipla(); // 2 jogos por padrão
+}
+
+// Função auxiliar para obter o nome do método pelo ID
+function getMethodNameById(methodId) {
+  const userMethodsData = JSON.parse(
+    localStorage.getItem("userMethods") || '{"methods": {}}'
+  );
+  const methods = userMethodsData.methods || userMethodsData; // <- MUDANÇA AQUI
+  const method = methods[methodId];
+  return method ? `${method.icon} ${method.name}` : methodId;
+}
+
+// Função para atualizar selects de método em todas as linhas existentes
+function updateAllMethodSelects() {
+  const methodSelects = document.querySelectorAll(".method-select");
+  methodSelects.forEach((select) => {
+    const currentValue = select.value;
+    const newHTML = createMethodSelect();
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = newHTML;
+    const newSelect = tempDiv.querySelector("select");
+
+    // Preservar valor selecionado se ainda existir
+    select.innerHTML = newSelect.innerHTML;
+    if (select.querySelector(`option[value="${currentValue}"]`)) {
+      select.value = currentValue;
+    }
+  });
 }
 
 function closeModal() {
@@ -683,6 +837,19 @@ function saveBetsData() {
       const rowId = row.getAttribute("data-row-id");
       const isMultipla = !!row.querySelector(".multipla-btn");
 
+      // Função para capturar valor do método (input ou select)
+      let metodoValue = "";
+      if (!isMultipla) {
+        const metodoInput = row.querySelector(".cell-metodo input");
+        const metodoSelect = row.querySelector(".cell-metodo select");
+
+        if (metodoSelect) {
+          metodoValue = metodoSelect.value || "";
+        } else if (metodoInput) {
+          metodoValue = metodoInput.value || "";
+        }
+      }
+
       monthData.push({
         rowId: rowId,
         data: row.querySelector(".cell-data input").value,
@@ -693,9 +860,7 @@ function saveBetsData() {
         evento: isMultipla
           ? "Múltipla"
           : row.querySelector(".cell-evento input")?.value || "",
-        metodo: isMultipla
-          ? "-"
-          : row.querySelector(".cell-metodo input")?.value || "",
+        metodo: isMultipla ? "-" : metodoValue,
         confianca: row.querySelector(".cell-confianca .confidence").textContent,
         odd: row.querySelector(".cell-odd input").value,
         unidade: row.querySelector(".cell-unidade input").value,
@@ -756,7 +921,7 @@ function loadAllBets() {
           <option value="outros">🏆 Outros</option>
         </select></td>
         <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
-        <td class="cell-metodo"><input type="text" placeholder="Método/Estratégia"></td>
+        <td class="cell-metodo"></td>
         <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
         <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
         <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
@@ -782,6 +947,10 @@ function loadAllBets() {
       // Preencher os dados salvos
       newRow.querySelector(".cell-data input").value = bet.data || "";
       newRow.querySelector(".cell-tipo select").value = bet.tipo || "simples";
+
+      // NOVO: Definir conteúdo da célula método baseado no tipo
+      const metodoCell = newRow.querySelector(".cell-metodo");
+      const tipoValue = bet.tipo || "simples";
 
       // Verificar se é múltipla
       if (bet.isMultipla && multiplaData[rowId]) {
@@ -831,13 +1000,62 @@ function loadAllBets() {
           ".cell-esporte"
         ).innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
       } else {
-        // Se for aposta simples, preencher os campos normalmente
-        if (!bet.isMultipla) {
-          newRow.querySelector(".cell-esporte select").value =
-            bet.esporte || "Futebol";
-          newRow.querySelector(".cell-evento input").value = bet.evento || "";
-          newRow.querySelector(".cell-metodo input").value = bet.metodo || "";
+        // APOSTAS SIMPLES - CRIAR SELECT DE MÉTODOS
+        if (tipoValue === "simples") {
+          metodoCell.innerHTML = createMethodSelect();
+          const methodSelect = metodoCell.querySelector("select");
+
+          // DEBUG: Ver o que está sendo carregado
+          console.log("=== DEBUG MÉTODO CARREGADO ===");
+          console.log("bet.metodo:", bet.metodo);
+          console.log("Opções disponíveis no select:");
+
+          const options = methodSelect.querySelectorAll("option");
+          options.forEach((option) => {
+            console.log(
+              `- Value: "${option.value}" | Text: "${option.textContent}"`
+            );
+          });
+
+          if (methodSelect && bet.metodo) {
+            // Tentar primeiro com o valor direto (se for ID)
+            if (methodSelect.querySelector(`option[value="${bet.metodo}"]`)) {
+              console.log("Encontrou por ID:", bet.metodo);
+              methodSelect.value = bet.metodo;
+            } else {
+              console.log("Não encontrou por ID, procurando por nome...");
+              // Se não encontrou por ID, procurar por nome do método
+              const userMethodsData = JSON.parse(
+                localStorage.getItem("userMethods") || "{}"
+              );
+              const methods = userMethodsData.methods || userMethodsData;
+
+              // Procurar método pelo nome
+              const methodEntry = Object.entries(methods).find(
+                ([id, method]) =>
+                  method.name === bet.metodo ||
+                  `${method.icon} ${method.name}` === bet.metodo
+              );
+
+              if (methodEntry) {
+                console.log("Encontrou por nome! ID:", methodEntry[0]);
+                methodSelect.value = methodEntry[0]; // ID do método
+              } else {
+                console.log("Não encontrou método nem por ID nem por nome");
+              }
+            }
+          }
+        } else {
+          // Para outros tipos, usar input de texto
+          metodoCell.innerHTML =
+            '<input type="text" placeholder="Método/Estratégia">';
+          metodoCell.querySelector("input").value = bet.metodo || "";
         }
+
+        // Preencher outros campos para apostas simples
+        newRow.querySelector(".cell-esporte select").value =
+          bet.esporte || "futebol";
+        newRow.querySelector(".cell-evento input").value = bet.evento || "";
       }
 
       const confidenceSpan = newRow.querySelector(

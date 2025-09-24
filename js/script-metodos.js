@@ -462,6 +462,30 @@ function showMethodDetails(methodId) {
     ? new Date(method.updatedAt).toLocaleDateString("pt-BR")
     : null;
 
+  // Função para formatar a descrição preservando quebras de linha
+  const formatDescription = (description) => {
+    if (!description) return "";
+
+    return description
+      .split("\n")
+      .filter((line) => line.trim() !== "") // Remove linhas vazias
+      .map((line) => {
+        const trimmedLine = line.trim();
+
+        // Se a linha começa com número ou bullet point
+        if (
+          trimmedLine.match(/^\d+[\.\-\s]/) ||
+          trimmedLine.startsWith("•") ||
+          trimmedLine.startsWith("-")
+        ) {
+          return `<div style="margin-bottom: 8px; padding-left: 0;">${trimmedLine}</div>`;
+        }
+        // Linhas normais
+        return `<div style="margin-bottom: 8px;">${trimmedLine}</div>`;
+      })
+      .join("");
+  };
+
   const content = `
     <div style="text-align: center; margin-bottom: 24px;">
       <div style="font-size: 48px; margin-bottom: 12px;">${method.icon}</div>
@@ -485,8 +509,10 @@ function showMethodDetails(methodId) {
       method.description
         ? `
       <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-        <h4 style="margin: 0 0 8px 0; color: #4a5568;">Descrição</h4>
-        <p style="margin: 0; color: #2d3748;">${method.description}</p>
+        <h4 style="margin: 0 0 12px 0; color: #4a5568;">Descrição</h4>
+        <div style="color: #2d3748; line-height: 1.5; text-align: left;">
+          ${formatDescription(method.description)}
+        </div>
       </div>
     `
         : ""
@@ -508,7 +534,7 @@ function showMethodDetails(methodId) {
     </div>
     
     <div style="background: #edf2f7; padding: 16px; border-radius: 8px; font-size: 14px; color: #4a5568;">
-      <div><strong>Criado em:</strong> ${createdDate}</div>
+      <div style="margin-bottom: 4px;"><strong>Criado em:</strong> ${createdDate}</div>
       ${
         updatedDate
           ? `<div><strong>Última atualização:</strong> ${updatedDate}</div>`
@@ -540,6 +566,39 @@ function showMethodDetails(methodId) {
   ).textContent = `Detalhes: ${method.name}`;
   document.getElementById("methodDetailsContent").innerHTML = content;
   document.getElementById("methodDetailsModal").style.display = "block";
+}
+
+// Função alternativa mais robusta para formatação
+function formatDescriptionAdvanced(description) {
+  if (!description) return "";
+
+  return description
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .map((line) => {
+      const trimmedLine = line.trim();
+
+      // Detecta diferentes tipos de formatação
+      if (trimmedLine.match(/^\d+[\.\-\s]/)) {
+        // Lista numerada (1. ou 1-)
+        return `<div style="margin-bottom: 8px; padding-left: 16px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #4299e1; font-weight: 600;">${
+                    trimmedLine.match(/^\d+[\.\-]/)[0]
+                  }</span>
+                  ${trimmedLine.replace(/^\d+[\.\-\s]+/, "")}
+                </div>`;
+      } else if (trimmedLine.startsWith("•") || trimmedLine.startsWith("-")) {
+        // Lista com bullet points
+        return `<div style="margin-bottom: 8px; padding-left: 16px; position: relative;">
+                  <span style="position: absolute; left: 0; color: #48bb78;">•</span>
+                  ${trimmedLine.replace(/^[•\-]\s*/, "")}
+                </div>`;
+      } else {
+        // Linha normal
+        return `<div style="margin-bottom: 8px;">${trimmedLine}</div>`;
+      }
+    })
+    .join("");
 }
 
 function closeDetailsModal() {

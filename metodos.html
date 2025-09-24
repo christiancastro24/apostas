@@ -156,6 +156,7 @@
         </div>
 
         <!-- Add/Edit Method Modal -->
+        <!-- Add/Edit Method Modal -->
         <div id="methodModal" class="modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -169,6 +170,7 @@
                   <input
                     type="text"
                     id="methodName"
+                    name="methodName"
                     required
                     placeholder="Ex: Ambas Marcam + Over 2.5"
                   />
@@ -177,7 +179,7 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label>Categoria *</label>
-                    <select id="methodCategory" required>
+                    <select id="methodCategory" name="methodCategory" required>
                       <option value="">Selecione...</option>
                       <option value="gols">⚽ Gols</option>
                       <option value="resultado">🏆 Resultado</option>
@@ -187,7 +189,7 @@
                   </div>
                   <div class="form-group">
                     <label>Ícone</label>
-                    <select id="methodIcon">
+                    <select id="methodIcon" name="methodIcon">
                       <option value="⚽">⚽ Futebol</option>
                       <option value="🎯">🎯 Alvo</option>
                       <option value="📈">📈 Gráfico</option>
@@ -202,6 +204,7 @@
                   <label>Descrição</label>
                   <textarea
                     id="methodDescription"
+                    name="methodDescription"
                     placeholder="Descreva como funciona este método..."
                     rows="3"
                   ></textarea>
@@ -213,6 +216,7 @@
                     <input
                       type="number"
                       id="methodMinOdd"
+                      name="methodMinOdd"
                       step="0.01"
                       placeholder="1.50"
                     />
@@ -222,6 +226,7 @@
                     <input
                       type="number"
                       id="methodMaxOdd"
+                      name="methodMaxOdd"
                       step="0.01"
                       placeholder="3.00"
                     />
@@ -230,7 +235,11 @@
 
                 <div class="form-group">
                   <div class="checkbox-group">
-                    <input type="checkbox" id="methodFavorite" />
+                    <input
+                      type="checkbox"
+                      id="methodFavorite"
+                      name="methodFavorite"
+                    />
                     <label for="methodFavorite">⭐ Marcar como favorito</label>
                   </div>
                 </div>

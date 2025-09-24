@@ -94,6 +94,10 @@ body {
   content: "💡";
 }
 
+.nav-item:nth-child(6)::before {
+  content: "⚙️";
+}
+
 .header h1 {
   font-size: 3rem;
   font-weight: 700;
