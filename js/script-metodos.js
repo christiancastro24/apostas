@@ -68,6 +68,18 @@ const defaultMethods = {
     isDefault: true,
     createdAt: new Date().toISOString(),
   },
+  over_15_geral: {
+    id: "over_15_geral",
+    name: "Over 1.5 Gols",
+    category: "gols",
+    icon: "📈",
+    description: "Partida com 2 ou mais gols no total",
+    minOdd: 1.25,
+    maxOdd: 1.8,
+    favorite: false,
+    isDefault: true,
+    createdAt: new Date().toISOString(),
+  },
   over_25_geral: {
     id: "over_25_geral",
     name: "Over 2.5 Gols",
@@ -77,6 +89,32 @@ const defaultMethods = {
     minOdd: 1.6,
     maxOdd: 2.8,
     favorite: true,
+    isDefault: true,
+    createdAt: new Date().toISOString(),
+  },
+
+  // Métodos de Resultado
+  vitoria_casa: {
+    id: "vitoria_casa",
+    name: "Vitória Casa",
+    category: "resultado",
+    icon: "🏠",
+    description: "Time da casa vence a partida",
+    minOdd: 1.5,
+    maxOdd: 3.0,
+    favorite: false,
+    isDefault: true,
+    createdAt: new Date().toISOString(),
+  },
+  vitoria_visitante: {
+    id: "vitoria_visitante",
+    name: "Vitória Visitante",
+    category: "resultado",
+    icon: "✈️",
+    description: "Time visitante vence a partida",
+    minOdd: 2.0,
+    maxOdd: 5.0,
+    favorite: false,
     isDefault: true,
     createdAt: new Date().toISOString(),
   },
@@ -170,6 +208,18 @@ function initializeDefaultMethods() {
   if (Object.keys(methodsData.methods).length === 0) {
     methodsData.methods = { ...defaultMethods };
     saveMethodsData();
+  } else {
+    // Verificar se há novos métodos padrão para adicionar
+    let hasNewMethods = false;
+    for (const [key, method] of Object.entries(defaultMethods)) {
+      if (!methodsData.methods[key]) {
+        methodsData.methods[key] = { ...method };
+        hasNewMethods = true;
+      }
+    }
+    if (hasNewMethods) {
+      saveMethodsData();
+    }
   }
 }
 
@@ -256,6 +306,8 @@ function loadMethods() {
   loadMethodsByCategory("gols", "golsMethods");
   loadMethodsByCategory("dupla", "duplaMethods");
   loadMethodsByCategory("especial", "especialMethods");
+  loadMethodsByCategory("resultado", "resultMethods");
+  loadFavoriteMethods(); // Adicionado
   loadCustomMethods();
   updateSectionCounts();
 }
@@ -276,6 +328,26 @@ function loadMethodsByCategory(category, containerId) {
   }
 
   container.innerHTML = methods
+    .map((method) => createMethodCard(method))
+    .join("");
+}
+
+function loadFavoriteMethods() {
+  const favoriteMethods = getAllMethods().filter((m) => m.favorite);
+  const container = document.getElementById("favoritesMethodsContainer");
+
+  if (favoriteMethods.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⭐</div>
+        <h4>Nenhum método favorito</h4>
+        <p>Marque métodos como favoritos para vê-los aqui</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = favoriteMethods
     .map((method) => createMethodCard(method))
     .join("");
 }
@@ -365,9 +437,9 @@ function createMethodCard(method) {
 function getCategoryLabel(category) {
   const labels = {
     gols: "⚽ Gols",
-    resultado: "🏆 Resultado",
+    resultado: "🎯 Resultado", // Atualizado
     dupla: "🔄 Dupla Chance",
-    especial: "🎯 Especiais",
+    especial: "💡 Especiais", // Atualizado para combinar com o HTML
   };
   return labels[category] || category;
 }
@@ -379,6 +451,10 @@ function updateSectionCounts() {
     getMethodsByCategory("dupla").length;
   document.getElementById("especialCount").textContent =
     getMethodsByCategory("especial").length;
+  document.getElementById("resultCount").textContent = // Adicionado
+    getMethodsByCategory("resultado").length;
+  document.getElementById("favoritesCount").textContent =
+    getAllMethods().filter((m) => m.favorite).length; // Adicionado
   document.getElementById("customCount").textContent = getAllMethods().filter(
     (m) => !m.isDefault
   ).length;
@@ -568,39 +644,6 @@ function showMethodDetails(methodId) {
   document.getElementById("methodDetailsModal").style.display = "block";
 }
 
-// Função alternativa mais robusta para formatação
-function formatDescriptionAdvanced(description) {
-  if (!description) return "";
-
-  return description
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .map((line) => {
-      const trimmedLine = line.trim();
-
-      // Detecta diferentes tipos de formatação
-      if (trimmedLine.match(/^\d+[\.\-\s]/)) {
-        // Lista numerada (1. ou 1-)
-        return `<div style="margin-bottom: 8px; padding-left: 16px; position: relative;">
-                  <span style="position: absolute; left: 0; color: #4299e1; font-weight: 600;">${
-                    trimmedLine.match(/^\d+[\.\-]/)[0]
-                  }</span>
-                  ${trimmedLine.replace(/^\d+[\.\-\s]+/, "")}
-                </div>`;
-      } else if (trimmedLine.startsWith("•") || trimmedLine.startsWith("-")) {
-        // Lista com bullet points
-        return `<div style="margin-bottom: 8px; padding-left: 16px; position: relative;">
-                  <span style="position: absolute; left: 0; color: #48bb78;">•</span>
-                  ${trimmedLine.replace(/^[•\-]\s*/, "")}
-                </div>`;
-      } else {
-        // Linha normal
-        return `<div style="margin-bottom: 8px;">${trimmedLine}</div>`;
-      }
-    })
-    .join("");
-}
-
 function closeDetailsModal() {
   document.getElementById("methodDetailsModal").style.display = "none";
 }
@@ -707,11 +750,17 @@ function filterMethods() {
   const searchQuery = document.getElementById("searchInput").value;
 
   if (categoryFilter) {
-    const methods = getMethodsByCategory(categoryFilter);
-    displaySearchResults(
-      methods,
-      `Categoria: ${getCategoryLabel(categoryFilter)}`
-    );
+    if (categoryFilter === "favorites") {
+      // Filtro especial para favoritos
+      const favoriteMethods = getAllMethods().filter((m) => m.favorite);
+      displaySearchResults(favoriteMethods, "Métodos Favoritos");
+    } else {
+      const methods = getMethodsByCategory(categoryFilter);
+      displaySearchResults(
+        methods,
+        `Categoria: ${getCategoryLabel(categoryFilter)}`
+      );
+    }
   } else if (searchQuery.trim()) {
     searchMethods(searchQuery);
   } else {
@@ -750,6 +799,8 @@ function getMethodById(methodId) {
 document.addEventListener("DOMContentLoaded", function () {
   try {
     initializeDefaultMethods();
+    // Forçar atualização dos métodos padrão na inicialização
+    forceUpdateDefaultMethods();
     loadMethods();
     updateQuickStats();
 
@@ -775,6 +826,26 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==================== UTILITÁRIOS ====================
+
+// Função para forçar atualização dos métodos padrão
+function forceUpdateDefaultMethods() {
+  let hasNewMethods = false;
+  for (const [key, method] of Object.entries(defaultMethods)) {
+    if (!methodsData.methods[key]) {
+      methodsData.methods[key] = { ...method };
+      hasNewMethods = true;
+    }
+  }
+  if (hasNewMethods) {
+    saveMethodsData();
+    loadMethods();
+    updateQuickStats();
+    showNotification("Métodos padrão atualizados!", "success");
+    console.log("Novos métodos padrão adicionados");
+  } else {
+    console.log("Todos os métodos padrão já estão presentes");
+  }
+}
 
 // Função para resetar todos os dados (desenvolvimento)
 function resetMethodsData() {
@@ -805,5 +876,5 @@ function exportMethods() {
   link.href = url;
   link.download = "metodos-backup.json";
   link.click();
-  showNotification("Backup dos métodos criado!", "success");
+  showNotification("Backup dos métodos criados!", "success");
 }
