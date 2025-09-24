@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Métodos - Bet Tracker Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles-metodos.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Bet Tracker Pro</div>
+        </div>
+        <div class="nav-menu">
+          <div class="nav-item" onclick="window.location.href='index.html'">
+            Dashboard
+          </div>
+          <div class="nav-item" onclick="window.location.href='jogos.html'">
+            Jogos
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href='relatorios.html'"
+          >
+            Relatórios
+          </div>
+          <div class="nav-item" onclick="window.location.href='dicas.html'">
+            Dicas De Aposta
+          </div>
+          <div class="nav-item" onclick="window.location.href='analises.html'">
+            Estratégias
+          </div>
+          <div
+            class="nav-item active"
+            onclick="window.location.href='metodos.html'"
+          >
+            Métodos
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">⚙️ Gestão de Métodos</h1>
+          <p class="page-subtitle">
+            Configure e gerencie seus métodos de apostas personalizados
+          </p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="quick-stat">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+              <span class="stat-value" id="totalMethods">12</span>
+              <span class="stat-label">Métodos Ativos</span>
+            </div>
+          </div>
+          <div class="quick-stat">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-info">
+              <span class="stat-value" id="favoriteMethods">3</span>
+              <span class="stat-label">Favoritos</span>
+            </div>
+          </div>
+          <div class="quick-stat">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-info">
+              <span class="stat-value" id="customMethods">0</span>
+              <span class="stat-label">Personalizados</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-section">
+          <div class="search-controls">
+            <div class="search-box">
+              <input
+                type="text"
+                placeholder="🔍 Buscar método..."
+                id="searchInput"
+                oninput="searchMethods(this.value)"
+              />
+            </div>
+            <div class="filter-controls">
+              <select id="categoryFilter" onchange="filterMethods()">
+                <option value="">Todas as categorias</option>
+                <option value="gols">⚽ Gols</option>
+                <option value="resultado">🏆 Resultado</option>
+                <option value="dupla">🔄 Dupla Chance</option>
+                <option value="especial">🎯 Especiais</option>
+              </select>
+            </div>
+          </div>
+          <button class="add-method-btn" onclick="showAddMethodModal()">
+            ➕ Novo Método
+          </button>
+        </div>
+
+        <!-- Methods Grid -->
+        <div class="methods-container">
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>⚽ Métodos de Gols</h3>
+              <span class="section-count" id="golsCount">6</span>
+            </div>
+            <div class="methods-grid" id="golsMethods">
+              <!-- Métodos de gols serão carregados aqui -->
+            </div>
+          </div>
+
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>🔄 Dupla Chance</h3>
+              <span class="section-count" id="duplaCount">4</span>
+            </div>
+            <div class="methods-grid" id="duplaMethods">
+              <!-- Métodos de dupla chance serão carregados aqui -->
+            </div>
+          </div>
+
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>🎯 Especiais</h3>
+              <span class="section-count" id="especialCount">2</span>
+            </div>
+            <div class="methods-grid" id="especialMethods">
+              <!-- Métodos especiais serão carregados aqui -->
+            </div>
+          </div>
+
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>🛠️ Personalizados</h3>
+              <span class="section-count" id="customCount">0</span>
+            </div>
+            <div class="methods-grid" id="customMethods">
+              <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h4>Nenhum método personalizado</h4>
+                <p>Crie seus próprios métodos de apostas</p>
+                <button class="btn-primary" onclick="showAddMethodModal()">
+                  ➕ Criar Primeiro Método
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add/Edit Method Modal -->
+        <div id="methodModal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="modalTitle">➕ Novo Método</h3>
+              <span class="close" onclick="closeMethodModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+              <form id="methodForm" onsubmit="saveMethod(event)">
+                <div class="form-group">
+                  <label>Nome do Método *</label>
+                  <input
+                    type="text"
+                    id="methodName"
+                    required
+                    placeholder="Ex: Ambas Marcam + Over 2.5"
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Categoria *</label>
+                    <select id="methodCategory" required>
+                      <option value="">Selecione...</option>
+                      <option value="gols">⚽ Gols</option>
+                      <option value="resultado">🏆 Resultado</option>
+                      <option value="dupla">🔄 Dupla Chance</option>
+                      <option value="especial">🎯 Especiais</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Ícone</label>
+                    <select id="methodIcon">
+                      <option value="⚽">⚽ Futebol</option>
+                      <option value="🎯">🎯 Alvo</option>
+                      <option value="📈">📈 Gráfico</option>
+                      <option value="🔥">🔥 Fogo</option>
+                      <option value="⭐">⭐ Estrela</option>
+                      <option value="💎">💎 Diamante</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Descrição</label>
+                  <textarea
+                    id="methodDescription"
+                    placeholder="Descreva como funciona este método..."
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Odd Mínima</label>
+                    <input
+                      type="number"
+                      id="methodMinOdd"
+                      step="0.01"
+                      placeholder="1.50"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Odd Máxima</label>
+                    <input
+                      type="number"
+                      id="methodMaxOdd"
+                      step="0.01"
+                      placeholder="3.00"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="methodFavorite" />
+                    <label for="methodFavorite">⭐ Marcar como favorito</label>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    type="button"
+                    onclick="closeMethodModal()"
+                    class="btn-secondary"
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" class="btn-primary">
+                    💾 Salvar Método
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Method Details Modal -->
+        <div id="methodDetailsModal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="detailsTitle">Detalhes do Método</h3>
+              <span class="close" onclick="closeDetailsModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="methodDetailsContent">
+              <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification -->
+        <div id="notification" class="notification">
+          <span id="notificationText"></span>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/script-metodos.js"></script>
+  </body>
+</html>
