@@ -54,6 +54,12 @@ const getApiHeaders = () => ({
   "Content-Type": "application/json",
 });
 
+app.get("/", (req, res) => {
+  res.send(
+    "API Backend está funcionando! Acesse /api/test para mais detalhes."
+  );
+});
+
 // Rota principal para escalações
 app.post("/api/teams/lineups", async (req, res) => {
   const { teamNames } = req.body;
