@@ -168,32 +168,6 @@ const defaultMethods = {
     isDefault: true,
     createdAt: new Date().toISOString(),
   },
-
-  // Métodos Especiais
-  primeiro_tempo_over05: {
-    id: "primeiro_tempo_over05",
-    name: "1º Tempo Over 0.5",
-    category: "especial",
-    icon: "🎯",
-    description: "Pelo menos 1 gol no primeiro tempo",
-    minOdd: 1.2,
-    maxOdd: 1.7,
-    favorite: true,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  cantos_over85: {
-    id: "cantos_over85",
-    name: "Over 8.5 Escanteios",
-    category: "especial",
-    icon: "📐",
-    description: "9 ou mais escanteios na partida",
-    minOdd: 1.7,
-    maxOdd: 2.5,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
 };
 
 // ==================== FUNÇÕES DE DADOS ====================
