@@ -1047,136 +1047,512 @@ padding: 20px 28px;
 
 
 
-/* Botão de Escalação */
+/* Botão de Escalação Aprimorado */
 .game-actions {
-  padding: 12px 16px 8px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .lineup-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   width: 100%;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.lineup-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
 }
 
 .lineup-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
-/* Tabs específicas para escalações */
+.lineup-btn:hover::before {
+  left: 100%;
+}
+
+/* Tabs das Escalações */
 .lineups-tabs {
   display: flex;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
 }
 
 .tab-btn {
   flex: 1;
-  padding: 16px;
+  padding: 20px;
   border: none;
   background: transparent;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   color: #64748b;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: #3b82f6;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
 .tab-btn:hover {
   background: #e2e8f0;
+  color: #3b82f6;
 }
 
 .tab-btn.active {
   background: white;
   color: #3b82f6;
-  border-bottom: 2px solid #3b82f6;
+  box-shadow: 0 -2px 10px rgba(59, 130, 246, 0.1);
 }
 
-/* Conteúdo das escalações */
-.lineups-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+.tab-btn.active::after {
+  width: 50%;
 }
 
-.team-lineup {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 20px;
+/* Header das Escalações */
+.lineups-header {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.team-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.away-team {
+  flex-direction: row-reverse;
+}
+
+.team-crest img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.team-info {
+  text-align: left;
+}
+
+.away-team .team-info {
+  text-align: right;
 }
 
 .team-name {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.team-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.vs-divider {
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-text {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Container das Escalações */
+.lineups-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.team-lineup {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+/* Grupos de Posição */
+.position-group {
+  margin-bottom: 24px;
+}
+
+.position-group:last-child {
+  margin-bottom: 0;
+}
+
+.position-title {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  padding: 16px 20px 0;
+  color: #1e293b;
 }
 
-.formation {
-  background: #3b82f6;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
+.position-title.goalkeeper { border-left: 4px solid #10b981; padding-left: 16px; }
+.position-title.defender { border-left: 4px solid #3b82f6; padding-left: 16px; }
+.position-title.midfielder { border-left: 4px solid #f59e0b; padding-left: 16px; }
+.position-title.winger { border-left: 4px solid #8b5cf6; padding-left: 16px; }
+.position-title.forward { border-left: 4px solid #ef4444; padding-left: 16px; }
+
+.position-icon {
+  font-size: 18px;
+}
+
+.player-count {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  margin-left: auto;
 }
 
-.players-list {
-  display: grid;
+/* Grid de Jogadores */
+.players-grid {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
+  padding: 0 20px 20px;
 }
 
-.player-item {
-  background: white;
-  padding: 12px;
-  border-radius: 8px;
+/* Cards dos Jogadores */
+.player-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.player-card.goalkeeper::before { background: #10b981; }
+.player-card.defender::before { background: #3b82f6; }
+.player-card.midfielder::before { background: #f59e0b; }
+.player-card.winger::before { background: #8b5cf6; }
+.player-card.forward::before { background: #ef4444; }
+
+.player-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.player-card:hover::before {
+  width: 6px;
+}
+
+.player-main {
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-left: 4px solid transparent;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
-.player-item.goalkeeper { border-left-color: #10b981; }
-.player-item.defender { border-left-color: #3b82f6; }
-.player-item.midfielder { border-left-color: #f59e0b; }
-.player-item.forward { border-left-color: #ef4444; }
-
 .player-number {
-  background: #e2e8f0;
-  color: #475569;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 30px;
-  text-align: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .player-info {
   flex: 1;
+  min-width: 0;
 }
 
 .player-name {
-  font-weight: 500;
-  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
 }
 
 .player-position {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.player-age {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.player-nationality {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.player-extra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 12px;
+  color: #64748b;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.market-value {
+  background: #10b981;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.contract-info {
+  font-size: 11px;
   color: #64748b;
 }
 
-@media (max-width: 768px) {
+/* Posição Vazia */
+.empty-position {
+  padding: 40px 20px;
+  text-align: center;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+  margin: 0 20px 20px;
+}
+
+.empty-text {
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Footer de Informações */
+.info-footer {
+  margin-top: 32px;
+}
+
+.info-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.info-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.info-content {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.info-content strong {
+  color: #1e293b;
+}
+
+.info-content small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
   .lineups-container {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .lineups-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .team-header {
+    justify-content: center;
+  }
+  
+  .away-team {
+    flex-direction: row;
+  }
+  
+  .away-team .team-info {
+    text-align: center;
+  }
+  
+  .vs-divider {
+    padding: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .lineups-header {
+    padding: 20px;
+  }
+  
+  .team-crest img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .team-name {
+    font-size: 18px;
+  }
+  
+  .position-title {
+    font-size: 14px;
+    padding: 12px 16px 0;
+  }
+  
+  .players-grid {
+    padding: 0 16px 16px;
+  }
+  
+  .player-card {
+    padding: 12px;
+  }
+  
+  .player-number {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+  
+  .player-name {
+    font-size: 14px;
+  }
+  
+  .player-details {
+    font-size: 11px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lineups-tabs {
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .tab-btn {
+    padding: 16px 12px;
+    font-size: 14px;
+  }
+  
+  .team-lineup {
+    border-radius: 12px;
+  }
+  
+  .player-main {
+    gap: 12px;
+  }
+  
+  .player-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .info-box {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .info-icon {
+    font-size: 20px;
   }
 }

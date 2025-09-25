@@ -3,8 +3,12 @@ const API_KEY = "e6151727b9b3162bb023a5d9283dc608";
 const API_BASE_URL = "https://api.the-odds-api.com/v4";
 
 // Configuração da API Football-data.org
-const FOOTBALL_DATA_API_KEY = "4acf7c9cdcea47df8d841279263b4a07";
+const FOOTBALL_API_KEY = process.env.FOOTBALL_API_KEY;
+
 const FOOTBALL_DATA_BASE_URL = "https://api.football-data.org/v4";
+
+// Configuração do backend
+const BACKEND_BASE_URL = "http://localhost:3001/api";
 
 // Cache para armazenar dados já buscados
 let lineupsCache = {};
@@ -2139,49 +2143,74 @@ async function showLineups(homeTeam, awayTeam) {
   const teamNames = document.getElementById("modal-team-names");
   const content = document.getElementById("lineups-content");
 
+  if (!modal || !teamNames || !content) {
+    console.error("Elementos do modal não encontrados");
+    return;
+  }
+
   teamNames.textContent = `${homeTeam} vs ${awayTeam}`;
   modal.style.display = "block";
 
-  // Resetar tabs
+  // Reset tabs
   currentTab = "lineups";
   document
     .querySelectorAll(".tab-btn")
     .forEach((btn) => btn.classList.remove("active"));
-  document.querySelector(".tab-btn").classList.add("active");
+  const firstTab = document.querySelector(".tab-btn");
+  if (firstTab) firstTab.classList.add("active");
 
   content.innerHTML = `
     <div class="loading-spinner">
       <div class="spinner"></div>
-      Consultando API Football-data.org...
+      <p>Buscando escalações da La Liga...</p>
     </div>
   `;
 
   try {
-    // Buscar dados reais dos times
-    const [homeData, awayData] = await Promise.all([
-      getTeamDataFromAPI(homeTeam),
-      getTeamDataFromAPI(awayTeam),
-    ]);
+    // Fazer requisição para o backend
+    const response = await fetch(`${BACKEND_BASE_URL}/teams/lineups`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        teamNames: [homeTeam, awayTeam],
+      }),
+    });
 
+    if (!response.ok) {
+      throw new Error(`Erro HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.teams || data.teams.length < 2) {
+      throw new Error("Dados incompletos recebidos");
+    }
+
+    // Salvar no cache
     lineupsCache[`${homeTeam}_vs_${awayTeam}`] = {
-      home: homeData,
-      away: awayData,
+      home: data.teams[0],
+      away: data.teams[1],
+      source: data.source,
     };
 
+    // Mostrar dados
     displayTabContent();
+    showNotification(`Escalações carregadas: ${data.source}`);
   } catch (error) {
-    console.error("Erro na API:", error);
+    console.error("Erro ao carregar escalações:", error);
     content.innerHTML = `
-      <div class="no-data">
-        <div class="no-data-icon">⚠️</div>
-        <h4>API Football-data.org indisponível</h4>
-        <p>Erro: ${error.message}</p>
-        <p style="font-size: 14px; margin-top: 8px;">
-          Verifique se a chave da API está válida ou se não excedeu o limite de requisições
-        </p>
-        <button onclick="retryAPICall('${homeTeam}', '${awayTeam}')" class="lineup-btn" style="margin-top: 16px;">
+      <div style="text-align: center; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+        <h4>Erro ao carregar escalações</h4>
+        <p style="color: #666; margin-bottom: 16px;">${error.message}</p>
+        <button onclick="showLineups('${homeTeam}', '${awayTeam}')" class="lineup-btn">
           🔄 Tentar Novamente
         </button>
+        <div style="margin-top: 16px; font-size: 12px; color: #999;">
+          Verifique se o backend está rodando em localhost:3001
+        </div>
       </div>
     `;
   }
@@ -2219,7 +2248,10 @@ function getPositionClass(position) {
 
 // Função para fechar modal
 function closeLineupsModal() {
-  document.getElementById("lineups-modal").style.display = "none";
+  const modal = document.getElementById("lineups-modal");
+  if (modal) {
+    modal.style.display = "none";
+  }
   lineupsCache = {};
 }
 
@@ -2232,97 +2264,68 @@ document.addEventListener("click", function (event) {
 });
 
 function displayForm(homeData, awayData) {
+  const renderMatches = (team) => {
+    if (!team.recentMatches || team.recentMatches.length === 0) {
+      return '<div class="no-data">Sem dados de partidas recentes</div>';
+    }
+
+    return team.recentMatches
+      .slice(0, 5)
+      .map((match) => {
+        const isHome = match.homeTeam.name === team.name;
+        const opponent = isHome ? match.awayTeam.name : match.homeTeam.name;
+        const homeScore = match.score?.fullTime?.homeTeam || 0;
+        const awayScore = match.score?.fullTime?.awayTeam || 0;
+
+        let result = "draw";
+        if (isHome) {
+          result =
+            homeScore > awayScore
+              ? "win"
+              : homeScore < awayScore
+              ? "loss"
+              : "draw";
+        } else {
+          result =
+            awayScore > homeScore
+              ? "win"
+              : awayScore < homeScore
+              ? "loss"
+              : "draw";
+        }
+
+        const resultText =
+          result === "win" ? "V" : result === "draw" ? "E" : "D";
+
+        return `
+        <div class="form-match">
+          <div class="match-info">
+            <span>${isHome ? "vs" : "@"} ${opponent}</span>
+            <span class="score">${homeScore}-${awayScore}</span>
+            <span class="date">${new Date(match.utcDate).toLocaleDateString(
+              "pt-BR"
+            )}</span>
+          </div>
+          <div class="match-result ${result}">${resultText}</div>
+        </div>
+      `;
+      })
+      .join("");
+  };
+
   return `
     <div class="lineups-container">
       <div class="team-lineup">
         <div class="team-name">🏠 ${homeData.name} - Últimos 5 Jogos</div>
         <div class="form-list">
-          ${homeData.recentMatches
-            .slice(0, 5)
-            .map((match) => {
-              const isHome = match.homeTeam.name === homeData.name;
-              const opponent = isHome
-                ? match.awayTeam.name
-                : match.homeTeam.name;
-              const homeScore = match.score?.fullTime?.homeTeam || 0;
-              const awayScore = match.score?.fullTime?.awayTeam || 0;
-
-              let result = "draw";
-              if (isHome) {
-                result =
-                  homeScore > awayScore
-                    ? "win"
-                    : homeScore < awayScore
-                    ? "loss"
-                    : "draw";
-              } else {
-                result =
-                  awayScore > homeScore
-                    ? "win"
-                    : awayScore < homeScore
-                    ? "loss"
-                    : "draw";
-              }
-
-              return `
-              <div class="form-match">
-                <div class="match-info">
-                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
-                  <span>${homeScore}-${awayScore}</span>
-                </div>
-                <div class="match-result ${result}">
-                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
-                </div>
-              </div>
-            `;
-            })
-            .join("")}
+          ${renderMatches(homeData)}
         </div>
       </div>
       
       <div class="team-lineup">
         <div class="team-name">✈️ ${awayData.name} - Últimos 5 Jogos</div>
         <div class="form-list">
-          ${awayData.recentMatches
-            .slice(0, 5)
-            .map((match) => {
-              const isHome = match.homeTeam.name === awayData.name;
-              const opponent = isHome
-                ? match.awayTeam.name
-                : match.homeTeam.name;
-              const homeScore = match.score?.fullTime?.homeTeam || 0;
-              const awayScore = match.score?.fullTime?.awayTeam || 0;
-
-              let result = "draw";
-              if (isHome) {
-                result =
-                  homeScore > awayScore
-                    ? "win"
-                    : homeScore < awayScore
-                    ? "loss"
-                    : "draw";
-              } else {
-                result =
-                  awayScore > homeScore
-                    ? "win"
-                    : awayScore < homeScore
-                    ? "loss"
-                    : "draw";
-              }
-
-              return `
-              <div class="form-match">
-                <div class="match-info">
-                  <span>${isHome ? "vs" : "@"} ${opponent}</span>
-                  <span>${homeScore}-${awayScore}</span>
-                </div>
-                <div class="match-result ${result}">
-                  ${result === "win" ? "V" : result === "draw" ? "E" : "D"}
-                </div>
-              </div>
-            `;
-            })
-            .join("")}
+          ${renderMatches(awayData)}
         </div>
       </div>
     </div>
@@ -2330,86 +2333,199 @@ function displayForm(homeData, awayData) {
 }
 
 // Função para exibir lesões
-function displayInjuries(homeData, awayData) {
-  const allInjuries = [...homeData.injuries, ...awayData.injuries];
-
-  if (allInjuries.length === 0) {
-    return `
-      <div class="no-data">
-        <div class="no-data-icon">🏥</div>
-        <p>Nenhuma lesão reportada</p>
-        <p style="font-size: 14px; margin-top: 8px;">
-          Todos os jogadores estão disponíveis
-        </p>
-      </div>
-    `;
-  }
-
+// Função para exibir lesões
+function displayInjuries() {
   return `
-    <div class="injuries-list">
-      ${allInjuries
-        .map(
-          (injury) => `
-        <div class="injury-item">
-          <div class="injury-player">${injury.player}</div>
-          <div class="injury-details">
-            ${injury.injury} - Retorno previsto: ${injury.expectedReturn}
-          </div>
-        </div>
-      `
-        )
-        .join("")}
+    <div class="no-data">
+      <div style="font-size: 48px; margin-bottom: 16px;">🏥</div>
+      <h4>Dados de lesões não disponíveis</h4>
+      <p>A API Football-data.org não fornece informações sobre lesões na versão gratuita.</p>
     </div>
   `;
 }
 
+// Função para organizar jogadores por posição melhorada
+function organizePlayersByPosition(squad) {
+  if (!squad || squad.length === 0) {
+    return {
+      goalkeepers: [],
+      defenders: [],
+      midfielders: [],
+      wingers: [],
+      forwards: [],
+    };
+  }
+
+  const positionMap = {
+    goalkeepers: ["Goalkeeper"],
+    defenders: [
+      "Centre-Back",
+      "Left-Back",
+      "Right-Back",
+      "Left Centre-Back",
+      "Right Centre-Back",
+      "Defender",
+    ],
+    midfielders: [
+      "Central Midfield",
+      "Defensive Midfield",
+      "Attacking Midfield",
+      "Left Midfield",
+      "Right Midfield",
+      "Centre Midfield",
+      "Midfielder",
+    ],
+    wingers: [
+      "Left Winger",
+      "Right Winger",
+      "Left Wing-Back",
+      "Right Wing-Back",
+    ],
+    forwards: [
+      "Centre-Forward",
+      "Left Centre-Forward",
+      "Right Centre-Forward",
+      "Second Striker",
+      "Forward",
+    ],
+  };
+
+  const organized = {
+    goalkeepers: [],
+    defenders: [],
+    midfielders: [],
+    wingers: [],
+    forwards: [],
+  };
+
+  squad.forEach((player) => {
+    let placed = false;
+    for (const [category, positions] of Object.entries(positionMap)) {
+      if (positions.includes(player.position)) {
+        organized[category].push(player);
+        placed = true;
+        break;
+      }
+    }
+    // Se não encontrar a posição, colocar como meio-campo por padrão
+    if (!placed) {
+      organized.midfielders.push(player);
+    }
+  });
+
+  // Ordenar por número da camisa dentro de cada posição
+  Object.keys(organized).forEach((key) => {
+    organized[key].sort((a, b) => a.shirtNumber - b.shirtNumber);
+  });
+
+  return organized;
+}
+
 // Função para exibir escalações
 function displayLineups(homeData, awayData) {
+  const homePositions = organizePlayersByPosition(homeData.squad);
+  const awayPositions = organizePlayersByPosition(awayData.squad);
+
   return `
-    <div class="lineups-container">
-      <div class="team-lineup">
-        <div class="team-name">
-          🏠 ${homeData.name}
-          <span class="formation">4-3-3</span>
+    <div class="lineups-header">
+      <div class="team-header home-team">
+        <div class="team-crest">
+          <img src="${homeData.crest}" alt="${
+    homeData.name
+  }" onerror="this.style.display='none'">
         </div>
-        <div class="players-list">
-          ${homeData.squad
-            .slice(0, 11)
-            .map(
-              (player) => `
-            <div class="player-item ${getPositionClass(player.position)}">
-              <div class="player-number">${player.shirtNumber || "?"}</div>
-              <div class="player-info">
-                <div class="player-name">${player.name}</div>
-                <div class="player-position">${player.position}</div>
-              </div>
-            </div>
-          `
-            )
-            .join("")}
+        <div class="team-info">
+          <h3 class="team-name">🏠 ${homeData.name}</h3>
+          <div class="team-stats">
+            <span class="squad-size">Elenco: ${
+              homeData.squad?.length || 0
+            }</span>
+            ${
+              homeData.coach
+                ? `<span class="coach">Técnico: ${homeData.coach.name}</span>`
+                : ""
+            }
+          </div>
         </div>
       </div>
       
-      <div class="team-lineup">
-        <div class="team-name">
-          ✈️ ${awayData.name}
-          <span class="formation">4-3-3</span>
+      <div class="vs-divider">
+        <span class="vs-text">VS</span>
+      </div>
+      
+      <div class="team-header away-team">
+        <div class="team-info">
+          <h3 class="team-name">✈️ ${awayData.name}</h3>
+          <div class="team-stats">
+            <span class="squad-size">Elenco: ${
+              awayData.squad?.length || 0
+            }</span>
+            ${
+              awayData.coach
+                ? `<span class="coach">Técnico: ${awayData.coach.name}</span>`
+                : ""
+            }
+          </div>
         </div>
-        <div class="players-list">
-          ${awayData.squad
-            .slice(0, 11)
-            .map(
-              (player) => `
-            <div class="player-item ${getPositionClass(player.position)}">
-              <div class="player-number">${player.shirtNumber || "?"}</div>
-              <div class="player-info">
-                <div class="player-name">${player.name}</div>
-                <div class="player-position">${player.position}</div>
-              </div>
-            </div>
-          `
-            )
-            .join("")}
+        <div class="team-crest">
+          <img src="${awayData.crest}" alt="${
+    awayData.name
+  }" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="lineups-container">
+      <div class="team-lineup home-lineup">
+        ${renderPositionGroup(
+          "Goleiros",
+          homePositions.goalkeepers,
+          "goalkeeper"
+        )}
+        ${renderPositionGroup(
+          "Defensores",
+          homePositions.defenders,
+          "defender"
+        )}
+        ${renderPositionGroup(
+          "Meio-campistas",
+          homePositions.midfielders,
+          "midfielder"
+        )}
+        ${renderPositionGroup("Pontas", homePositions.wingers, "winger")}
+        ${renderPositionGroup("Atacantes", homePositions.forwards, "forward")}
+      </div>
+      
+      <div class="team-lineup away-lineup">
+        ${renderPositionGroup(
+          "Goleiros",
+          awayPositions.goalkeepers,
+          "goalkeeper"
+        )}
+        ${renderPositionGroup(
+          "Defensores",
+          awayPositions.defenders,
+          "defender"
+        )}
+        ${renderPositionGroup(
+          "Meio-campistas",
+          awayPositions.midfielders,
+          "midfielder"
+        )}
+        ${renderPositionGroup("Pontas", awayPositions.wingers, "winger")}
+        ${renderPositionGroup("Atacantes", awayPositions.forwards, "forward")}
+      </div>
+    </div>
+    
+    <div class="info-footer">
+      <div class="info-box">
+        <div class="info-icon">📋</div>
+        <div class="info-content">
+          <strong>Informação:</strong> Escalações oficiais são divulgadas 1h antes do jogo.
+          <br>
+          <small>Dados de ${
+            homeData.source || "Football-data.org"
+          } • Última atualização: ${new Date().toLocaleString("pt-BR")}</small>
         </div>
       </div>
     </div>
@@ -2487,40 +2603,176 @@ function displayRealLineups(homeData, awayData) {
   `;
 }
 
-function renderPositionGroup(title, players, className) {
-  if (players.length === 0) {
-    return `<div style="margin: 16px 0;"><strong>${title}:</strong> Não disponível</div>`;
+function renderPositionGroup(title, players, category) {
+  if (!players || players.length === 0) {
+    return `
+      <div class="position-group">
+        <h4 class="position-title ${category}">${title}</h4>
+        <div class="empty-position">
+          <span class="empty-text">Nenhum jogador disponível</span>
+        </div>
+      </div>
+    `;
   }
 
-  return `
-    <div style="margin: 16px 0;">
-      <h4 style="margin-bottom: 8px; color: #374151;">${title} (${
-    players.length
-  })</h4>
-      <div class="players-list">
-        ${players
-          .map(
-            (player) => `
-          <div class="player-item ${className}">
-            <div class="player-number">${player.shirtNumber || "?"}</div>
-            <div class="player-info">
-              <div class="player-name">${player.name}</div>
-              <div class="player-position">
-                ${player.nationality ? `🏳️ ${player.nationality}` : ""} 
-                ${
-                  player.dateOfBirth
-                    ? `• ${calculateAge(player.dateOfBirth)} anos`
-                    : ""
-                }
-              </div>
+  const playersHtml = players
+    .map((player) => {
+      const age = calculateAge(player.dateOfBirth);
+      const flag = getNationalityFlag(player.nationality);
+      const colors = getPositionColor(player.position);
+      const marketValue = player.marketValue
+        ? formatMarketValue(player.marketValue)
+        : "N/A";
+
+      return `
+      <div class="player-card ${category}">
+        <div class="player-main">
+          <div class="player-number" style="background: ${
+            colors.bg
+          }; color: white;">
+            ${player.shirtNumber}
+          </div>
+          <div class="player-info">
+            <div class="player-name">${player.name}</div>
+            <div class="player-details">
+              <span class="player-position" style="color: ${colors.bg};">
+                ${player.position}
+              </span>
+              <span class="player-age">${age} anos</span>
+              <span class="player-nationality">${flag} ${
+        player.nationality
+      }</span>
             </div>
           </div>
-        `
-          )
-          .join("")}
+        </div>
+        <div class="player-extra">
+          <div class="market-value">${marketValue}</div>
+          ${
+            player.contract
+              ? `<div class="contract-info">Até ${new Date(
+                  player.contract.until
+                ).getFullYear()}</div>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+
+  return `
+    <div class="position-group">
+      <h4 class="position-title ${category}">
+        <span class="position-icon">${getPositionIcon(category)}</span>
+        ${title} 
+        <span class="player-count">(${players.length})</span>
+      </h4>
+      <div class="players-grid">
+        ${playersHtml}
       </div>
     </div>
   `;
+}
+
+// Função para obter ícone da posição
+function getPositionIcon(category) {
+  const icons = {
+    goalkeeper: "🥅",
+    defender: "🛡️",
+    midfielder: "⚽",
+    winger: "🏃‍♂️",
+    forward: "🎯",
+  };
+  return icons[category] || "⚽";
+}
+
+// Função para calcular idade
+function calculateAge(dateOfBirth) {
+  const today = new Date();
+  const birth = new Date(dateOfBirth);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Função para formatar valor de mercado
+function formatMarketValue(value) {
+  if (value >= 1000000) {
+    return `€${(value / 1000000).toFixed(1)}M`;
+  } else if (value >= 1000) {
+    return `€${(value / 1000).toFixed(0)}K`;
+  }
+  return `€${value}`;
+}
+
+// Função para obter cor da posição
+function getPositionColor(position) {
+  const goalkeepers = ["Goalkeeper"];
+  const defenders = [
+    "Centre-Back",
+    "Left-Back",
+    "Right-Back",
+    "Left Centre-Back",
+    "Right Centre-Back",
+    "Defender",
+  ];
+  const midfielders = [
+    "Central Midfield",
+    "Defensive Midfield",
+    "Attacking Midfield",
+    "Left Midfield",
+    "Right Midfield",
+    "Centre Midfield",
+    "Midfielder",
+  ];
+  const wingers = [
+    "Left Winger",
+    "Right Winger",
+    "Left Wing-Back",
+    "Right Wing-Back",
+  ];
+  const forwards = [
+    "Centre-Forward",
+    "Left Centre-Forward",
+    "Right Centre-Forward",
+    "Second Striker",
+    "Forward",
+  ];
+
+  if (goalkeepers.includes(position)) return { bg: "#10b981", text: "#065f46" };
+  if (defenders.includes(position)) return { bg: "#3b82f6", text: "#1e40af" };
+  if (midfielders.includes(position)) return { bg: "#f59e0b", text: "#92400e" };
+  if (wingers.includes(position)) return { bg: "#8b5cf6", text: "#5b21b6" };
+  if (forwards.includes(position)) return { bg: "#ef4444", text: "#991b1b" };
+
+  return { bg: "#6b7280", text: "#374151" }; // default
+}
+
+function getNationalityFlag(nationality) {
+  const flags = {
+    Spain: "🇪🇸",
+    Argentina: "🇦🇷",
+    Brazil: "🇧🇷",
+    France: "🇫🇷",
+    Germany: "🇩🇪",
+    Portugal: "🇵🇹",
+    Netherlands: "🇳🇱",
+    Belgium: "🇧🇪",
+    Croatia: "🇭🇷",
+    Morocco: "🇲🇦",
+    England: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    Italy: "🇮🇹",
+    Uruguay: "🇺🇾",
+    Colombia: "🇨🇴",
+    Mexico: "🇲🇽",
+    Poland: "🇵🇱",
+    Norway: "🇳🇴",
+    Denmark: "🇩🇰",
+  };
+  return flags[nationality] || "🏳️";
 }
 
 // Função para exibir conteúdo da tab ativa
@@ -2528,7 +2780,7 @@ function displayTabContent() {
   const content = document.getElementById("lineups-content");
   const cacheKey = Object.keys(lineupsCache)[0];
 
-  if (!cacheKey || !lineupsCache[cacheKey]) {
+  if (!content || !cacheKey || !lineupsCache[cacheKey]) {
     return;
   }
 
@@ -2536,14 +2788,16 @@ function displayTabContent() {
 
   switch (currentTab) {
     case "lineups":
-      content.innerHTML = displayRealLineups(data.home, data.away);
-      break;
-    case "injuries":
-      content.innerHTML = displayInjuriesTab(data.home, data.away);
+      content.innerHTML = displayLineups(data.home, data.away);
       break;
     case "form":
-      content.innerHTML = displayFormTab(data.home, data.away);
+      content.innerHTML = displayForm(data.home, data.away);
       break;
+    case "injuries":
+      content.innerHTML = displayInjuries();
+      break;
+    default:
+      content.innerHTML = displayLineups(data.home, data.away);
   }
 }
 
@@ -2672,20 +2926,21 @@ function displayInjuriesTab(homeData, awayData) {
   `;
 }
 
-// Função para trocar de tab
 function switchTab(event, tabName) {
-  if (event) {
-    event.preventDefault();
-    currentTab = tabName;
+  if (!event) return;
 
-    document
-      .querySelectorAll(".tab-btn")
-      .forEach((btn) => btn.classList.remove("active"));
-    event.target.classList.add("active");
+  currentTab = tabName;
 
-    displayTabContent();
-  }
+  // Atualizar visual das abas
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+  event.target.classList.add("active");
+
+  // Exibir conteúdo da aba
+  displayTabContent();
 }
+
 // Função para gerar dados simulados quando a API não está disponível
 function generateMockTeamData(teamName) {
   const positions = ["Goalkeeper", "Defender", "Midfielder", "Forward"];
