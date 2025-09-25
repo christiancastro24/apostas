@@ -1461,6 +1461,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Inicializar a aplicação
 document.addEventListener("DOMContentLoaded", function () {
   loadTodaysGamesWithStatus();
+  addFootballFieldCSS();
 
   // Auto-refresh a cada 5 minutos
   setInterval(() => {
@@ -3142,6 +3143,7 @@ function displayMatchTabs(homeData, awayData) {
         <button class="tab-btn active" onclick="showTab('lineups')">Escalações</button>
         <button class="tab-btn" onclick="showTab('recent')">Últimos Jogos</button>
         <button class="tab-btn" onclick="showTab('stats')">Estatísticas</button>
+        <button class="tab-btn" onclick="showTab('field')">Campo</button>
       </div>
       
       <div class="tab-content">
@@ -3156,6 +3158,10 @@ function displayMatchTabs(homeData, awayData) {
         <div id="stats-tab" class="tab-pane">
           ${displayTeamStats(homeData, awayData)}
         </div>
+
+        <div id="field-tab" class="tab-pane active">
+  ${displayFootballField(homeData, awayData)}
+</div>
       </div>
     </div>
   `;
@@ -3323,4 +3329,499 @@ function calculateTeamStats(teamData) {
   return {
     recentForm: recentForm,
   };
+}
+
+// Função para exibir o campo de futebol
+function displayFootballField(homeData, awayData) {
+  return `
+    <div class="football-field-wrapper">
+      <div class="match-field-header">
+        <div class="field-team-info">
+          <div class="field-team">
+            <img src="${homeData.crest}" alt="${
+    homeData.name
+  }" class="field-team-crest">
+            <div>
+              <div class="field-team-name">${homeData.name}</div>
+              <div class="field-formation">4-2-3-1</div>
+            </div>
+          </div>
+          <div class="field-vs">VS</div>
+          <div class="field-team">
+            <div>
+              <div class="field-team-name">${awayData.name}</div>
+              <div class="field-formation">4-3-3</div>
+            </div>
+            <img src="${awayData.crest}" alt="${
+    awayData.name
+  }" class="field-team-crest">
+          </div>
+        </div>
+      </div>
+
+      <div class="football-field">
+        <!-- Linhas do campo -->
+        <div class="field-lines">
+          <div class="center-line"></div>
+          <div class="center-circle"></div>
+          <div class="penalty-area-top"></div>
+          <div class="penalty-area-bottom"></div>
+          <div class="goal-area-top"></div>
+          <div class="goal-area-bottom"></div>
+        </div>
+
+        <!-- Jogadores Time da Casa (parte inferior) -->
+        ${generateFieldPlayers(homeData.squad, "home")}
+        
+        <!-- Jogadores Time Visitante (parte superior) -->
+        ${generateFieldPlayers(awayData.squad, "away")}
+      </div>
+
+      <div class="field-controls">
+        <div class="formation-selector">
+          <button class="field-formation-btn active" onclick="changeFieldFormation('4-2-3-1')">4-2-3-1</button>
+          <button class="field-formation-btn" onclick="changeFieldFormation('4-3-3')">4-3-3</button>
+          <button class="field-formation-btn" onclick="changeFieldFormation('3-5-2')">3-5-2</button>
+          <button class="field-formation-btn" onclick="changeFieldFormation('4-4-2')">4-4-2</button>
+        </div>
+        
+        <div class="field-legend">
+          <div class="legend-item">
+            <div class="legend-color home-team-color"></div>
+            <span>${homeData.name}</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color away-team-color"></div>
+            <span>${awayData.name}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Função para gerar jogadores no campo
+function generateFieldPlayers(squad, team) {
+  if (!squad || squad.length === 0) {
+    return '<div class="no-players">Escalação não disponível</div>';
+  }
+
+  const positions = getFieldPositions(team);
+  const players = squad.slice(0, 11); // Primeiros 11 jogadores
+
+  return players
+    .map((player, index) => {
+      const position = positions[index] || { bottom: "50%", left: "50%" };
+      const positionStyle =
+        team === "home"
+          ? `bottom: ${position.bottom}; left: ${position.left};`
+          : `top: ${position.top}; left: ${position.left};`;
+
+      return `
+      <div class="field-player ${team}-team-color" style="${positionStyle}" 
+           onclick="showPlayerInfo('${player.name}', '${player.position}', '${
+        player.nationality
+      }')">
+        ${player.shirtNumber || index + 1}
+        <div class="field-player-tooltip">
+          ${player.name} (${player.position || "Jogador"})
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+// Posições no campo para formação 4-2-3-1
+function getFieldPositions(team) {
+  if (team === "home") {
+    return [
+      { bottom: "20px", left: "50%" }, // Goleiro
+      { bottom: "120px", left: "20%" }, // LD
+      { bottom: "120px", left: "36.67%" }, // Zagueiro
+      { bottom: "120px", left: "63.33%" }, // Zagueiro
+      { bottom: "120px", left: "80%" }, // LE
+      { bottom: "200px", left: "35%" }, // Volante
+      { bottom: "200px", left: "65%" }, // Volante
+      { bottom: "280px", left: "20%" }, // Ponta Esq
+      { bottom: "280px", left: "50%" }, // Meia
+      { bottom: "280px", left: "80%" }, // Ponta Dir
+      { bottom: "360px", left: "50%" }, // Atacante
+    ];
+  } else {
+    return [
+      { top: "20px", left: "50%" }, // Goleiro
+      { top: "120px", left: "80%" }, // LD (invertido)
+      { top: "120px", left: "63.33%" }, // Zagueiro
+      { top: "120px", left: "36.67%" }, // Zagueiro
+      { top: "120px", left: "20%" }, // LE (invertido)
+      { top: "200px", left: "65%" }, // Volante
+      { top: "200px", left: "35%" }, // Volante
+      { top: "280px", left: "80%" }, // Ponta Dir (invertido)
+      { top: "280px", left: "50%" }, // Meia
+      { top: "280px", left: "20%" }, // Ponta Esq (invertido)
+      { top: "360px", left: "50%" }, // Atacante
+    ];
+  }
+}
+
+// Função para mostrar informações do jogador
+function showPlayerInfo(name, position, nationality) {
+  const flag = getNationalityFlag(nationality);
+  showNotification(`${name} - ${position} ${flag}`);
+}
+
+// Função para mudar formação no campo
+function changeFieldFormation(formation) {
+  document.querySelectorAll(".field-formation-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  event.target.classList.add("active");
+
+  // Aqui você pode implementar a lógica para reposicionar os jogadores
+  // baseado na formação selecionada
+  showNotification(`Formação alterada para: ${formation}`);
+}
+
+/* ===== CSS PARA O CAMPO DE FUTEBOL ===== */
+const footballFieldCSS = `
+<style>
+/* Campo de Futebol - Container */
+.football-field-wrapper {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* Header do Campo */
+.match-field-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.field-team-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.field-team-crest {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+}
+
+.field-team-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.field-formation {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.field-vs {
+  background: rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+}
+
+/* Campo de Futebol */
+.football-field {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: linear-gradient(to bottom, 
+    #2d5a27 0%, 
+    #357a2b 25%, 
+    #2d5a27 50%, 
+    #357a2b 75%, 
+    #2d5a27 100%
+  );
+  background-size: 100% 30px;
+  overflow: hidden;
+}
+
+/* Linhas do Campo */
+.field-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.center-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.8);
+  transform: translateY(-50%);
+}
+
+.center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(255,255,255,0.8);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.penalty-area-top, .penalty-area-bottom {
+  position: absolute;
+  left: 50%;
+  width: 180px;
+  height: 65px;
+  border: 2px solid rgba(255,255,255,0.8);
+  transform: translateX(-50%);
+}
+
+.penalty-area-top {
+  top: 0;
+  border-bottom: none;
+}
+
+.penalty-area-bottom {
+  bottom: 0;
+  border-top: none;
+}
+
+.goal-area-top, .goal-area-bottom {
+  position: absolute;
+  left: 50%;
+  width: 100px;
+  height: 35px;
+  border: 2px solid rgba(255,255,255,0.8);
+  transform: translateX(-50%);
+}
+
+.goal-area-top {
+  top: 0;
+  border-bottom: none;
+}
+
+.goal-area-bottom {
+  bottom: 0;
+  border-top: none;
+}
+
+/* Jogadores no Campo */
+.field-player {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.field-player:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+  z-index: 10;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.field-player-tooltip {
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 15;
+}
+
+.field-player:hover .field-player-tooltip {
+  opacity: 1;
+}
+
+/* Cores dos Times */
+.home-team-color {
+  background: #e53e3e;
+}
+
+.away-team-color {
+  background: #3182ce;
+}
+
+/* Controles do Campo */
+.field-controls {
+  padding: 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.formation-selector {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.field-formation-btn {
+  background: white;
+  border: 2px solid #e2e8f0;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.field-formation-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.field-formation-btn.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.field-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Quando não há jogadores */
+.no-players {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .football-field {
+    height: 400px;
+  }
+  
+  .field-player {
+    width: 40px;
+    height: 40px;
+    font-size: 11px;
+  }
+  
+  .center-circle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .penalty-area-top, .penalty-area-bottom {
+    width: 140px;
+    height: 50px;
+  }
+  
+  .field-team-name {
+    font-size: 16px;
+  }
+  
+  .field-controls {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .football-field {
+    height: 350px;
+  }
+  
+  .field-player {
+    width: 35px;
+    height: 35px;
+    font-size: 10px;
+  }
+  
+  .field-team-info {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .formation-selector {
+    gap: 8px;
+  }
+  
+  .field-formation-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+</style>
+`;
+
+// Adicionar o CSS ao head do documento (chame esta função uma vez)
+function addFootballFieldCSS() {
+  if (!document.getElementById("football-field-css")) {
+    const styleElement = document.createElement("style");
+    styleElement.id = "football-field-css";
+    styleElement.innerHTML = footballFieldCSS
+      .replace("<style>", "")
+      .replace("</style>", "");
+    document.head.appendChild(styleElement);
+  }
 }
