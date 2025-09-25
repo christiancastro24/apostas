@@ -7,7 +7,8 @@ const FOOTBALL_DATA_API_KEY = "4acf7c9cdcea47df8d841279263b4a07";
 const FOOTBALL_DATA_BASE_URL = "https://api.football-data.org/v4";
 
 // Configuração do backend
-const BACKEND_BASE_URL = "http://localhost:3001/api";
+// const BACKEND_BASE_URL = "http://localhost:3001/api";
+const BACKEND_BASE_URL = "https://aposta-backend-al15.onrender.com/api";
 
 // Cache para armazenar dados já buscados
 let lineupsCache = {};
