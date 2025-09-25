@@ -2138,6 +2138,7 @@ async function getTeamDataFromAPI(teamName) {
   }
 }
 
+// Função principal atualizada para mostrar escalações
 async function showLineups(homeTeam, awayTeam) {
   const modal = document.getElementById("lineups-modal");
   const teamNames = document.getElementById("modal-team-names");
@@ -2167,7 +2168,7 @@ async function showLineups(homeTeam, awayTeam) {
   `;
 
   try {
-    // Fazer requisição para o backend
+    // Fazer requisição para o backend hospedado
     const response = await fetch(`${BACKEND_BASE_URL}/teams/lineups`, {
       method: "POST",
       headers: {
@@ -2179,7 +2180,7 @@ async function showLineups(homeTeam, awayTeam) {
     });
 
     if (!response.ok) {
-      throw new Error(`Erro HTTP ${response.status}`);
+      throw new Error(`Erro no servidor: ${response.status}`);
     }
 
     const data = await response.json();
@@ -2188,29 +2189,25 @@ async function showLineups(homeTeam, awayTeam) {
       throw new Error("Dados incompletos recebidos");
     }
 
-    // Salvar no cache
-    lineupsCache[`${homeTeam}_vs_${awayTeam}`] = {
-      home: data.teams[0],
-      away: data.teams[1],
-      source: data.source,
-    };
-
-    // Mostrar dados
-    displayTabContent();
+    // Mostrar dados com tabs
+    content.innerHTML = displayMatchTabs(data.teams[0], data.teams[1]);
     showNotification(`Escalações carregadas: ${data.source}`);
   } catch (error) {
     console.error("Erro ao carregar escalações:", error);
+
+    let errorMsg = error.message;
+    if (error.message.includes("Failed to fetch")) {
+      errorMsg = "Erro de conexão. Verifique sua internet.";
+    }
+
     content.innerHTML = `
       <div style="text-align: center; padding: 40px;">
         <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
         <h4>Erro ao carregar escalações</h4>
-        <p style="color: #666; margin-bottom: 16px;">${error.message}</p>
+        <p style="color: #666; margin-bottom: 16px;">${errorMsg}</p>
         <button onclick="showLineups('${homeTeam}', '${awayTeam}')" class="lineup-btn">
           🔄 Tentar Novamente
         </button>
-        <div style="margin-top: 16px; font-size: 12px; color: #999;">
-          Verifique se o backend está rodando em localhost:3001
-        </div>
       </div>
     `;
   }
@@ -2421,7 +2418,7 @@ function organizePlayersByPosition(squad) {
   return organized;
 }
 
-// Função para exibir escalações
+// Função principal para exibir escalações aprimorada
 function displayLineups(homeData, awayData) {
   const homePositions = organizePlayersByPosition(homeData.squad);
   const awayPositions = organizePlayersByPosition(awayData.squad);
@@ -2603,6 +2600,7 @@ function displayRealLineups(homeData, awayData) {
   `;
 }
 
+// Função para renderizar grupo de posição aprimorada
 function renderPositionGroup(title, players, category) {
   if (!players || players.length === 0) {
     return `
@@ -2992,5 +2990,337 @@ function generateMockTeamData(teamName) {
     squad: mockPlayers,
     recentMatches: mockMatches,
     injuries: mockInjuries,
+  };
+}
+
+// Função para renderizar as últimas partidas corrigida
+function displayRecentMatches(homeData, awayData) {
+  return `
+    <div class="recent-matches-container">
+      <div class="team-recent-matches">
+        <div class="team-header">
+          <div class="team-crest">
+            <img src="${homeData.crest}" alt="${
+    homeData.name
+  }" onerror="this.style.display='none'">
+          </div>
+          <h4 class="team-name">${homeData.name} - Últimos 5 Jogos</h4>
+        </div>
+        ${renderMatchesList(homeData.recentMatches, homeData.name)}
+      </div>
+      
+      <div class="team-recent-matches">
+        <div class="team-header">
+          <div class="team-crest">
+            <img src="${awayData.crest}" alt="${
+    awayData.name
+  }" onerror="this.style.display='none'">
+          </div>
+          <h4 class="team-name">${awayData.name} - Últimos 5 Jogos</h4>
+        </div>
+        ${renderMatchesList(awayData.recentMatches, awayData.name)}
+      </div>
+    </div>
+  `;
+}
+
+// Função para renderizar lista de partidas
+function renderMatchesList(matches, teamName) {
+  if (!matches || matches.length === 0) {
+    return `
+      <div class="no-matches">
+        <div class="no-matches-icon">⚽</div>
+        <div class="no-matches-text">Sem dados de partidas recentes</div>
+      </div>
+    `;
+  }
+
+  const matchesHtml = matches
+    .slice(0, 5)
+    .map((match) => {
+      // Verificar se o time é mandante ou visitante
+      const isHome =
+        match.homeTeam.name === teamName ||
+        match.homeTeam.shortName === teamName ||
+        match.homeTeam.name.includes(teamName) ||
+        teamName.includes(match.homeTeam.name);
+
+      // Obter nomes dos times
+      const homeTeamName = match.homeTeam.shortName || match.homeTeam.name;
+      const awayTeamName = match.awayTeam.shortName || match.awayTeam.name;
+
+      // Obter placares (corrigido para pegar os dados corretos)
+      const homeScore =
+        match.score?.fullTime?.home ?? match.score?.fullTime?.homeTeam ?? 0;
+      const awayScore =
+        match.score?.fullTime?.away ?? match.score?.fullTime?.awayTeam ?? 0;
+
+      // Determinar resultado para o time
+      let resultClass = "draw";
+      let resultText = "E";
+
+      if (match.score && homeScore !== null && awayScore !== null) {
+        if (isHome) {
+          if (homeScore > awayScore) {
+            resultClass = "win";
+            resultText = "V";
+          } else if (homeScore < awayScore) {
+            resultClass = "loss";
+            resultText = "D";
+          }
+        } else {
+          if (awayScore > homeScore) {
+            resultClass = "win";
+            resultText = "V";
+          } else if (awayScore < homeScore) {
+            resultClass = "loss";
+            resultText = "D";
+          }
+        }
+      }
+
+      // Formatar data
+      const matchDate = new Date(match.utcDate).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      // Nome do oponente
+      const opponent = isHome ? awayTeamName : homeTeamName;
+      const homeAway = isHome ? "Casa" : "Fora";
+      const homeAwayIcon = isHome ? "🏠" : "✈️";
+
+      // Competição
+      const competition =
+        match.competition?.name || match.competition?.code || "La Liga";
+      const competitionShort = competition.includes("Champions")
+        ? "UCL"
+        : competition.includes("Primera") || competition.includes("Liga")
+        ? "Liga"
+        : competition.includes("Copa")
+        ? "Copa"
+        : competition;
+
+      return `
+      <div class="match-item">
+        <div class="match-main">
+          <div class="match-result ${resultClass}">
+            ${resultText}
+          </div>
+          <div class="match-info">
+            <div class="match-teams">
+              <span class="opponent">${homeAwayIcon} vs ${opponent}</span>
+              <div class="match-score">
+                ${
+                  homeScore !== null && awayScore !== null
+                    ? `${homeScore}-${awayScore}`
+                    : "N/A"
+                }
+              </div>
+            </div>
+            <div class="match-details">
+              <span class="match-date">${matchDate}</span>
+              <span class="match-competition">${competitionShort}</span>
+              <span class="match-location">${homeAway}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+
+  return `<div class="matches-list">${matchesHtml}</div>`;
+}
+
+// Função principal para exibir as tabs
+function displayMatchTabs(homeData, awayData) {
+  return `
+    <div class="match-tabs">
+      <div class="lineups-tabs">
+        <button class="tab-btn active" onclick="showTab('lineups')">Escalações</button>
+        <button class="tab-btn" onclick="showTab('recent')">Últimos Jogos</button>
+        <button class="tab-btn" onclick="showTab('stats')">Estatísticas</button>
+      </div>
+      
+      <div class="tab-content">
+        <div id="lineups-tab" class="tab-pane active">
+          ${displayLineups(homeData, awayData)}
+        </div>
+        
+        <div id="recent-tab" class="tab-pane">
+          ${displayRecentMatches(homeData, awayData)}
+        </div>
+        
+        <div id="stats-tab" class="tab-pane">
+          ${displayTeamStats(homeData, awayData)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showTab(tabName) {
+  // Remover classe active de todas as tabs
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-pane")
+    .forEach((pane) => pane.classList.remove("active"));
+
+  // Adicionar classe active na tab selecionada
+  document
+    .querySelector(`button[onclick="showTab('${tabName}')"]`)
+    .classList.add("active");
+  document.getElementById(`${tabName}-tab`).classList.add("active");
+}
+
+// Função para exibir estatísticas dos times
+function displayTeamStats(homeData, awayData) {
+  const homeStats = calculateTeamStats(homeData);
+  const awayStats = calculateTeamStats(awayData);
+
+  return `
+    <div class="team-stats-container">
+      <div class="stats-comparison">
+        <div class="team-stat-section">
+          <div class="stat-team-header">
+            <img src="${homeData.crest}" alt="${
+    homeData.name
+  }" class="stat-team-crest">
+            <h4>${homeData.name}</h4>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Fundado</div>
+              <div class="stat-value">${homeData.founded || "N/A"}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Estádio</div>
+              <div class="stat-value">${homeData.venue?.name || "N/A"}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Capacidade</div>
+              <div class="stat-value">${
+                homeData.venue?.capacity
+                  ? homeData.venue.capacity.toLocaleString()
+                  : "N/A"
+              }</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Elenco</div>
+              <div class="stat-value">${
+                homeData.squad?.length || 0
+              } jogadores</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Últimos 5 jogos</div>
+              <div class="stat-value">
+                <div class="recent-form">
+                  ${homeStats.recentForm
+                    .map(
+                      (result) =>
+                        `<span class="form-result ${result.toLowerCase()}">${result}</span>`
+                    )
+                    .join("")}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-separator">VS</div>
+
+        <div class="team-stat-section">
+          <div class="stat-team-header">
+            <img src="${awayData.crest}" alt="${
+    awayData.name
+  }" class="stat-team-crest">
+            <h4>${awayData.name}</h4>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Fundado</div>
+              <div class="stat-value">${awayData.founded || "N/A"}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Estádio</div>
+              <div class="stat-value">${awayData.venue?.name || "N/A"}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Capacidade</div>
+              <div class="stat-value">${
+                awayData.venue?.capacity
+                  ? awayData.venue.capacity.toLocaleString()
+                  : "N/A"
+              }</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Elenco</div>
+              <div class="stat-value">${
+                awayData.squad?.length || 0
+              } jogadores</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Últimos 5 jogos</div>
+              <div class="stat-value">
+                <div class="recent-form">
+                  ${awayStats.recentForm
+                    .map(
+                      (result) =>
+                        `<span class="form-result ${result.toLowerCase()}">${result}</span>`
+                    )
+                    .join("")}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function calculateTeamStats(teamData) {
+  const recentForm = [];
+
+  if (teamData.recentMatches && teamData.recentMatches.length > 0) {
+    teamData.recentMatches.slice(0, 5).forEach((match) => {
+      const isHome =
+        match.homeTeam.name === teamData.name ||
+        match.homeTeam.shortName === teamData.name ||
+        match.homeTeam.name.includes(teamData.name) ||
+        teamData.name.includes(match.homeTeam.name);
+
+      const homeScore =
+        match.score?.fullTime?.home ?? match.score?.fullTime?.homeTeam ?? 0;
+      const awayScore =
+        match.score?.fullTime?.away ?? match.score?.fullTime?.awayTeam ?? 0;
+
+      if (homeScore !== null && awayScore !== null) {
+        if (isHome) {
+          if (homeScore > awayScore) recentForm.push("V");
+          else if (homeScore < awayScore) recentForm.push("D");
+          else recentForm.push("E");
+        } else {
+          if (awayScore > homeScore) recentForm.push("V");
+          else if (awayScore < homeScore) recentForm.push("D");
+          else recentForm.push("E");
+        }
+      } else {
+        recentForm.push("-");
+      }
+    });
+  }
+
+  // Preencher com '-' se não tiver jogos suficientes
+  while (recentForm.length < 5) {
+    recentForm.push("-");
+  }
+
+  return {
+    recentForm: recentForm,
   };
 }
