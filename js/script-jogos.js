@@ -3,8 +3,7 @@ const API_KEY = "e6151727b9b3162bb023a5d9283dc608";
 const API_BASE_URL = "https://api.the-odds-api.com/v4";
 
 // Configuração da API Football-data.org
-const FOOTBALL_API_KEY = process.env.FOOTBALL_API_KEY;
-
+const FOOTBALL_DATA_API_KEY = "4acf7c9cdcea47df8d841279263b4a07";
 const FOOTBALL_DATA_BASE_URL = "https://api.football-data.org/v4";
 
 // Configuração do backend
