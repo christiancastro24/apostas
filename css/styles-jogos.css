@@ -83,6 +83,10 @@ body {
 .nav-item:nth-child(6)::before {
   content: "⚙️";
 }
+
+.nav-item:nth-child(7)::before {
+  content: "🚀";
+}
 /* Main Content */
 .main-content {
   flex: 1;
@@ -1593,9 +1597,6 @@ body {
   overflow-y: scroll;
 }
 
-
-
-
 /* ========== ADICIONAR ESSAS SEÇÕES AO SEU CSS EXISTENTE ========== */
 
 /* 1. ÚLTIMAS PARTIDAS - Container */
@@ -1790,8 +1791,14 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 5. LOADING SPINNER */
@@ -1815,8 +1822,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-spinner p {
@@ -1837,35 +1848,35 @@ body {
   .tab-pane {
     padding: 16px;
   }
-  
+
   .match-item {
     padding: 12px;
   }
-  
+
   .match-main {
     gap: 12px;
   }
-  
+
   .match-result {
     width: 28px;
     height: 28px;
     font-size: 12px;
   }
-  
+
   .opponent {
     font-size: 13px;
   }
-  
+
   .match-score {
     font-size: 14px;
     padding: 3px 6px;
   }
-  
+
   .match-details {
     gap: 8px;
     font-size: 11px;
   }
-  
+
   .team-recent-matches {
     padding: 16px;
   }
@@ -1878,11 +1889,3 @@ body {
     gap: 4px;
   }
 }
-
-
-
-
-
-
-
-

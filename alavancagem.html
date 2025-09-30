@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciador de Alavancagens - Bet Tracker Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="./css/styles-alavancagem.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">Bet Tracker Pro</div>
+      </div>
+      <div class="nav-menu">
+        <div class="nav-item" onclick="window.location.href='index.html'">
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="window.location.href='jogos.html'">
+          Jogos
+        </div>
+        <div class="nav-item" onclick="window.location.href='relatorios.html'">
+          Relatórios
+        </div>
+        <div class="nav-item" onclick="window.location.href='dicas.html'">
+          Dicas de Aposta
+        </div>
+        <div class="nav-item" onclick="window.location.href='analises.html'">
+          Estratégias
+        </div>
+        <div class="nav-item" onclick="window.location.href='metodos.html'">
+          Métodos
+        </div>
+        <div
+          class="nav-item active"
+          onclick="window.location.href='alavancagem.html'"
+        >
+          Alavancagem
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Gerenciador de Alavancagens</h1>
+        <p class="page-subtitle">
+          Crie e gerencie suas alavancagens com cálculo automático de lucros
+        </p>
+      </div>
+
+      <!-- View: Lista de Alavancagens -->
+      <div id="list-view" class="view-container">
+        <!-- Dashboard de Estatísticas -->
+        <div class="stats-dashboard" id="stats-dashboard">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon success">💰</div>
+              <div class="stat-info">
+                <h3>Total Ganho</h3>
+              </div>
+            </div>
+            <div class="stat-value success" id="total-ganho">R$ 0,00</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon danger">💸</div>
+              <div class="stat-info">
+                <h3>Total Perdido</h3>
+              </div>
+            </div>
+            <div class="stat-value danger" id="total-perdido">R$ 0,00</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon info">📊</div>
+              <div class="stat-info">
+                <h3>Taxa de Sucesso</h3>
+              </div>
+            </div>
+            <div class="stat-value info" id="taxa-sucesso">0%</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon warning">💵</div>
+              <div class="stat-info">
+                <h3>Lucro Líquido</h3>
+              </div>
+            </div>
+            <div class="stat-value warning" id="lucro-liquido">R$ 0,00</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="showCreateForm()">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Nova Alavancagem
+        </button>
+
+        <div class="alavancagens-grid" id="alavancagens-list">
+          <!-- Cards serão inseridos aqui via JS -->
+        </div>
+      </div>
+
+      <!-- View: Formulário de Criação -->
+      <div id="create-view" class="view-container" style="display: none">
+        <div class="form-card">
+          <div class="form-header">
+            <h2>Criar Nova Alavancagem</h2>
+            <button class="btn-close" onclick="showListView()">✕</button>
+          </div>
+
+          <form id="create-form">
+            <div class="form-group">
+              <label>Nome da Alavancagem</label>
+              <input
+                type="text"
+                id="nome"
+                placeholder="Ex: Alavancagem Conservadora"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Valor Inicial (R$)</label>
+                <input
+                  type="number"
+                  id="valor-inicial"
+                  placeholder="30.00"
+                  step="0.01"
+                  min="0.01"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Quantidade de Entradas</label>
+                <input
+                  type="number"
+                  id="niveis"
+                  value="4"
+                  min="2"
+                  max="10"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Faixa de Odds</label>
+              <div class="odds-range">
+                <input
+                  type="number"
+                  id="odd-min"
+                  placeholder="1.35"
+                  step="0.01"
+                  min="1.01"
+                  required
+                />
+                <span>até</span>
+                <input
+                  type="number"
+                  id="odd-max"
+                  placeholder="1.60"
+                  step="0.01"
+                  min="1.01"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="showListView()"
+              >
+                Cancelar
+              </button>
+              <button type="submit" class="btn-primary">
+                Criar Alavancagem
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- View: Detalhes da Alavancagem -->
+      <div id="detail-view" class="view-container" style="display: none">
+        <button class="btn-back" onclick="showListView()">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Voltar
+        </button>
+
+        <div class="detail-header">
+          <div>
+            <h2 id="detail-nome">Nome da Alavancagem</h2>
+            <p class="detail-info">
+              <span id="detail-progresso">0/4 Entradas Completas</span>
+              <span class="separator">•</span>
+              <span id="detail-lucro-total">Lucro potencial: R$ 0,00</span>
+            </p>
+          </div>
+          <div class="detail-actions">
+            <button
+              class="btn-success"
+              onclick="markAsComplete()"
+              id="btn-complete"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Marcar como Completa
+            </button>
+            <button class="btn-danger" onclick="markAsFailed()" id="btn-failed">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Marcar como Falhou
+            </button>
+            <button class="btn-delete" onclick="deleteAlavancagem()">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
+              </svg>
+              Excluir
+            </button>
+          </div>
+        </div>
+
+        <div class="container" id="capture-area">
+          <div class="logo-section">
+            <span class="logo-brand">SILVEIRA TIPS</span>
+            <span class="logo-slogan">ESTRATÉGIAS VENCEDORAS</span>
+          </div>
+
+          <div class="title" id="card-title">ALAVANCAGEM 4X</div>
+
+          <div class="table-wrapper">
+            <div class="table">
+              <div class="table-header">
+                <div>✓</div>
+                <div>ENTRADA</div>
+                <div>ODDS</div>
+                <div>LUCRO</div>
+              </div>
+              <div id="table-rows">
+                <!-- Linhas serão inseridas aqui via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="download-btn" onclick="downloadImage()">
+          <svg
+            class="download-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="counter-text">BAIXAR IMAGEM (0/4)</span>
+        </button>
+
+        <button
+          class="btn-secondary"
+          onclick="openConfigModal()"
+          style="margin: 20px auto 0; display: flex"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m6-6h6M1 12h6"></path>
+          </svg>
+          ⚙️ Configurar Jogos dos Níveis
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal de Configuração -->
+    <div id="config-modal" class="modal" style="display: none">
+      <div class="modal-overlay" onclick="closeConfigModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Configurar Jogos da Alavancagem</h2>
+          <button class="btn-close" onclick="closeConfigModal()">✕</button>
+        </div>
+
+        <div class="modal-body" id="config-modal-body">
+          <!-- Será preenchido via JS -->
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeConfigModal()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/script-alavancagem.js"></script>
+  </body>
+</html>
