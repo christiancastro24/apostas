@@ -30,7 +30,7 @@ let storedMultipla = localStorage.getItem("multiplaData");
 let multiplaData = storedMultipla ? JSON.parse(storedMultipla) : {};
 
 // Variável para controlar qual mês está ativo
-let currentActiveMonth = "setembro";
+let currentActiveMonth = "outubro";
 
 // Função para formatar números no padrão brasileiro
 function formatBRL(value) {
@@ -353,7 +353,7 @@ function initializeTabs() {
   // Gerar tabs
   months.forEach((month, index) => {
     const tab = document.createElement("div");
-    tab.className = index === 8 ? "tab active" : "tab"; // setembro ativo
+    tab.className = index === 9 ? "tab active" : "tab"; // outubro ativo
     tab.textContent = month.charAt(0).toUpperCase() + month.slice(1);
     tab.onclick = () => showMonth(month);
     tabsHeader.appendChild(tab);
