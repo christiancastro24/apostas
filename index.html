@@ -235,11 +235,10 @@
             <div class="withdraw-input-container">
               <label for="withdrawAmount">Valor do Saque:</label>
               <input
-                type="number"
+                type="text"
                 id="withdrawAmount"
-                step="0.01"
-                min="0.01"
                 placeholder="R$ 0,00"
+                oninput="formatCurrencyInput(this)"
               />
             </div>
             <div class="withdraw-info">

@@ -731,10 +731,11 @@ function updateStats() {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  months.forEach((month) => {
-    const tbody = document.getElementById(month + "-tbody");
-    if (!tbody) return;
+  // CORREÇÃO: Calcular stats APENAS do mês ativo
+  const activeMonth = currentActiveMonth;
+  const tbody = document.getElementById(activeMonth + "-tbody");
 
+  if (tbody) {
     const rows = tbody.querySelectorAll("tr");
 
     rows.forEach((row) => {
@@ -773,19 +774,45 @@ function updateStats() {
 
       totalReturn += lucro;
     });
+  }
+
+  // Calcular saldo total considerando TODOS os meses
+  let totalReturnAllMonths = 0;
+  months.forEach((month) => {
+    const monthTbody = document.getElementById(month + "-tbody");
+    if (!monthTbody) return;
+
+    const monthRows = monthTbody.querySelectorAll("tr");
+    monthRows.forEach((row) => {
+      const resultSelect = row.querySelector(".cell-resultado select");
+      const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
+      const unidade =
+        parseFloat(row.querySelector(".cell-unidade input").value) || 0;
+      const apostado = unidade * 50;
+      let lucro = 0;
+
+      if (resultSelect.value === "green") {
+        lucro = odd * unidade * 50 - apostado;
+      } else if (resultSelect.value === "red") {
+        lucro = -apostado;
+      }
+
+      totalReturnAllMonths += lucro;
+    });
   });
 
   const totalBets = totalGreen + totalRed + totalCash;
   const assertividade =
     totalBets > 0 ? ((totalGreen / totalBets) * 100).toFixed(1) : 0;
 
+  // Atualizar cards com stats do mês ativo
   document.getElementById("totalGreen").textContent = totalGreen;
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  // CORRIGIDO: Usar 1900 como banca inicial
+  // CORRIGIDO: Saldo atual usa retorno de TODOS os meses
   const bancaInicial = 1900;
-  const saldoAtual = bancaInicial + totalReturn - totalSacado;
+  const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
   // Atualizar unidades atuais (saldo / 50)
@@ -825,7 +852,6 @@ function updateStats() {
     changeReturnElement.className = "stat-change";
   }
 }
-
 function saveBetsData() {
   months.forEach((month) => {
     const tbody = document.getElementById(month + "-tbody");
@@ -1243,38 +1269,68 @@ function closeWithdrawModal() {
   document.getElementById("withdrawAmount").value = "";
 }
 
+// Função para formatar o input enquanto digita
+function formatCurrencyInput(input) {
+  let value = input.value.replace(/\D/g, ""); // Remove tudo que não é dígito
+
+  if (value === "") {
+    input.value = "";
+    return;
+  }
+
+  // Converte para número e divide por 100 (para ter os centavos)
+  value = (parseInt(value) / 100).toFixed(2);
+
+  // Formata no padrão brasileiro
+  input.value =
+    "R$ " + value.replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+}
+
+// Função para extrair o valor numérico do input formatado
+function parseCurrencyInput(formattedValue) {
+  if (!formattedValue) return 0;
+
+  // Remove R$, pontos e substitui vírgula por ponto
+  const numericValue = formattedValue
+    .replace("R$", "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .trim();
+
+  return parseFloat(numericValue) || 0;
+}
+
 function processWithdraw() {
-  const amount = parseFloat(document.getElementById("withdrawAmount").value);
+  const inputValue = document.getElementById("withdrawAmount").value;
+  const amount = parseCurrencyInput(inputValue); // Usar a função de parse
 
   if (!amount || amount <= 0) {
     alert("Por favor, insira um valor válido!");
     return;
   }
 
-  const bancaInicial = 1900; // CORRIGIDO
-  const currentBalance = bancaInicial + calculateTotalReturn() - totalSacado;
+  // CORREÇÃO: Calcular saldo da mesma forma que updateStats()
+  const months = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ];
 
-  if (amount > currentBalance) {
-    alert("Saldo insuficiente para saque!");
-    return;
-  }
-
-  totalSacado += amount;
-  localStorage.setItem("totalSacado", totalSacado.toString());
-
-  updateStats();
-  closeWithdrawModal();
-  showNotification(`Saque de ${formatBRL(amount)} realizado com sucesso!`);
-}
-
-function calculateTotalReturn() {
-  let totalReturn = 0;
-  const months = ["setembro", "outubro", "novembro", "dezembro"];
-
+  let totalReturnAllMonths = 0;
   months.forEach((month) => {
     const tbody = document.getElementById(month + "-tbody");
-    const rows = tbody.querySelectorAll("tr");
+    if (!tbody) return;
 
+    const rows = tbody.querySelectorAll("tr");
     rows.forEach((row) => {
       const resultSelect = row.querySelector(".cell-resultado select");
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
@@ -1289,9 +1345,22 @@ function calculateTotalReturn() {
         lucro = -apostado;
       }
 
-      totalReturn += lucro;
+      totalReturnAllMonths += lucro;
     });
   });
 
-  return totalReturn;
+  const bancaInicial = 1900;
+  const currentBalance = bancaInicial + totalReturnAllMonths - totalSacado;
+
+  if (amount > currentBalance) {
+    alert("Saldo insuficiente para saque!");
+    return;
+  }
+
+  totalSacado += amount;
+  localStorage.setItem("totalSacado", totalSacado.toString());
+
+  updateStats();
+  closeWithdrawModal();
+  showNotification(`Saque de ${formatBRL(amount)} realizado com sucesso!`);
 }
