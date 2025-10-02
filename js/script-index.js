@@ -714,12 +714,27 @@ function updateStats() {
     weeklyCash = 0,
     weeklyReturn = 0;
 
-  const months = ["setembro", "outubro", "novembro", "dezembro"];
+  const months = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ];
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   months.forEach((month) => {
     const tbody = document.getElementById(month + "-tbody");
+    if (!tbody) return;
+
     const rows = tbody.querySelectorAll("tr");
 
     rows.forEach((row) => {
@@ -768,11 +783,16 @@ function updateStats() {
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  // ATUALIZADO: Saldo atual agora considera saques
-  const saldoAtual = 2500 + totalReturn - totalSacado;
+  // CORRIGIDO: Usar 1900 como banca inicial
+  const bancaInicial = 1900;
+  const saldoAtual = bancaInicial + totalReturn - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
-  // NOVO: Atualizar valor sacado
+  // Atualizar unidades atuais (saldo / 50)
+  const unidadesAtuais = Math.floor(saldoAtual / 50);
+  document.getElementById("currentUnits").textContent = unidadesAtuais;
+
+  // Atualizar valor sacado
   document.getElementById("totalWithdraw").textContent = formatBRL(totalSacado);
 
   document.getElementById("assertividade").textContent = assertividade + "%";
@@ -1231,7 +1251,8 @@ function processWithdraw() {
     return;
   }
 
-  const currentBalance = 2500 + calculateTotalReturn() - totalSacado;
+  const bancaInicial = 1900; // CORRIGIDO
+  const currentBalance = bancaInicial + calculateTotalReturn() - totalSacado;
 
   if (amount > currentBalance) {
     alert("Saldo insuficiente para saque!");
