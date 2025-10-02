@@ -79,6 +79,15 @@
             <span class="banca-value" id="currentUnits">58</span>
             <span class="banca-label">Unidades Atuais</span>
           </div>
+          <div class="banca-item">
+            <span class="banca-value" id="totalWithdraw">R$ 0,00</span>
+            <span class="banca-label">Total Sacado</span>
+          </div>
+          <div class="banca-item">
+            <button class="multipla-btn" onclick="openWithdrawModal()">
+              💰 Realizar Saque
+            </button>
+          </div>
         </div>
 
         <!-- Stats Cards -->
@@ -211,6 +220,37 @@
             <div style="text-align: center">
               <button class="modal-btn btn-success" onclick="saveMultipla()">
                 💾 Salvar Múltipla
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal para Saque -->
+        <div id="withdrawModal" class="modal">
+          <div class="modal-content withdraw-modal-content">
+            <div class="modal-header">
+              <h2>💰 Realizar Saque</h2>
+              <span class="close" onclick="closeWithdrawModal()">&times;</span>
+            </div>
+            <div class="withdraw-input-container">
+              <label for="withdrawAmount">Valor do Saque:</label>
+              <input
+                type="number"
+                id="withdrawAmount"
+                step="0.01"
+                min="0.01"
+                placeholder="R$ 0,00"
+              />
+            </div>
+            <div class="withdraw-info">
+              ⚠️ O valor será descontado do seu saldo atual
+            </div>
+            <div style="text-align: center; margin-top: 24px">
+              <button class="btn-withdraw" onclick="processWithdraw()">
+                💸 Confirmar Saque
+              </button>
+              <button class="btn-cancel" onclick="closeWithdrawModal()">
+                ✖️ Cancelar
               </button>
             </div>
           </div>

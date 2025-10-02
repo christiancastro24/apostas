@@ -1062,3 +1062,84 @@ select:focus {
     justify-content: center;
   }
 }
+
+
+
+/* Withdraw Modal */
+.withdraw-modal-content {
+  text-align: center;
+}
+
+.withdraw-input-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(76, 175, 80, 0.2);
+}
+
+.withdraw-input-container label {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.withdraw-input-container input {
+  width: 250px;
+  padding: 14px 18px;
+  font-size: 18px;
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  background: white;
+  text-align: center;
+  font-weight: 600;
+}
+
+.withdraw-info {
+  background: rgba(255, 193, 7, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: #856404;
+}
+
+.btn-withdraw {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+  margin: 8px;
+}
+
+.btn-withdraw:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+  margin: 8px;
+}
+
+.btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
+}

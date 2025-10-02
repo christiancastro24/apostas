@@ -4,6 +4,8 @@ let currentMultiplaRow = null;
 let currentFilter = "all";
 let scrollPositions = {};
 
+let totalSacado = parseFloat(localStorage.getItem("totalSacado")) || 0;
+
 // CORREÇÃO: Primeiro definir storedBets a partir do localStorage
 let storedBets = localStorage.getItem("betsData");
 
@@ -703,126 +705,103 @@ function removeRow(button) {
 
 // FUNÇÃO CORRIGIDA - Calcula stats do mês ativo + saldo total geral
 function updateStats() {
-  // === STATS DO MÊS ATIVO (para cards superiores) ===
-  let monthlyGreen = 0,
-    monthlyRed = 0,
-    monthlyCash = 0,
-    monthlyReturn = 0;
+  let totalGreen = 0,
+    totalRed = 0,
+    totalCash = 0,
+    totalReturn = 0;
+  let weeklyGreen = 0,
+    weeklyRed = 0,
+    weeklyCash = 0,
+    weeklyReturn = 0;
 
-  // IMPORTANTE: Usa apenas o mês atual para Green/Red/Assertividade
-  const tbody = document.getElementById(currentActiveMonth + "-tbody");
-  const rows = tbody.querySelectorAll("tr");
-
-  rows.forEach((row) => {
-    const resultSelect = row.querySelector(".cell-resultado select");
-    const dateInput = row.querySelector(".cell-data input");
-    const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
-    const unidade =
-      parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-    const apostado = unidade * 50;
-    let lucro = 0;
-
-    if (resultSelect.value === "green") {
-      lucro = odd * unidade * 50 - apostado;
-      monthlyGreen++;
-    } else if (resultSelect.value === "red") {
-      lucro = -apostado;
-      monthlyRed++;
-    } else if (resultSelect.value === "cash") {
-      lucro = 0;
-      monthlyCash++;
-    }
-
-    monthlyReturn += lucro;
-  });
-
-  // === SALDO TOTAL GERAL (para informações da banca) ===
-  let totalGlobalReturn = 0;
+  const months = ["setembro", "outubro", "novembro", "dezembro"];
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   months.forEach((month) => {
-    const monthTbody = document.getElementById(month + "-tbody");
-    const monthRows = monthTbody.querySelectorAll("tr");
+    const tbody = document.getElementById(month + "-tbody");
+    const rows = tbody.querySelectorAll("tr");
 
-    monthRows.forEach((row) => {
+    rows.forEach((row) => {
       const resultSelect = row.querySelector(".cell-resultado select");
+      const dateInput = row.querySelector(".cell-data input");
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
       const unidade =
         parseFloat(row.querySelector(".cell-unidade input").value) || 0;
       const apostado = unidade * 50;
       let lucro = 0;
 
+      const betDate = new Date(dateInput.value);
+      const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
+
       if (resultSelect.value === "green") {
         lucro = odd * unidade * 50 - apostado;
+        totalGreen++;
+        if (isThisWeek) {
+          weeklyGreen++;
+          weeklyReturn += lucro;
+        }
       } else if (resultSelect.value === "red") {
         lucro = -apostado;
+        totalRed++;
+        if (isThisWeek) {
+          weeklyRed++;
+          weeklyReturn += lucro;
+        }
       } else if (resultSelect.value === "cash") {
         lucro = 0;
+        totalCash++;
+        if (isThisWeek) {
+          weeklyCash++;
+        }
       }
 
-      totalGlobalReturn += lucro;
+      totalReturn += lucro;
     });
   });
 
-  // === CALCULAR ASSERTIVIDADE DO MÊS ===
-  const totalBets = monthlyGreen + monthlyRed + monthlyCash;
+  const totalBets = totalGreen + totalRed + totalCash;
   const assertividade =
-    totalBets > 0 ? ((monthlyGreen / totalBets) * 100).toFixed(1) : 0;
+    totalBets > 0 ? ((totalGreen / totalBets) * 100).toFixed(1) : 0;
 
-  // === CALCULAR UNIDADES DO MÊS ===
-  const monthlyUnits = monthlyReturn / 50;
+  document.getElementById("totalGreen").textContent = totalGreen;
+  document.getElementById("totalRed").textContent = totalRed;
+  document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  // === ATUALIZAR CARDS SUPERIORES (dados do mês) ===
-  document.getElementById("totalGreen").textContent = monthlyGreen;
-  document.getElementById("totalRed").textContent = monthlyRed;
-  document.getElementById("totalReturn").textContent = formatBRL(monthlyReturn);
+  // ATUALIZADO: Saldo atual agora considera saques
+  const saldoAtual = 2500 + totalReturn - totalSacado;
+  document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
+
+  // NOVO: Atualizar valor sacado
+  document.getElementById("totalWithdraw").textContent = formatBRL(totalSacado);
+
   document.getElementById("assertividade").textContent = assertividade + "%";
-
-  // === ATUALIZAR SALDO ATUAL E UNIDADES (dados globais) ===
-  const currentBalance = 1900 + totalGlobalReturn;
-  const currentUnits = Math.floor(currentBalance / 50);
-
-  document.getElementById("currentBalance").textContent =
-    formatBRL(currentBalance);
-  document.getElementById("currentUnits").textContent = currentUnits;
-
-  // === ATUALIZAR ESTATÍSTICAS MENSAIS ===
   document.getElementById(
     "changeGreen"
-  ).innerHTML = `↗ ${monthlyGreen} este mês`;
-  document.getElementById("changeRed").innerHTML = `↘ ${monthlyRed} este mês`;
+  ).innerHTML = `↗ ${weeklyGreen} esta semana`;
+  document.getElementById("changeRed").innerHTML = `↘ ${weeklyRed} esta semana`;
 
-  // === FEEDBACK DA ASSERTIVIDADE ===
   const assertividadeElement = document.getElementById("changeAssertividade");
   if (assertividade >= 70) {
-    assertividadeElement.innerHTML = `🎯 Excelente performance em ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change positive";
   } else if (assertividade >= 50) {
-    assertividadeElement.innerHTML = `📊 Performance regular em ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change";
   } else {
-    assertividadeElement.innerHTML = `⚠️ Precisa melhorar em ${currentActiveMonth}`;
+    assertividadeElement.innerHTML = "";
     assertividadeElement.className = "stat-change negative";
   }
 
-  // === VARIAÇÃO DO RETORNO MENSAL COM UNIDADES ===
   const changeReturnElement = document.getElementById("changeReturn");
-  const unitsText =
-    monthlyUnits >= 0
-      ? `+${monthlyUnits.toFixed(1)} unidades`
-      : `${monthlyUnits.toFixed(1)} unidades`;
-
-  if (monthlyReturn > 0) {
-    changeReturnElement.innerHTML = `↗ +${formatBRL(
-      monthlyReturn
-    )}  (${unitsText}) este mês`;
+  if (weeklyReturn > 0) {
+    changeReturnElement.innerHTML = `↗ +${formatBRL(weeklyReturn)} esta semana`;
     changeReturnElement.className = "stat-change positive";
-  } else if (monthlyReturn < 0) {
-    changeReturnElement.innerHTML = `↘ ${formatBRL(
-      monthlyReturn
-    )} (${unitsText}) este mês`;
+  } else if (weeklyReturn < 0) {
+    changeReturnElement.innerHTML = `↘ ${formatBRL(weeklyReturn)} esta semana`;
     changeReturnElement.className = "stat-change negative";
   } else {
-    changeReturnElement.innerHTML = `→ Sem alteração este mês (${unitsText})`;
+    changeReturnElement.innerHTML = "→ Sem alteração esta semana";
     changeReturnElement.className = "stat-change";
   }
 }
@@ -1231,4 +1210,67 @@ function restoreScrollPosition(tabId) {
       container.scrollTop = scrollPositions[tabId];
     }
   }, 100);
+}
+
+function openWithdrawModal() {
+  document.getElementById("withdrawModal").style.display = "block";
+  document.body.style.overflow = "hidden";
+}
+
+function closeWithdrawModal() {
+  document.getElementById("withdrawModal").style.display = "none";
+  document.body.style.overflow = "auto";
+  document.getElementById("withdrawAmount").value = "";
+}
+
+function processWithdraw() {
+  const amount = parseFloat(document.getElementById("withdrawAmount").value);
+
+  if (!amount || amount <= 0) {
+    alert("Por favor, insira um valor válido!");
+    return;
+  }
+
+  const currentBalance = 2500 + calculateTotalReturn() - totalSacado;
+
+  if (amount > currentBalance) {
+    alert("Saldo insuficiente para saque!");
+    return;
+  }
+
+  totalSacado += amount;
+  localStorage.setItem("totalSacado", totalSacado.toString());
+
+  updateStats();
+  closeWithdrawModal();
+  showNotification(`Saque de ${formatBRL(amount)} realizado com sucesso!`);
+}
+
+function calculateTotalReturn() {
+  let totalReturn = 0;
+  const months = ["setembro", "outubro", "novembro", "dezembro"];
+
+  months.forEach((month) => {
+    const tbody = document.getElementById(month + "-tbody");
+    const rows = tbody.querySelectorAll("tr");
+
+    rows.forEach((row) => {
+      const resultSelect = row.querySelector(".cell-resultado select");
+      const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
+      const unidade =
+        parseFloat(row.querySelector(".cell-unidade input").value) || 0;
+      const apostado = unidade * 50;
+      let lucro = 0;
+
+      if (resultSelect.value === "green") {
+        lucro = odd * unidade * 50 - apostado;
+      } else if (resultSelect.value === "red") {
+        lucro = -apostado;
+      }
+
+      totalReturn += lucro;
+    });
+  });
+
+  return totalReturn;
 }
