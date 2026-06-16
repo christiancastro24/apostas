@@ -87,7 +87,7 @@ body {
   content: "⚙️";
 }
 
-.nav-item:nth-child(7)::before {
+.nav-item:nth-child(5)::before {
   content: "🚀";
 }
 /* Main Content */
