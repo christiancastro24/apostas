@@ -810,7 +810,6 @@ function updateStats() {
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  // CORRIGIDO: Saldo atual usa retorno de TODOS os meses
   const bancaInicial = 1000;
   const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
