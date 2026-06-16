@@ -63,7 +63,7 @@ app.use(
       "https://christiancastro24.github.io",
     ],
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 
@@ -74,7 +74,7 @@ const getApiHeaders = () => ({
 
 app.get("/", (req, res) => {
   res.send(
-    "API Backend está funcionando! Acesse /api/test para mais detalhes."
+    "API Backend está funcionando! Acesse /api/test para mais detalhes.",
   );
 });
 
@@ -91,11 +91,11 @@ app.post("/api/teams/lineups", async (req, res) => {
   try {
     console.log(`\n🔍 BUSCANDO ESCALAÇÕES PARA: ${teamNames.join(", ")}`);
     console.log(
-      `🔑 API Key: ${FOOTBALL_API_KEY ? "CONFIGURADA" : "NÃO CONFIGURADA"}`
+      `🔑 API Key: ${FOOTBALL_API_KEY ? "CONFIGURADA" : "NÃO CONFIGURADA"}`,
     );
 
     const results = await Promise.all(
-      teamNames.map((teamName) => getTeamLineup(teamName))
+      teamNames.map((teamName) => getTeamLineup(teamName)),
     );
 
     res.json({
@@ -136,14 +136,14 @@ async function getTeamLineup(teamName) {
       if (TEAMS_DATABASE[variation]) {
         teamInfo = TEAMS_DATABASE[variation];
         console.log(
-          `✅ ID encontrado com variação "${variation}": ${teamInfo.id}`
+          `✅ ID encontrado com variação "${variation}": ${teamInfo.id}`,
         );
         break;
       }
     }
   } else {
     console.log(
-      `✅ ID encontrado diretamente: ${teamInfo.id} (${teamInfo.league})`
+      `✅ ID encontrado diretamente: ${teamInfo.id} (${teamInfo.league})`,
     );
   }
 
@@ -152,13 +152,13 @@ async function getTeamLineup(teamName) {
     console.log(`📝 Times disponíveis:`, Object.keys(TEAMS_DATABASE));
     return generateRealisticLineup(
       teamName,
-      "Time não encontrado no mapeamento"
+      "Time não encontrado no mapeamento",
     );
   }
 
   try {
     console.log(
-      `🌐 Fazendo requisição para API: ${FOOTBALL_API_BASE}/teams/${teamInfo.id}`
+      `🌐 Fazendo requisição para API: ${FOOTBALL_API_BASE}/teams/${teamInfo.id}`,
     );
 
     // Teste de conectividade primeiro
@@ -170,7 +170,7 @@ async function getTeamLineup(teamName) {
 
     if (!testResponse.ok) {
       console.log(
-        `❌ Erro na conexão inicial: ${testResponse.status} - ${testResponse.statusText}`
+        `❌ Erro na conexão inicial: ${testResponse.status} - ${testResponse.statusText}`,
       );
 
       if (testResponse.status === 429) {
@@ -178,7 +178,7 @@ async function getTeamLineup(teamName) {
         return generateRealisticLineup(
           teamName,
           "Limite de requisições excedido (10/min)",
-          teamInfo
+          teamInfo,
         );
       }
       if (testResponse.status === 403) {
@@ -186,7 +186,7 @@ async function getTeamLineup(teamName) {
         return generateRealisticLineup(
           teamName,
           "Chave da API inválida",
-          teamInfo
+          teamInfo,
         );
       }
       if (testResponse.status === 404) {
@@ -194,7 +194,7 @@ async function getTeamLineup(teamName) {
         return generateRealisticLineup(
           teamName,
           "Recurso não encontrado",
-          teamInfo
+          teamInfo,
         );
       }
     }
@@ -204,7 +204,7 @@ async function getTeamLineup(teamName) {
       `${FOOTBALL_API_BASE}/teams/${teamInfo.id}`,
       {
         headers: getApiHeaders(),
-      }
+      },
     );
 
     console.log(`📊 Status da requisição do time: ${teamResponse.status}`);
@@ -238,7 +238,7 @@ async function getTeamLineup(teamName) {
     try {
       const matchesResponse = await fetch(
         `${FOOTBALL_API_BASE}/teams/${teamInfo.id}/matches?status=FINISHED&limit=5`,
-        { headers: getApiHeaders() }
+        { headers: getApiHeaders() },
       );
 
       if (matchesResponse.ok) {
@@ -246,13 +246,13 @@ async function getTeamLineup(teamName) {
         console.log(
           `⚽ Partidas recentes encontradas: ${
             matchesData.matches?.length || 0
-          }`
+          }`,
         );
       }
     } catch (matchError) {
       console.log(
         `⚠️ Erro ao buscar partidas (não crítico):`,
-        matchError.message
+        matchError.message,
       );
     }
 
@@ -261,7 +261,7 @@ async function getTeamLineup(teamName) {
       const realisticLineup = createRealisticLineupFromSquad(
         teamData.squad,
         teamData,
-        teamInfo
+        teamInfo,
       );
 
       return {
@@ -289,7 +289,7 @@ async function getTeamLineup(teamName) {
       return generateRealisticLineup(
         teamName,
         "Elenco não disponível na API",
-        teamInfo
+        teamInfo,
       );
     }
   } catch (error) {
@@ -298,7 +298,7 @@ async function getTeamLineup(teamName) {
     return generateRealisticLineup(
       teamName,
       `Erro na API: ${error.message}`,
-      teamInfo
+      teamInfo,
     );
   }
 }
@@ -325,30 +325,30 @@ function createRealisticLineupFromSquad(squad, teamData, teamInfo) {
   const defenseCount = formation.startsWith("3")
     ? 3
     : formation.startsWith("5")
-    ? 5
-    : 4;
+      ? 5
+      : 4;
   startingXI.push(...organized.defenders.slice(0, defenseCount));
   substitutes.push(
-    ...organized.defenders.slice(defenseCount, defenseCount + 3)
+    ...organized.defenders.slice(defenseCount, defenseCount + 3),
   );
 
   // Meio-campistas
   const midfieldCount = formation.includes("5")
     ? 5
     : formation.includes("4")
-    ? 4
-    : 3;
+      ? 4
+      : 3;
   startingXI.push(...organized.midfielders.slice(0, midfieldCount));
   substitutes.push(
-    ...organized.midfielders.slice(midfieldCount, midfieldCount + 3)
+    ...organized.midfielders.slice(midfieldCount, midfieldCount + 3),
   );
 
   // Atacantes
   const forwardCount = formation.endsWith("3")
     ? 3
     : formation.endsWith("2")
-    ? 2
-    : 1;
+      ? 2
+      : 1;
   startingXI.push(...organized.forwards.slice(0, forwardCount));
   substitutes.push(...organized.forwards.slice(forwardCount, forwardCount + 2));
 
@@ -401,10 +401,10 @@ function organizePlayersByPosition(squad) {
 function generateRealisticLineup(
   teamName,
   reason = "Dados simulados",
-  teamInfo = null
+  teamInfo = null,
 ) {
   console.log(
-    `🎭 Gerando escalação realista para ${teamName}. Motivo: ${reason}`
+    `🎭 Gerando escalação realista para ${teamName}. Motivo: ${reason}`,
   );
 
   const formation = FORMATIONS[Math.floor(Math.random() * FORMATIONS.length)];
@@ -422,7 +422,7 @@ function generateRealisticLineup(
     playerNames,
     usedNames,
     usedNumbers,
-    country
+    country,
   );
 
   // Gerar reservas (9 jogadores)
@@ -430,7 +430,7 @@ function generateRealisticLineup(
     playerNames,
     usedNames,
     usedNumbers,
-    country
+    country,
   );
 
   // Elenco completo (titular + reservas)
@@ -448,12 +448,12 @@ function generateRealisticLineup(
       name: `${getStadiumPrefix(country)} ${teamName}`,
       capacity: 30000 + Math.floor(Math.random() * 50000),
     },
-    founded: 1900 + Math.floor(Math.random() * 80),
+    founded: 1150 + Math.floor(Math.random() * 80),
     colors: getTeamColors(country),
     league: league,
     country: country,
     crest: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      teamName.substring(0, 2)
+      teamName.substring(0, 2),
     )}&background=1e40af&color=ffffff&size=64&format=png&rounded=true&bold=true`,
     source: `Dados simulados - ${reason}`,
     coach: {
@@ -469,7 +469,7 @@ function generatePlayersForFormation(
   playerNames,
   usedNames,
   usedNumbers,
-  country
+  country,
 ) {
   const players = [];
   let playerId = 1;
@@ -483,16 +483,16 @@ function generatePlayersForFormation(
       usedNames,
       usedNumbers,
       country,
-      1
-    )
+      1,
+    ),
   );
 
   // Defensores
   const defenseCount = formation.startsWith("3")
     ? 3
     : formation.startsWith("5")
-    ? 5
-    : 4;
+      ? 5
+      : 4;
   const defensePositions = [
     "Centre-Back",
     "Left-Back",
@@ -508,8 +508,8 @@ function generatePlayersForFormation(
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -517,8 +517,8 @@ function generatePlayersForFormation(
   const midfieldCount = formation.includes("5")
     ? 5
     : formation.includes("4")
-    ? 4
-    : 3;
+      ? 4
+      : 3;
   const midfieldPositions = [
     "Central Midfield",
     "Defensive Midfield",
@@ -533,8 +533,8 @@ function generatePlayersForFormation(
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -542,8 +542,8 @@ function generatePlayersForFormation(
   const forwardCount = formation.endsWith("3")
     ? 3
     : formation.endsWith("2")
-    ? 2
-    : 1;
+      ? 2
+      : 1;
   const forwardPositions = ["Centre-Forward", "Left Winger", "Right Winger"];
   for (let i = 0; i < forwardCount; i++) {
     const position = forwardPositions[i % forwardPositions.length];
@@ -554,8 +554,8 @@ function generatePlayersForFormation(
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -576,8 +576,8 @@ function generateSubstitutes(playerNames, usedNames, usedNumbers, country) {
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -591,8 +591,8 @@ function generateSubstitutes(playerNames, usedNames, usedNumbers, country) {
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -605,8 +605,8 @@ function generateSubstitutes(playerNames, usedNames, usedNumbers, country) {
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -619,8 +619,8 @@ function generateSubstitutes(playerNames, usedNames, usedNumbers, country) {
         playerNames,
         usedNames,
         usedNumbers,
-        country
-      )
+        country,
+      ),
     );
   }
 
@@ -635,7 +635,7 @@ function generatePlayer(
   usedNames,
   usedNumbers,
   country,
-  preferredNumber = null
+  preferredNumber = null,
 ) {
   let playerName, shirtNumber;
 
@@ -663,7 +663,7 @@ function generatePlayer(
     dateOfBirth: new Date(
       1990 + Math.floor(Math.random() * 15),
       Math.floor(Math.random() * 12),
-      Math.floor(Math.random() * 28)
+      Math.floor(Math.random() * 28),
     ).toISOString(),
     marketValue: Math.floor(Math.random() * 50000000) + 1000000,
     contract: {
@@ -801,10 +801,10 @@ app.get("/api/test", async (req, res) => {
       totalTeams: Object.keys(TEAMS_DATABASE).length,
       leagues: {
         "La Liga": Object.values(TEAMS_DATABASE).filter(
-          (t) => t.league === "La Liga"
+          (t) => t.league === "La Liga",
         ).length,
         Bundesliga: Object.values(TEAMS_DATABASE).filter(
-          (t) => t.league === "Bundesliga"
+          (t) => t.league === "Bundesliga",
         ).length,
       },
       availableTeams: Object.keys(TEAMS_DATABASE),
@@ -830,22 +830,22 @@ app.listen(PORT, () => {
   console.log(`\n🚀 BACKEND INICIADO`);
   console.log(`📍 URL: http://localhost:${PORT}`);
   console.log(
-    `🔑 API Key: ${FOOTBALL_API_KEY ? "✅ Configurada" : "❌ Não configurada"}`
+    `🔑 API Key: ${FOOTBALL_API_KEY ? "✅ Configurada" : "❌ Não configurada"}`,
   );
   console.log(`⚽ Times mapeados: ${Object.keys(TEAMS_DATABASE).length}`);
   console.log(
     `🇪🇸 La Liga: ${
       Object.values(TEAMS_DATABASE).filter((t) => t.league === "La Liga").length
-    } times`
+    } times`,
   );
   console.log(
     `🇩🇪 Bundesliga: ${
       Object.values(TEAMS_DATABASE).filter((t) => t.league === "Bundesliga")
         .length
-    } times`
+    } times`,
   );
   console.log(`🧪 Teste: http://localhost:${PORT}/api/test`);
   console.log(
-    `\n💡 DICA: Acesse o teste primeiro para verificar se a API está funcionando!`
+    `\n💡 DICA: Acesse o teste primeiro para verificar se a API está funcionando!`,
   );
 });
