@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -18,37 +18,30 @@
           <div class="logo">📊 Bet Tracker Pro</div>
         </div>
         <div class="nav-menu">
-          <div class="nav-item" onclick="window.location.href='index.html'">
+          <div class="nav-item" onclick="window.location.href = 'index.html'">
             <span class="nav-icon">🏠</span>
             Dashboard
           </div>
-          <div class="nav-item" onclick="window.location.href='jogos.html'">
-            <span class="nav-icon">⚽</span>
-            Jogos
-          </div>
           <div
             class="nav-item"
-            onclick="window.location.href='relatorios.html'"
+            onclick="window.location.href = 'relatorios.html'"
           >
             <span class="nav-icon">📈</span>
             Relatórios
-          </div>
-          <div class="nav-item" onclick="window.location.href='dicas.html'">
-            <span class="nav-icon">💡</span> Dicas De Aposta
           </div>
           <div class="nav-item active">
             <span class="nav-icon">🧠</span>
             Estratégias
           </div>
 
-          <div class="nav-item" onclick="window.location.href='metodos.html'">
+          <div class="nav-item" onclick="window.location.href = 'metodos.html'">
             <span class="nav-icon">⚙️</span>
             Métodos
           </div>
 
           <div
             class="nav-item"
-            onclick="window.location.href='alavancagem.html'"
+            onclick="window.location.href = 'alavancagem.html'"
           >
             <span class="nav-icon">🚀</span>
             Alavancagem
@@ -80,12 +73,14 @@
               cursor: pointer;
               font-weight: 600;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-              transition: background-color 0.2s ease, transform 0.1s ease;
+              transition:
+                background-color 0.2s ease,
+                transform 0.1s ease;
             "
-            onmouseover="this.style.backgroundColor='#5a67d8';"
-            onmouseout="this.style.backgroundColor='#667eea';"
-            onmousedown="this.style.transform='scale(0.97)'"
-            onmouseup="this.style.transform='scale(1)'"
+            onmouseover="this.style.backgroundColor = '#5a67d8'"
+            onmouseout="this.style.backgroundColor = '#667eea'"
+            onmousedown="this.style.transform = 'scale(0.97)'"
+            onmouseup="this.style.transform = 'scale(1)'"
           >
             + Adicionar Time
           </button>
