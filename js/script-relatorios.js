@@ -309,7 +309,20 @@ function updateMonthlyChart() {
   }
 
   const monthlyData = {};
-  ["setembro", "outubro", "novembro", "dezembro"].forEach((month) => {
+  [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ].forEach((month) => {
     monthlyData[month] = { profit: 0, bets: 0 };
   });
 
@@ -328,7 +341,7 @@ function updateMonthlyChart() {
   });
 
   const labels = Object.keys(monthlyData).map(
-    (month) => month.charAt(0).toUpperCase() + month.slice(1)
+    (month) => month.charAt(0).toUpperCase() + month.slice(1),
   );
   const profits = Object.values(monthlyData).map((data) => data.profit);
 
@@ -392,7 +405,7 @@ function updateSportChart() {
   const winRates = sports.map((sport) =>
     sportStats[sport].total > 0
       ? ((sportStats[sport].wins / sportStats[sport].total) * 100).toFixed(1)
-      : 0
+      : 0,
   );
 
   charts.sport = new Chart(ctx, {
@@ -717,13 +730,13 @@ function updateInsights() {
                   insight.trend === "up"
                     ? "↗️ Positivo"
                     : insight.trend === "down"
-                    ? "↘️ Atenção"
-                    : "➡️ Neutro"
+                      ? "↘️ Atenção"
+                      : "➡️ Neutro"
                 }
               </span>
             </div>
           </div>
-        `
+        `,
     )
     .join("");
 }
@@ -851,7 +864,7 @@ document.querySelector(".filters-section").insertAdjacentHTML(
             🖨️ Imprimir
           </button>
         </div>
-      `
+      `,
 );
 
 function calculateTotalProfit() {
@@ -972,7 +985,7 @@ function showMilestoneMessage(valor) {
 
 // ==================== 2. ÍCONES E SETAS NOS CARDS ====================
 function updateStatsCards() {
-  const stats = calculateStats();
+  const stats = calculateStats(filteredData);
   const trends = calculateTrends(); // Nova função para calcular tendências
 
   document.getElementById("totalBets").innerHTML = `
@@ -990,8 +1003,8 @@ function updateStatsCards() {
     <div class="stat-label">TAXA DE ACERTO</div>
     <div class="stat-trend ${trends.winRate > 0 ? "trend-up" : "trend-down"}">
       ${trends.winRate > 0 ? "↗️" : "↘️"} ${Math.abs(trends.winRate).toFixed(
-    1
-  )}%
+        1,
+      )}%
     </div>
   `;
 
@@ -1003,8 +1016,8 @@ function updateStatsCards() {
       trends.totalProfit > 0 ? "trend-up" : "trend-down"
     }">
       ${trends.totalProfit > 0 ? "↗️" : "↘️"} R$ ${Math.abs(
-    trends.totalProfit
-  ).toFixed(2)}
+        trends.totalProfit,
+      ).toFixed(2)}
     </div>
   `;
 
@@ -1218,7 +1231,7 @@ function displayInsights(insights) {
         <div class="insight-icon">${insight.icon}</div>
         <div>${insight.text}</div>
       </div>
-    `
+    `,
       )
       .join("");
   }
@@ -1290,7 +1303,7 @@ function addPDFHeader(doc, pageWidth) {
 }
 
 function addPDFStats(doc, pageWidth) {
-  const stats = calculateStats();
+  const stats = calculateStats(filteredData);
   const startY = 80;
 
   // Background para estatísticas
@@ -1328,12 +1341,12 @@ function addPDFStats(doc, pageWidth) {
   doc.setTextColor(
     stats.totalProfit >= 0 ? 56 : 229,
     stats.totalProfit >= 0 ? 161 : 62,
-    stats.totalProfit >= 0 ? 105 : 62
+    stats.totalProfit >= 0 ? 105 : 62,
   );
   doc.text(
     `R$ ${stats.totalProfit.toFixed(2)}`,
     20 + colWidth * 2,
-    startY + 15
+    startY + 15,
   );
 
   // ROI Médio
@@ -1447,13 +1460,13 @@ function addPDFFooter(doc, pageWidth, pageHeight) {
   doc.text(
     "Relatório gerado automaticamente pelo Bet Tracker Pro",
     20,
-    footerY
+    footerY,
   );
   doc.text(
     `Página 1 de 1 • ${filteredData.length} apostas analisadas`,
     pageWidth - 20,
     footerY,
-    { align: "right" }
+    { align: "right" },
   );
 }
 
@@ -1461,7 +1474,7 @@ function addPDFFooter(doc, pageWidth, pageHeight) {
 function replacePrintButton() {
   // Remover botão imprimir se existir
   const printButton = document.querySelector(
-    'button[onclick*="print"], #printButton, .print-btn'
+    'button[onclick*="print"], #printButton, .print-btn',
   );
   if (printButton) {
     printButton.remove();
@@ -1483,9 +1496,7 @@ function replacePrintButton() {
   exportButton.onclick = exportToPDF;
 
   // Adicionar ao container dos filtros (ao lado do "Aplicar Filtros")
-  const filtersContainer = document.querySelector(
-    ".filters-container, .btn-aplicar-filtros"
-  ).parentElement;
+  const filtersContainer = document.querySelector(".filters-section");
   if (filtersContainer) {
     filtersContainer.appendChild(exportButton);
   }
@@ -1612,7 +1623,7 @@ function generateDailyResultsGrid() {
       cssClass =
         result.profit > 0 ? "green" : result.profit < 0 ? "red" : "neutral";
       profitText = `<div class="day-profit">${formatCurrency(
-        result.profit
+        result.profit,
       )}</div>`;
     }
 
@@ -1621,10 +1632,13 @@ function generateDailyResultsGrid() {
            onclick="showDayBets(${day}, ${selectedMonth}, ${selectedYear})"
            style="cursor: pointer;"
            title="Dia ${day}: ${
-      result
-        ? formatCurrency(result.profit) + " (" + result.bets + " apostas)"
-        : "Sem apostas"
-    }">
+             result
+               ? formatCurrency(result.profit) +
+                 " (" +
+                 result.bets +
+                 " apostas)"
+               : "Sem apostas"
+           }">
         <div class="day-number">${day}</div>
         ${profitText}
       </div>`;
@@ -1679,7 +1693,7 @@ function calculateDailyResults(month, year) {
     const betDay = parseInt(dateParts[2]);
 
     console.log(
-      `Bet ${index}: ${bet.data} -> Year: ${betYear}, Month: ${betMonth}, Day: ${betDay}`
+      `Bet ${index}: ${bet.data} -> Year: ${betYear}, Month: ${betMonth}, Day: ${betDay}`,
     );
 
     if (betMonth === month && betYear === year) {
@@ -1765,8 +1779,8 @@ function showDayBets(day, month, year) {
                     <div class="bet-detail">
                         <label>Unidade</label>
                         <span>${bet.unidade} ${unidadeText} (${formatCurrency(
-      stake
-    )})</span>
+                          stake,
+                        )})</span>
                     </div>
                     <div class="bet-detail">
                         <label>Odd</label>
@@ -1778,8 +1792,8 @@ function showDayBets(day, month, year) {
                           bet.resultado === "green" ? "positive" : "negative"
                         }">
                             ${bet.resultado.toUpperCase()} ${
-      bet.resultado === "red" ? "-" : ""
-    }${formatCurrency(profit)}
+                              bet.resultado === "red" ? "-" : ""
+                            }${formatCurrency(profit)}
                         </span>
                     </div>
                 </div>
