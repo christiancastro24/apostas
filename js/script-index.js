@@ -241,7 +241,7 @@ function debugMethodSelect() {
 function createMethodSelect() {
   // Buscar métodos do localStorage
   const userMethodsData = JSON.parse(
-    localStorage.getItem("userMethods") || '{"methods": {}}'
+    localStorage.getItem("userMethods") || '{"methods": {}}',
   );
   const methods = userMethodsData.methods || userMethodsData; // <- MUDANÇA AQUI
 
@@ -279,7 +279,7 @@ function createMethodSelect() {
 
   // Adicionar métodos favoritos primeiro
   const favoritesMethods = Object.values(methods).filter(
-    (method) => method.favorite
+    (method) => method.favorite,
   );
   if (favoritesMethods.length > 0) {
     selectHTML += '<optgroup label="⭐ Favoritos">';
@@ -294,7 +294,7 @@ function createMethodSelect() {
     .sort()
     .forEach((category) => {
       const categoryMethods = methodsByCategory[category].filter(
-        (method) => !method.favorite
+        (method) => !method.favorite,
       );
       if (categoryMethods.length > 0) {
         selectHTML += `<optgroup label="${getCategoryLabel(category)}">`;
@@ -314,7 +314,7 @@ function createMethodSelect() {
 // Versão simplificada sem agrupamento para testar
 function createMethodSelectSimple() {
   const userMethodsData = JSON.parse(
-    localStorage.getItem("userMethods") || '{"methods": {}}'
+    localStorage.getItem("userMethods") || '{"methods": {}}',
   );
   const methods = userMethodsData.methods || {};
 
@@ -406,10 +406,10 @@ function sortTableByDate(month) {
 
   rows.sort((a, b) => {
     const dateA = new Date(
-      a.querySelector(".cell-data input").value || "1970-01-01"
+      a.querySelector(".cell-data input").value || "1970-01-01",
     );
     const dateB = new Date(
-      b.querySelector(".cell-data input").value || "1970-01-01"
+      b.querySelector(".cell-data input").value || "1970-01-01",
     );
     return dateA - dateB; // Ordem crescente (mais antigo primeiro)
   });
@@ -471,7 +471,7 @@ function openMultiplaModal() {
 // Função auxiliar para obter o nome do método pelo ID
 function getMethodNameById(methodId) {
   const userMethodsData = JSON.parse(
-    localStorage.getItem("userMethods") || '{"methods": {}}'
+    localStorage.getItem("userMethods") || '{"methods": {}}',
   );
   const methods = userMethodsData.methods || userMethodsData; // <- MUDANÇA AQUI
   const method = methods[methodId];
@@ -582,7 +582,7 @@ function saveMultipla() {
       ([sport, count]) =>
         `${sportsIcons[sport] || "🏆"} ${sport}${
           count > 1 ? ` (${count})` : ""
-        }`
+        }`,
     )
     .join(", ");
 
@@ -811,7 +811,7 @@ function updateStats() {
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
   // CORRIGIDO: Saldo atual usa retorno de TODOS os meses
-  const bancaInicial = 1900;
+  const bancaInicial = 1150;
   const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
@@ -823,9 +823,8 @@ function updateStats() {
   document.getElementById("totalWithdraw").textContent = formatBRL(totalSacado);
 
   document.getElementById("assertividade").textContent = assertividade + "%";
-  document.getElementById(
-    "changeGreen"
-  ).innerHTML = `↗ ${weeklyGreen} esta semana`;
+  document.getElementById("changeGreen").innerHTML =
+    `↗ ${weeklyGreen} esta semana`;
   document.getElementById("changeRed").innerHTML = `↘ ${weeklyRed} esta semana`;
 
   const assertividadeElement = document.getElementById("changeAssertividade");
@@ -1003,7 +1002,7 @@ function loadAllBets() {
             ([sport, count]) =>
               `${sportsIcons[sport] || "🏆"} ${sport}${
                 count > 1 ? ` (${count})` : ""
-              }`
+              }`,
           )
           .join(", ");
 
@@ -1013,17 +1012,14 @@ function loadAllBets() {
             .map((game) => game.method)
             .join(", ") + (multipla.games?.length > 3 ? "..." : "");
 
-        newRow.querySelector(
-          ".cell-evento"
-        ).innerHTML = `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${
-          multipla.games?.length || 0
-        } jogos)</button>`;
-        newRow.querySelector(
-          ".cell-metodo"
-        ).innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${methodsSummary}</span>`;
-        newRow.querySelector(
-          ".cell-esporte"
-        ).innerHTML = `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
+        newRow.querySelector(".cell-evento").innerHTML =
+          `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${
+            multipla.games?.length || 0
+          } jogos)</button>`;
+        newRow.querySelector(".cell-metodo").innerHTML =
+          `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${methodsSummary}</span>`;
+        newRow.querySelector(".cell-esporte").innerHTML =
+          `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
       } else {
         // APOSTAS SIMPLES - CRIAR SELECT DE MÉTODOS
         if (tipoValue === "simples") {
@@ -1038,7 +1034,7 @@ function loadAllBets() {
           const options = methodSelect.querySelectorAll("option");
           options.forEach((option) => {
             console.log(
-              `- Value: "${option.value}" | Text: "${option.textContent}"`
+              `- Value: "${option.value}" | Text: "${option.textContent}"`,
             );
           });
 
@@ -1051,7 +1047,7 @@ function loadAllBets() {
               console.log("Não encontrou por ID, procurando por nome...");
               // Se não encontrou por ID, procurar por nome do método
               const userMethodsData = JSON.parse(
-                localStorage.getItem("userMethods") || "{}"
+                localStorage.getItem("userMethods") || "{}",
               );
               const methods = userMethodsData.methods || userMethodsData;
 
@@ -1059,7 +1055,7 @@ function loadAllBets() {
               const methodEntry = Object.entries(methods).find(
                 ([id, method]) =>
                   method.name === bet.metodo ||
-                  `${method.icon} ${method.name}` === bet.metodo
+                  `${method.icon} ${method.name}` === bet.metodo,
               );
 
               if (methodEntry) {
@@ -1084,7 +1080,7 @@ function loadAllBets() {
       }
 
       const confidenceSpan = newRow.querySelector(
-        ".cell-confianca .confidence"
+        ".cell-confianca .confidence",
       );
       confidenceSpan.textContent = bet.confianca || "60%";
       confidenceSpan.className = `confidence conf-${
@@ -1202,7 +1198,7 @@ function applyFilter(filterType) {
 
   // Aplicar filtro na aba ativa
   const activeTab = document.querySelector(
-    '.month-content:not([style*="display: none"])'
+    '.month-content:not([style*="display: none"])',
   );
   if (activeTab) {
     const tbody = activeTab.querySelector("tbody");
@@ -1231,7 +1227,7 @@ function applyFilter(filterType) {
 // Salvar posição de scroll
 function saveScrollPosition() {
   const activeContent = document.querySelector(
-    '.month-content:not([style*="display: none"])'
+    '.month-content:not([style*="display: none"])',
   );
   if (activeContent) {
     const container = activeContent.querySelector(".table-container");
@@ -1349,7 +1345,7 @@ function processWithdraw() {
     });
   });
 
-  const bancaInicial = 1900;
+  const bancaInicial = 1150;
   const currentBalance = bancaInicial + totalReturnAllMonths - totalSacado;
 
   if (amount > currentBalance) {
