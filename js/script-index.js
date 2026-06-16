@@ -811,7 +811,7 @@ function updateStats() {
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
   // CORRIGIDO: Saldo atual usa retorno de TODOS os meses
-  const bancaInicial = 1150;
+  const bancaInicial = 1000;
   const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
@@ -1345,7 +1345,7 @@ function processWithdraw() {
     });
   });
 
-  const bancaInicial = 1150;
+  const bancaInicial = 1000;
   const currentBalance = bancaInicial + totalReturnAllMonths - totalSacado;
 
   if (amount > currentBalance) {

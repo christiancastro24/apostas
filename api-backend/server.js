@@ -448,7 +448,7 @@ function generateRealisticLineup(
       name: `${getStadiumPrefix(country)} ${teamName}`,
       capacity: 30000 + Math.floor(Math.random() * 50000),
     },
-    founded: 1150 + Math.floor(Math.random() * 80),
+    founded: 1000 + Math.floor(Math.random() * 80),
     colors: getTeamColors(country),
     league: league,
     country: country,
