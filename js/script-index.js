@@ -821,7 +821,7 @@ function updateStats() {
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  const bancaInicial = 3.5;
+  const bancaInicial = 3.0;
   const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
@@ -1314,7 +1314,7 @@ function processWithdraw() {
     });
   });
 
-  const bancaInicial = 3.5;
+  const bancaInicial = 3.0;
   const currentBalance = bancaInicial + totalReturnAllMonths - totalSacado;
 
   if (amount > currentBalance) {
