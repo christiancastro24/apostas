@@ -161,7 +161,12 @@ function addNewBet(month) {
     </td>
     <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
     <td class="cell-metodo"></td>
-    <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
+    <td class="cell-confianca">
+  <select class="modalidade-select">
+    <option value="pre-live">📋 Pré-Live</option>
+    <option value="ao-vivo">🔴 Ao Vivo</option>
+  </select>
+</td>
     <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
     <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
     <td class="cell-retorno"><span class="return-value">R$ 0,00</span></td>
@@ -381,7 +386,7 @@ function createMonthContent(month) {
             <th>Esporte</th>
             <th>Jogo</th>
             <th>Método</th>
-            <th>Confiança</th>
+            <th>Pré/Live</th>
             <th>Odd</th>
             <th>Unidade</th>
             <th>Retorno</th>
@@ -677,10 +682,16 @@ function handleResultChange(select) {
   select.classList.add(select.value);
 
   updateStats();
-
-  // Reaplicar filtro após mudança de resultado
   applyFilter(currentFilter);
 }
+
+// Adiciona junto com ela:
+document.addEventListener("change", function (e) {
+  if (e.target.classList.contains("modalidade-select")) {
+    e.target.style.backgroundColor =
+      e.target.value === "ao-vivo" ? "#e53e3e" : "#3182ce";
+  }
+});
 
 function removeRow(button) {
   const row = button.closest("tr");
@@ -884,7 +895,8 @@ function saveBetsData() {
           ? "Múltipla"
           : row.querySelector(".cell-evento input")?.value || "",
         metodo: isMultipla ? "-" : metodoValue,
-        confianca: row.querySelector(".cell-confianca .confidence").textContent,
+        confianca:
+          row.querySelector(".cell-confianca select")?.value || "pre-live",
         odd: row.querySelector(".cell-odd input").value,
         unidade: row.querySelector(".cell-unidade input").value,
         resultado: row.querySelector(".cell-resultado select").value,
@@ -913,11 +925,10 @@ function loadAllBets() {
     const monthData = betsData[month] || [];
     const tbody = document.getElementById(month + "-tbody");
 
-    // ORDENAR OS DADOS POR DATA (CRESCENTE - MAIS ANTIGO PRIMEIRO)
     const sortedData = monthData.sort((a, b) => {
       const dateA = new Date(a.data || "1970-01-01");
       const dateB = new Date(b.data || "1970-01-01");
-      return dateA - dateB; // Ordem crescente (mais antigo primeiro)
+      return dateA - dateB;
     });
 
     sortedData.forEach((bet) => {
@@ -945,7 +956,12 @@ function loadAllBets() {
         </select></td>
         <td class="cell-evento"><input type="text" placeholder="Nome do jogo"></td>
         <td class="cell-metodo"></td>
-        <td class="cell-confianca"><span class="confidence conf-60" onclick="toggleConfidence(this)">60%</span></td>
+        <td class="cell-confianca">
+          <select class="modalidade-select">
+            <option value="pre-live">📋 Pré-Live</option>
+            <option value="ao-vivo">🔴 Ao Vivo</option>
+          </select>
+        </td>
         <td class="cell-odd"><input type="number" step="0.01" min="1.01" placeholder="1.00" onchange="calculateReturn(this)"></td>
         <td class="cell-unidade"><input type="number" step="0.1" min="0.1" placeholder="1.0" onchange="calculateReturn(this)"></td>
         <td class="cell-retorno"><span class="return-value">R$ 0,00</span></td>
@@ -967,19 +983,15 @@ function loadAllBets() {
         <td class="cell-acoes"><button class="delete-btn" onclick="removeRow(this)">🗑️</button></td>
       `;
 
-      // Preencher os dados salvos
       newRow.querySelector(".cell-data input").value = bet.data || "";
       newRow.querySelector(".cell-tipo select").value = bet.tipo || "simples";
 
-      // NOVO: Definir conteúdo da célula método baseado no tipo
       const metodoCell = newRow.querySelector(".cell-metodo");
       const tipoValue = bet.tipo || "simples";
 
-      // Verificar se é múltipla
       if (bet.isMultipla && multiplaData[rowId]) {
         const multipla = multiplaData[rowId];
 
-        // Criar resumos
         const sportsCount = {};
         multipla.games?.forEach((game) => {
           sportsCount[game.sport] = (sportsCount[game.sport] || 0) + 1;
@@ -999,9 +1011,7 @@ function loadAllBets() {
         const sportsSummary = Object.entries(sportsCount)
           .map(
             ([sport, count]) =>
-              `${sportsIcons[sport] || "🏆"} ${sport}${
-                count > 1 ? ` (${count})` : ""
-              }`,
+              `${sportsIcons[sport] || "🏆"} ${sport}${count > 1 ? ` (${count})` : ""}`,
           )
           .join(", ");
 
@@ -1012,79 +1022,50 @@ function loadAllBets() {
             .join(", ") + (multipla.games?.length > 3 ? "..." : "");
 
         newRow.querySelector(".cell-evento").innerHTML =
-          `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${
-            multipla.games?.length || 0
-          } jogos)</button>`;
+          `<button class="multipla-btn" onclick="viewMultipla('${rowId}')">🎯 Múltipla (${multipla.games?.length || 0} jogos)</button>`;
         newRow.querySelector(".cell-metodo").innerHTML =
           `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${methodsSummary}</span>`;
         newRow.querySelector(".cell-esporte").innerHTML =
           `<span style="color: #4a5568; font-weight: 500; font-size: 12px;">${sportsSummary}</span>`;
       } else {
-        // APOSTAS SIMPLES - CRIAR SELECT DE MÉTODOS
         if (tipoValue === "simples") {
           metodoCell.innerHTML = createMethodSelect();
           const methodSelect = metodoCell.querySelector("select");
 
-          // DEBUG: Ver o que está sendo carregado
-          console.log("=== DEBUG MÉTODO CARREGADO ===");
-          console.log("bet.metodo:", bet.metodo);
-          console.log("Opções disponíveis no select:");
-
-          const options = methodSelect.querySelectorAll("option");
-          options.forEach((option) => {
-            console.log(
-              `- Value: "${option.value}" | Text: "${option.textContent}"`,
-            );
-          });
-
           if (methodSelect && bet.metodo) {
-            // Tentar primeiro com o valor direto (se for ID)
             if (methodSelect.querySelector(`option[value="${bet.metodo}"]`)) {
-              console.log("Encontrou por ID:", bet.metodo);
               methodSelect.value = bet.metodo;
             } else {
-              console.log("Não encontrou por ID, procurando por nome...");
-              // Se não encontrou por ID, procurar por nome do método
               const userMethodsData = JSON.parse(
                 localStorage.getItem("userMethods") || "{}",
               );
               const methods = userMethodsData.methods || userMethodsData;
-
-              // Procurar método pelo nome
               const methodEntry = Object.entries(methods).find(
                 ([id, method]) =>
                   method.name === bet.metodo ||
                   `${method.icon} ${method.name}` === bet.metodo,
               );
-
-              if (methodEntry) {
-                console.log("Encontrou por nome! ID:", methodEntry[0]);
-                methodSelect.value = methodEntry[0]; // ID do método
-              } else {
-                console.log("Não encontrou método nem por ID nem por nome");
-              }
+              if (methodEntry) methodSelect.value = methodEntry[0];
             }
           }
         } else {
-          // Para outros tipos, usar input de texto
           metodoCell.innerHTML =
             '<input type="text" placeholder="Método/Estratégia">';
           metodoCell.querySelector("input").value = bet.metodo || "";
         }
 
-        // Preencher outros campos para apostas simples
         newRow.querySelector(".cell-esporte select").value =
           bet.esporte || "futebol";
         newRow.querySelector(".cell-evento input").value = bet.evento || "";
       }
 
-      const confidenceSpan = newRow.querySelector(
-        ".cell-confianca .confidence",
-      );
-      confidenceSpan.textContent = bet.confianca || "60%";
-      confidenceSpan.className = `confidence conf-${
-        parseInt(bet.confianca) || 60
-      }`;
+      // Modalidade (pré-live / ao vivo)
+      const modalidadeSelect = newRow.querySelector(".cell-confianca select");
+      if (modalidadeSelect) {
+        modalidadeSelect.value = bet.confianca || "pre-live";
+        modalidadeSelect.style.backgroundColor =
+          modalidadeSelect.value === "ao-vivo" ? "#e53e3e" : "#3182ce";
+      }
 
       newRow.querySelector(".cell-odd input").value = bet.odd || "";
       newRow.querySelector(".cell-unidade input").value = bet.unidade || "";
@@ -1101,35 +1082,24 @@ function loadAllBets() {
 
       const inputs = newRow.querySelectorAll("input, select");
       inputs.forEach((input) => {
-        input.addEventListener("change", () => {
-          updateStats();
-        });
+        input.addEventListener("change", () => updateStats());
       });
     });
   });
 
-  // === ADIÇÕES PARA RESTAURAR ESTADO ===
-  // Restaurar filtro salvo
   const savedFilter = localStorage.getItem("currentFilter");
-  if (savedFilter) {
-    currentFilter = savedFilter;
-  }
+  if (savedFilter) currentFilter = savedFilter;
 
-  // Restaurar aba ativa
   const savedTab = localStorage.getItem("lastActiveTab");
   if (savedTab && document.getElementById(savedTab)) {
     currentActiveMonth = savedTab;
     showMonth(savedTab);
   } else {
-    // Aplicar filtro na aba padrão
     applyFilter(currentFilter);
   }
 
-  // Restaurar posições de scroll
   const savedPositions = localStorage.getItem("scrollPositions");
-  if (savedPositions) {
-    scrollPositions = JSON.parse(savedPositions);
-  }
+  if (savedPositions) scrollPositions = JSON.parse(savedPositions);
 }
 
 // Fechar modal ao clicar fora
