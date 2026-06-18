@@ -39,7 +39,6 @@
           >
             Métodos
           </div>
-
           <div
             class="nav-item"
             onclick="window.location.href = 'alavancagem.html'"
@@ -63,14 +62,14 @@
           <div class="quick-stat">
             <div class="stat-icon">📊</div>
             <div class="stat-info">
-              <span class="stat-value" id="totalMethods">12</span>
+              <span class="stat-value" id="totalMethods">0</span>
               <span class="stat-label">Métodos Ativos</span>
             </div>
           </div>
           <div class="quick-stat">
             <div class="stat-icon">⭐</div>
             <div class="stat-info">
-              <span class="stat-value" id="favoriteMethods">3</span>
+              <span class="stat-value" id="favoriteMethods">0</span>
               <span class="stat-label">Favoritos</span>
             </div>
           </div>
@@ -100,7 +99,8 @@
                 <option value="gols">⚽ Gols</option>
                 <option value="resultado">🏆 Resultado</option>
                 <option value="dupla">🔄 Dupla Chance</option>
-                <option value="especial">🎯 Especiais</option>
+                <option value="escanteios">🚩 Escanteios</option>
+                <option value="especial">💡 Especiais</option>
               </select>
             </div>
           </div>
@@ -109,46 +109,46 @@
           </button>
         </div>
 
-        <!-- Methods Grid -->
+        <!-- Methods Container -->
         <div class="methods-container">
           <div class="methods-section">
             <div class="section-header">
               <h3>⚽ Métodos de Gols</h3>
-              <span class="section-count" id="golsCount">6</span>
+              <span class="section-count" id="golsCount">0</span>
             </div>
-            <div class="methods-grid" id="golsMethods">
-              <!-- Métodos de gols serão carregados aqui -->
-            </div>
+            <div class="methods-grid" id="golsMethods"></div>
           </div>
 
           <div class="methods-section">
             <div class="section-header">
               <h3>🔄 Dupla Chance</h3>
-              <span class="section-count" id="duplaCount">4</span>
+              <span class="section-count" id="duplaCount">0</span>
             </div>
-            <div class="methods-grid" id="duplaMethods">
-              <!-- Métodos de dupla chance serão carregados aqui -->
+            <div class="methods-grid" id="duplaMethods"></div>
+          </div>
+
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>🏆 Resultado</h3>
+              <span class="section-count" id="resultCount">0</span>
             </div>
+            <div class="methods-grid" id="resultMethods"></div>
+          </div>
+
+          <div class="methods-section">
+            <div class="section-header">
+              <h3>🚩 Escanteios</h3>
+              <span class="section-count" id="escanteiosCount">0</span>
+            </div>
+            <div class="methods-grid" id="escanteiosMethods"></div>
           </div>
 
           <div class="methods-section">
             <div class="section-header">
               <h3>💡 Especiais</h3>
-              <span class="section-count" id="especialCount">2</span>
+              <span class="section-count" id="especialCount">0</span>
             </div>
-            <div class="methods-grid" id="especialMethods">
-              <!-- Métodos especiais serão carregados aqui -->
-            </div>
-          </div>
-
-          <div class="methods-section">
-            <div class="section-header">
-              <h3>🎯 Resultado</h3>
-              <span class="section-count" id="resultCount">2</span>
-            </div>
-            <div class="methods-grid" id="resultMethods">
-              <!-- Métodos especiais serão carregados aqui -->
-            </div>
+            <div class="methods-grid" id="especialMethods"></div>
           </div>
 
           <div class="methods-section">
@@ -156,9 +156,7 @@
               <h3>⭐ Favoritos</h3>
               <span class="section-count" id="favoritesCount">0</span>
             </div>
-            <div class="methods-grid" id="favoritesMethodsContainer">
-              <!-- Métodos favoritos serão carregados aqui -->
-            </div>
+            <div class="methods-grid" id="favoritesMethodsContainer"></div>
           </div>
 
           <div class="methods-section">
@@ -166,20 +164,10 @@
               <h3>🛠️ Personalizados</h3>
               <span class="section-count" id="customCount">0</span>
             </div>
-            <div class="methods-grid" id="customMethods">
-              <div class="empty-state">
-                <div class="empty-icon">📝</div>
-                <h4>Nenhum método personalizado</h4>
-                <p>Crie seus próprios métodos de apostas</p>
-                <button class="btn-primary" onclick="showAddMethodModal()">
-                  ➕ Criar Primeiro Método
-                </button>
-              </div>
-            </div>
+            <div class="methods-grid" id="customMethods"></div>
           </div>
         </div>
 
-        <!-- Add/Edit Method Modal -->
         <!-- Add/Edit Method Modal -->
         <div id="methodModal" class="modal">
           <div class="modal-content">
@@ -207,20 +195,25 @@
                       <option value="">Selecione...</option>
                       <option value="gols">⚽ Gols</option>
                       <option value="resultado">🏆 Resultado</option>
-                      <option value="favorites">⭐ Favoritos</option>
                       <option value="dupla">🔄 Dupla Chance</option>
-                      <option value="especial">🎯 Especiais</option>
+                      <option value="escanteios">🚩 Escanteios</option>
+                      <option value="especial">💡 Especiais</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label>Ícone</label>
                     <select id="methodIcon" name="methodIcon">
                       <option value="⚽">⚽ Futebol</option>
+                      <option value="🚩">🚩 Escanteio</option>
                       <option value="🎯">🎯 Alvo</option>
                       <option value="📈">📈 Gráfico</option>
                       <option value="🔥">🔥 Fogo</option>
                       <option value="⭐">⭐ Estrela</option>
                       <option value="💎">💎 Diamante</option>
+                      <option value="🔄">🔄 Dupla</option>
+                      <option value="🏆">🏆 Troféu</option>
+                      <option value="🏠">🏠 Casa</option>
+                      <option value="✈️">✈️ Visitante</option>
                     </select>
                   </div>
                 </div>
@@ -293,9 +286,7 @@
               <h3 id="detailsTitle">Detalhes do Método</h3>
               <span class="close" onclick="closeDetailsModal()">&times;</span>
             </div>
-            <div class="modal-body" id="methodDetailsContent">
-              <!-- Conteúdo será carregado dinamicamente -->
-            </div>
+            <div class="modal-body" id="methodDetailsContent"></div>
           </div>
         </div>
 

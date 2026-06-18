@@ -5,170 +5,7 @@ let methodsData = {
   settings: JSON.parse(localStorage.getItem("methodsSettings")) || {},
 };
 
-// Métodos padrão do sistema
-const defaultMethods = {
-  // Métodos de Gols
-  ambas_marcam: {
-    id: "ambas_marcam",
-    name: "Ambas Marcam",
-    category: "gols",
-    icon: "⚽",
-    description: "Ambos os times marcam pelo menos 1 gol",
-    minOdd: 1.4,
-    maxOdd: 2.5,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_05_casa: {
-    id: "over_05_casa",
-    name: "+0.5 Gols Casa",
-    category: "gols",
-    icon: "🏠",
-    description: "Time da casa marca pelo menos 1 gol",
-    minOdd: 1.2,
-    maxOdd: 2.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_05_visitante: {
-    id: "over_05_visitante",
-    name: "+0.5 Gols Visitante",
-    category: "gols",
-    icon: "✈️",
-    description: "Time visitante marca pelo menos 1 gol",
-    minOdd: 1.3,
-    maxOdd: 2.2,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_15_casa: {
-    id: "over_15_casa",
-    name: "+1.5 Gols Casa",
-    category: "gols",
-    icon: "🏠",
-    description: "Time da casa marca 2 ou mais gols",
-    minOdd: 2.0,
-    maxOdd: 4.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_15_visitante: {
-    id: "over_15_visitante",
-    name: "+1.5 Gols Visitante",
-    category: "gols",
-    icon: "✈️",
-    description: "Time visitante marca 2 ou mais gols",
-    minOdd: 2.5,
-    maxOdd: 5.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_15_geral: {
-    id: "over_15_geral",
-    name: "Over 1.5 Gols",
-    category: "gols",
-    icon: "📈",
-    description: "Partida com 2 ou mais gols no total",
-    minOdd: 1.25,
-    maxOdd: 1.8,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  over_25_geral: {
-    id: "over_25_geral",
-    name: "Over 2.5 Gols",
-    category: "gols",
-    icon: "📈",
-    description: "Partida com 3 ou mais gols no total",
-    minOdd: 1.6,
-    maxOdd: 2.8,
-    favorite: true,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-
-  // Métodos de Resultado
-  vitoria_casa: {
-    id: "vitoria_casa",
-    name: "Vitória Casa",
-    category: "resultado",
-    icon: "🏠",
-    description: "Time da casa vence a partida",
-    minOdd: 1.5,
-    maxOdd: 3.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  vitoria_visitante: {
-    id: "vitoria_visitante",
-    name: "Vitória Visitante",
-    category: "resultado",
-    icon: "✈️",
-    description: "Time visitante vence a partida",
-    minOdd: 2.0,
-    maxOdd: 5.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-
-  // Métodos de Dupla Chance
-  dupla_casa_over05: {
-    id: "dupla_casa_over05",
-    name: "Dupla Chance Casa & +0.5 Gols Casa",
-    category: "dupla",
-    icon: "🔄",
-    description: "Casa não perde E marca pelo menos 1 gol",
-    minOdd: 1.3,
-    maxOdd: 2.0,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  dupla_visitante_over05: {
-    id: "dupla_visitante_over05",
-    name: "Dupla Chance Visitante & +0.5 Gols Visitante",
-    category: "dupla",
-    icon: "🔄",
-    description: "Visitante não perde E marca pelo menos 1 gol",
-    minOdd: 1.4,
-    maxOdd: 2.5,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  dupla_casa_over15: {
-    id: "dupla_casa_over15",
-    name: "Dupla Chance Casa & +1.5 Gols",
-    category: "dupla",
-    icon: "🔄",
-    description: "Casa não perde E partida com 2+ gols",
-    minOdd: 1.5,
-    maxOdd: 2.2,
-    favorite: false,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-  dupla_visitante_over05_v2: {
-    id: "dupla_visitante_over05_v2",
-    name: "Dupla Chance Visitante & +0.5 Gols",
-    category: "dupla",
-    icon: "🔄",
-    description: "Visitante não perde E partida com 1+ gols",
-    minOdd: 1.25,
-    maxOdd: 1.8,
-    favorite: true,
-    isDefault: true,
-    createdAt: new Date().toISOString(),
-  },
-};
+// Sem métodos padrão chumbados — tudo criado pelo usuário
 
 // ==================== FUNÇÕES DE DADOS ====================
 
@@ -178,23 +15,8 @@ function saveMethodsData() {
 }
 
 function initializeDefaultMethods() {
-  // Se não há métodos salvos, inicializar com os padrão
-  if (Object.keys(methodsData.methods).length === 0) {
-    methodsData.methods = { ...defaultMethods };
-    saveMethodsData();
-  } else {
-    // Verificar se há novos métodos padrão para adicionar
-    let hasNewMethods = false;
-    for (const [key, method] of Object.entries(defaultMethods)) {
-      if (!methodsData.methods[key]) {
-        methodsData.methods[key] = { ...method };
-        hasNewMethods = true;
-      }
-    }
-    if (hasNewMethods) {
-      saveMethodsData();
-    }
-  }
+  // Nada a inicializar — sem métodos padrão chumbados
+  saveMethodsData();
 }
 
 function getAllMethods() {
@@ -241,10 +63,7 @@ function updateMethod(methodId, newData) {
 }
 
 function deleteMethod(methodId) {
-  if (
-    methodsData.methods[methodId] &&
-    !methodsData.methods[methodId].isDefault
-  ) {
+  if (methodsData.methods[methodId]) {
     delete methodsData.methods[methodId];
     saveMethodsData();
     return true;
@@ -281,7 +100,8 @@ function loadMethods() {
   loadMethodsByCategory("dupla", "duplaMethods");
   loadMethodsByCategory("especial", "especialMethods");
   loadMethodsByCategory("resultado", "resultMethods");
-  loadFavoriteMethods(); // Adicionado
+  loadMethodsByCategory("escanteios", "escanteiosMethods");
+  loadFavoriteMethods();
   loadCustomMethods();
   updateSectionCounts();
 }
@@ -289,12 +109,13 @@ function loadMethods() {
 function loadMethodsByCategory(category, containerId) {
   const methods = getMethodsByCategory(category);
   const container = document.getElementById(containerId);
+  if (!container) return;
 
   if (methods.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📝</div>
-        <h4>Nenhum método ${category}</h4>
+        <h4>Nenhum método cadastrado</h4>
         <p>Adicione métodos para esta categoria</p>
       </div>
     `;
@@ -356,53 +177,29 @@ function createMethodCard(method) {
       : "Sem limite";
 
   const favoriteClass = method.favorite ? "favorite" : "";
-  const defaultBadge = method.isDefault
-    ? '<span class="default-badge">Padrão</span>'
-    : "";
 
   return `
-    <div class="method-card ${favoriteClass}" onclick="showMethodDetails('${
-    method.id
-  }')">
+    <div class="method-card ${favoriteClass}" onclick="showMethodDetails('${method.id}')">
       <div class="method-actions">
-        ${
-          !method.isDefault
-            ? `<button class="action-btn edit-btn" onclick="event.stopPropagation(); editMethod('${method.id}')" title="Editar">✏️</button>`
-            : ""
-        }
-        ${
-          !method.isDefault
-            ? `<button class="action-btn delete-btn" onclick="event.stopPropagation(); confirmDeleteMethod('${method.id}')" title="Excluir">🗑️</button>`
-            : ""
-        }
-        <button class="action-btn favorite-btn" onclick="event.stopPropagation(); toggleMethodFavorite('${
-          method.id
-        }')" title="${
-    method.favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"
-  }">
+        <button class="action-btn edit-btn" onclick="event.stopPropagation(); editMethod('${method.id}')" title="Editar">✏️</button>
+        <button class="action-btn delete-btn" onclick="event.stopPropagation(); confirmDeleteMethod('${method.id}')" title="Excluir">🗑️</button>
+        <button class="action-btn favorite-btn" onclick="event.stopPropagation(); toggleMethodFavorite('${method.id}')" title="${method.favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}">
           ${method.favorite ? "⭐" : "☆"}
         </button>
       </div>
-      
+
       <div class="method-header">
         <div class="method-icon">${method.icon}</div>
         <div class="method-info">
           <div class="method-name">${method.name}</div>
-          <div class="method-category">${getCategoryLabel(
-            method.category
-          )}</div>
+          <div class="method-category">${getCategoryLabel(method.category)}</div>
         </div>
       </div>
-      
-      ${
-        method.description
-          ? `<div class="method-description">${method.description}</div>`
-          : ""
-      }
-      
+
+      ${method.description ? `<div class="method-description">${method.description}</div>` : ""}
+
       <div class="method-meta">
         <div class="odd-range">Odds: ${oddRangeText}</div>
-        ${defaultBadge}
       </div>
     </div>
   `;
@@ -411,9 +208,10 @@ function createMethodCard(method) {
 function getCategoryLabel(category) {
   const labels = {
     gols: "⚽ Gols",
-    resultado: "🎯 Resultado", // Atualizado
+    resultado: "🏆 Resultado",
     dupla: "🔄 Dupla Chance",
-    especial: "💡 Especiais", // Atualizado para combinar com o HTML
+    especial: "💡 Especiais",
+    escanteios: "🚩 Escanteios",
   };
   return labels[category] || category;
 }
@@ -425,12 +223,14 @@ function updateSectionCounts() {
     getMethodsByCategory("dupla").length;
   document.getElementById("especialCount").textContent =
     getMethodsByCategory("especial").length;
-  document.getElementById("resultCount").textContent = // Adicionado
+  document.getElementById("resultCount").textContent =
     getMethodsByCategory("resultado").length;
+  document.getElementById("escanteiosCount").textContent =
+    getMethodsByCategory("escanteios").length;
   document.getElementById("favoritesCount").textContent =
-    getAllMethods().filter((m) => m.favorite).length; // Adicionado
+    getAllMethods().filter((m) => m.favorite).length;
   document.getElementById("customCount").textContent = getAllMethods().filter(
-    (m) => !m.isDefault
+    (m) => !m.isDefault,
   ).length;
 }
 
@@ -439,6 +239,7 @@ function updateSectionCounts() {
 function showAddMethodModal() {
   document.getElementById("modalTitle").textContent = "➕ Novo Método";
   document.getElementById("methodForm").reset();
+  delete document.getElementById("methodForm").dataset.editingId;
   document.getElementById("methodModal").style.display = "block";
 }
 
@@ -455,9 +256,7 @@ function editMethod(methodId) {
   document.getElementById("methodMaxOdd").value = method.maxOdd || "";
   document.getElementById("methodFavorite").checked = method.favorite;
 
-  // Armazenar ID para edição
   document.getElementById("methodForm").dataset.editingId = methodId;
-
   document.getElementById("methodModal").style.display = "block";
 }
 
@@ -485,11 +284,9 @@ function saveMethod(event) {
 
   try {
     if (editingId) {
-      // Editando método existente
       updateMethod(editingId, methodData);
       showNotification("Método atualizado com sucesso!", "success");
     } else {
-      // Adicionando novo método
       addMethod(methodData);
       showNotification("Método criado com sucesso!", "success");
     }
@@ -512,26 +309,14 @@ function showMethodDetails(methodId) {
     ? new Date(method.updatedAt).toLocaleDateString("pt-BR")
     : null;
 
-  // Função para formatar a descrição preservando quebras de linha
   const formatDescription = (description) => {
     if (!description) return "";
-
     return description
       .split("\n")
-      .filter((line) => line.trim() !== "") // Remove linhas vazias
+      .filter((line) => line.trim() !== "")
       .map((line) => {
-        const trimmedLine = line.trim();
-
-        // Se a linha começa com número ou bullet point
-        if (
-          trimmedLine.match(/^\d+[\.\-\s]/) ||
-          trimmedLine.startsWith("•") ||
-          trimmedLine.startsWith("-")
-        ) {
-          return `<div style="margin-bottom: 8px; padding-left: 0;">${trimmedLine}</div>`;
-        }
-        // Linhas normais
-        return `<div style="margin-bottom: 8px;">${trimmedLine}</div>`;
+        const t = line.trim();
+        return `<div style="margin-bottom: 8px;">${t}</div>`;
       })
       .join("");
   };
@@ -543,18 +328,9 @@ function showMethodDetails(methodId) {
       <span style="background: #e2e8f0; color: #4a5568; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-top: 8px; display: inline-block;">
         ${getCategoryLabel(method.category)}
       </span>
-      ${
-        method.favorite
-          ? '<div style="margin-top: 8px;">⭐ <span style="color: #d69e2e; font-weight: 600;">Favorito</span></div>'
-          : ""
-      }
-      ${
-        method.isDefault
-          ? '<div style="margin-top: 8px;">🔒 <span style="color: #38a169; font-weight: 600;">Método Padrão</span></div>'
-          : ""
-      }
+      ${method.favorite ? '<div style="margin-top: 8px;">⭐ <span style="color: #d69e2e; font-weight: 600;">Favorito</span></div>' : ""}
     </div>
-    
+
     ${
       method.description
         ? `
@@ -567,53 +343,32 @@ function showMethodDetails(methodId) {
     `
         : ""
     }
-    
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
       <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 600; color: #22543d;">
-          ${method.minOdd || "N/A"}
-        </div>
+        <div style="font-size: 20px; font-weight: 600; color: #22543d;">${method.minOdd || "N/A"}</div>
         <div style="font-size: 12px; color: #22543d;">Odd Mínima</div>
       </div>
       <div style="background: #fff5f5; padding: 16px; border-radius: 8px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 600; color: #c53030;">
-          ${method.maxOdd || "N/A"}
-        </div>
+        <div style="font-size: 20px; font-weight: 600; color: #c53030;">${method.maxOdd || "N/A"}</div>
         <div style="font-size: 12px; color: #c53030;">Odd Máxima</div>
       </div>
     </div>
-    
+
     <div style="background: #edf2f7; padding: 16px; border-radius: 8px; font-size: 14px; color: #4a5568;">
       <div style="margin-bottom: 4px;"><strong>Criado em:</strong> ${createdDate}</div>
-      ${
-        updatedDate
-          ? `<div><strong>Última atualização:</strong> ${updatedDate}</div>`
-          : ""
-      }
+      ${updatedDate ? `<div><strong>Última atualização:</strong> ${updatedDate}</div>` : ""}
     </div>
-    
+
     <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
-      ${
-        !method.isDefault
-          ? `
-        <button onclick="closeDetailsModal(); editMethod('${method.id}')" class="btn-primary">
-          ✏️ Editar
-        </button>
-        <button onclick="confirmDeleteMethod('${method.id}')" class="btn-secondary" style="background: #fed7d7; color: #c53030;">
-          🗑️ Excluir
-        </button>
-      `
-          : ""
-      }
-      <button onclick="closeDetailsModal()" class="btn-secondary">
-        Fechar
-      </button>
+      <button onclick="closeDetailsModal(); editMethod('${method.id}')" class="btn-primary">✏️ Editar</button>
+      <button onclick="confirmDeleteMethod('${method.id}')" class="btn-secondary" style="background: #fed7d7; color: #c53030;">🗑️ Excluir</button>
+      <button onclick="closeDetailsModal()" class="btn-secondary">Fechar</button>
     </div>
   `;
 
-  document.getElementById(
-    "detailsTitle"
-  ).textContent = `Detalhes: ${method.name}`;
+  document.getElementById("detailsTitle").textContent =
+    `Detalhes: ${method.name}`;
   document.getElementById("methodDetailsContent").innerHTML = content;
   document.getElementById("methodDetailsModal").style.display = "block";
 }
@@ -629,7 +384,7 @@ function toggleMethodFavorite(methodId) {
       method.favorite
         ? "Método adicionado aos favoritos!"
         : "Método removido dos favoritos!",
-      "success"
+      "success",
     );
     loadMethods();
     updateQuickStats();
@@ -640,17 +395,9 @@ function confirmDeleteMethod(methodId) {
   const method = methodsData.methods[methodId];
   if (!method) return;
 
-  if (method.isDefault) {
-    showNotification(
-      "Não é possível excluir métodos padrão do sistema",
-      "error"
-    );
-    return;
-  }
-
   if (
     confirm(
-      `Tem certeza que deseja excluir o método "${method.name}"?\n\nEsta ação não pode ser desfeita.`
+      `Tem certeza que deseja excluir o método "${method.name}"?\n\nEsta ação não pode ser desfeita.`,
     )
   ) {
     if (deleteMethod(methodId)) {
@@ -664,24 +411,20 @@ function confirmDeleteMethod(methodId) {
   }
 }
 
-// ==================== FUNÇÕES DE BUSCA E FILTRO ====================
+// ==================== BUSCA E FILTRO ====================
 
 function searchMethods(query) {
-  const allMethods = getAllMethods();
-  const filteredMethods = allMethods.filter(
-    (method) =>
-      method.name.toLowerCase().includes(query.toLowerCase()) ||
-      method.description.toLowerCase().includes(query.toLowerCase()) ||
-      getCategoryLabel(method.category)
-        .toLowerCase()
-        .includes(query.toLowerCase())
-  );
-
-  // Se há busca ativa, mostrar resultados em uma seção especial
   if (query.trim()) {
-    displaySearchResults(filteredMethods, query);
+    const filtered = getAllMethods().filter(
+      (m) =>
+        m.name.toLowerCase().includes(query.toLowerCase()) ||
+        (m.description || "").toLowerCase().includes(query.toLowerCase()) ||
+        getCategoryLabel(m.category)
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+    );
+    displaySearchResults(filtered, query);
   } else {
-    // Se não há busca, voltar ao layout normal
     loadMethods();
   }
 }
@@ -693,7 +436,7 @@ function displaySearchResults(methods, query) {
     container.innerHTML = `
       <div class="methods-section">
         <div class="section-header">
-          <h3>🔍 Resultados da busca: "${query}"</h3>
+          <h3>🔍 Resultados: "${query}"</h3>
           <span class="section-count">0</span>
         </div>
         <div class="empty-state">
@@ -709,11 +452,11 @@ function displaySearchResults(methods, query) {
   container.innerHTML = `
     <div class="methods-section">
       <div class="section-header">
-        <h3>🔍 Resultados da busca: "${query}"</h3>
+        <h3>🔍 Resultados: "${query}"</h3>
         <span class="section-count">${methods.length}</span>
       </div>
       <div class="methods-grid">
-        ${methods.map((method) => createMethodCard(method)).join("")}
+        ${methods.map((m) => createMethodCard(m)).join("")}
       </div>
     </div>
   `;
@@ -724,17 +467,11 @@ function filterMethods() {
   const searchQuery = document.getElementById("searchInput").value;
 
   if (categoryFilter) {
-    if (categoryFilter === "favorites") {
-      // Filtro especial para favoritos
-      const favoriteMethods = getAllMethods().filter((m) => m.favorite);
-      displaySearchResults(favoriteMethods, "Métodos Favoritos");
-    } else {
-      const methods = getMethodsByCategory(categoryFilter);
-      displaySearchResults(
-        methods,
-        `Categoria: ${getCategoryLabel(categoryFilter)}`
-      );
-    }
+    const methods = getMethodsByCategory(categoryFilter);
+    displaySearchResults(
+      methods,
+      `Categoria: ${getCategoryLabel(categoryFilter)}`,
+    );
   } else if (searchQuery.trim()) {
     searchMethods(searchQuery);
   } else {
@@ -742,7 +479,7 @@ function filterMethods() {
   }
 }
 
-// ==================== FUNÇÕES DE NOTIFICAÇÃO ====================
+// ==================== NOTIFICAÇÃO ====================
 
 function showNotification(message, type = "success") {
   const notification = document.getElementById("notification");
@@ -752,96 +489,18 @@ function showNotification(message, type = "success") {
   notification.className = `notification ${type}`;
   notification.classList.add("show");
 
-  setTimeout(() => {
-    notification.classList.remove("show");
-  }, 3000);
+  setTimeout(() => notification.classList.remove("show"), 3000);
 }
 
-// ==================== FUNÇÃO DE EXPORTAÇÃO (PARA OUTRAS PÁGINAS) ====================
+// ==================== EXPORTAÇÃO ====================
 
-// Função para ser usada em outras páginas para obter métodos
 function getUserMethods() {
   return getAllMethods();
 }
-
 function getMethodById(methodId) {
   return methodsData.methods[methodId] || null;
 }
 
-// ==================== INICIALIZAÇÃO ====================
-
-document.addEventListener("DOMContentLoaded", function () {
-  try {
-    initializeDefaultMethods();
-    // Forçar atualização dos métodos padrão na inicialização
-    forceUpdateDefaultMethods();
-    loadMethods();
-    updateQuickStats();
-
-    // Fechar modal ao clicar fora
-    window.addEventListener("click", function (event) {
-      const methodModal = document.getElementById("methodModal");
-      const detailsModal = document.getElementById("methodDetailsModal");
-
-      if (event.target === methodModal) {
-        closeMethodModal();
-      }
-
-      if (event.target === detailsModal) {
-        closeDetailsModal();
-      }
-    });
-
-    console.log("Sistema de métodos iniciado com sucesso");
-  } catch (error) {
-    console.error("Erro na inicialização do sistema de métodos:", error);
-    showNotification("Erro ao carregar métodos", "error");
-  }
-});
-
-// ==================== UTILITÁRIOS ====================
-
-// Função para forçar atualização dos métodos padrão
-function forceUpdateDefaultMethods() {
-  let hasNewMethods = false;
-  for (const [key, method] of Object.entries(defaultMethods)) {
-    if (!methodsData.methods[key]) {
-      methodsData.methods[key] = { ...method };
-      hasNewMethods = true;
-    }
-  }
-  if (hasNewMethods) {
-    saveMethodsData();
-    loadMethods();
-    updateQuickStats();
-    showNotification("Métodos padrão atualizados!", "success");
-    console.log("Novos métodos padrão adicionados");
-  } else {
-    console.log("Todos os métodos padrão já estão presentes");
-  }
-}
-
-// Função para resetar todos os dados (desenvolvimento)
-function resetMethodsData() {
-  if (
-    confirm(
-      "ATENÇÃO: Isso vai apagar TODOS os métodos personalizados e resetar para os padrão. Confirma?"
-    )
-  ) {
-    localStorage.removeItem("userMethods");
-    localStorage.removeItem("methodsSettings");
-    methodsData = {
-      methods: {},
-      settings: {},
-    };
-    initializeDefaultMethods();
-    loadMethods();
-    updateQuickStats();
-    showNotification("Dados resetados para padrão do sistema", "success");
-  }
-}
-
-// Função para exportar métodos
 function exportMethods() {
   const dataStr = JSON.stringify(methodsData, null, 2);
   const dataBlob = new Blob([dataStr], { type: "application/json" });
@@ -850,5 +509,26 @@ function exportMethods() {
   link.href = url;
   link.download = "metodos-backup.json";
   link.click();
-  showNotification("Backup dos métodos criados!", "success");
+  showNotification("Backup dos métodos criado!", "success");
 }
+
+// ==================== INICIALIZAÇÃO ====================
+
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    loadMethods();
+    updateQuickStats();
+
+    window.addEventListener("click", function (event) {
+      if (event.target === document.getElementById("methodModal"))
+        closeMethodModal();
+      if (event.target === document.getElementById("methodDetailsModal"))
+        closeDetailsModal();
+    });
+
+    console.log("Sistema de métodos iniciado com sucesso");
+  } catch (error) {
+    console.error("Erro na inicialização:", error);
+    showNotification("Erro ao carregar métodos", "error");
+  }
+});
