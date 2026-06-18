@@ -5,8 +5,6 @@ let methodsData = {
   settings: JSON.parse(localStorage.getItem("methodsSettings")) || {},
 };
 
-// Sem métodos padrão chumbados — tudo criado pelo usuário
-
 // ==================== FUNÇÕES DE DADOS ====================
 
 function saveMethodsData() {
@@ -15,7 +13,7 @@ function saveMethodsData() {
 }
 
 function initializeDefaultMethods() {
-  // Nada a inicializar — sem métodos padrão chumbados
+  // Sem métodos padrão chumbados — tudo criado pelo usuário
   saveMethodsData();
 }
 
@@ -311,12 +309,21 @@ function showMethodDetails(methodId) {
 
   const formatDescription = (description) => {
     if (!description) return "";
+
     return description
       .split("\n")
       .filter((line) => line.trim() !== "")
       .map((line) => {
-        const t = line.trim();
-        return `<div style="margin-bottom: 8px;">${t}</div>`;
+        const trimmedLine = line.trim();
+
+        if (
+          trimmedLine.match(/^\d+[\.\-\s]/) ||
+          trimmedLine.startsWith("•") ||
+          trimmedLine.startsWith("-")
+        ) {
+          return `<div style="margin-bottom: 8px; padding-left: 0;">${trimmedLine}</div>`;
+        }
+        return `<div style="margin-bottom: 8px;">${trimmedLine}</div>`;
       })
       .join("");
   };
@@ -346,11 +353,15 @@ function showMethodDetails(methodId) {
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
       <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 600; color: #22543d;">${method.minOdd || "N/A"}</div>
+        <div style="font-size: 20px; font-weight: 600; color: #22543d;">
+          ${method.minOdd || "N/A"}
+        </div>
         <div style="font-size: 12px; color: #22543d;">Odd Mínima</div>
       </div>
       <div style="background: #fff5f5; padding: 16px; border-radius: 8px; text-align: center;">
-        <div style="font-size: 20px; font-weight: 600; color: #c53030;">${method.maxOdd || "N/A"}</div>
+        <div style="font-size: 20px; font-weight: 600; color: #c53030;">
+          ${method.maxOdd || "N/A"}
+        </div>
         <div style="font-size: 12px; color: #c53030;">Odd Máxima</div>
       </div>
     </div>
@@ -361,9 +372,15 @@ function showMethodDetails(methodId) {
     </div>
 
     <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
-      <button onclick="closeDetailsModal(); editMethod('${method.id}')" class="btn-primary">✏️ Editar</button>
-      <button onclick="confirmDeleteMethod('${method.id}')" class="btn-secondary" style="background: #fed7d7; color: #c53030;">🗑️ Excluir</button>
-      <button onclick="closeDetailsModal()" class="btn-secondary">Fechar</button>
+      <button onclick="closeDetailsModal(); editMethod('${method.id}')" class="btn-primary">
+        ✏️ Editar
+      </button>
+      <button onclick="confirmDeleteMethod('${method.id}')" class="btn-secondary" style="background: #fed7d7; color: #c53030;">
+        🗑️ Excluir
+      </button>
+      <button onclick="closeDetailsModal()" class="btn-secondary">
+        Fechar
+      </button>
     </div>
   `;
 
@@ -411,19 +428,21 @@ function confirmDeleteMethod(methodId) {
   }
 }
 
-// ==================== BUSCA E FILTRO ====================
+// ==================== FUNÇÕES DE BUSCA E FILTRO ====================
 
 function searchMethods(query) {
+  const allMethods = getAllMethods();
+  const filteredMethods = allMethods.filter(
+    (method) =>
+      method.name.toLowerCase().includes(query.toLowerCase()) ||
+      (method.description || "").toLowerCase().includes(query.toLowerCase()) ||
+      getCategoryLabel(method.category)
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
+
   if (query.trim()) {
-    const filtered = getAllMethods().filter(
-      (m) =>
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        (m.description || "").toLowerCase().includes(query.toLowerCase()) ||
-        getCategoryLabel(m.category)
-          .toLowerCase()
-          .includes(query.toLowerCase()),
-    );
-    displaySearchResults(filtered, query);
+    displaySearchResults(filteredMethods, query);
   } else {
     loadMethods();
   }
@@ -436,7 +455,7 @@ function displaySearchResults(methods, query) {
     container.innerHTML = `
       <div class="methods-section">
         <div class="section-header">
-          <h3>🔍 Resultados: "${query}"</h3>
+          <h3>🔍 Resultados da busca: "${query}"</h3>
           <span class="section-count">0</span>
         </div>
         <div class="empty-state">
@@ -452,11 +471,11 @@ function displaySearchResults(methods, query) {
   container.innerHTML = `
     <div class="methods-section">
       <div class="section-header">
-        <h3>🔍 Resultados: "${query}"</h3>
+        <h3>🔍 Resultados da busca: "${query}"</h3>
         <span class="section-count">${methods.length}</span>
       </div>
       <div class="methods-grid">
-        ${methods.map((m) => createMethodCard(m)).join("")}
+        ${methods.map((method) => createMethodCard(method)).join("")}
       </div>
     </div>
   `;
@@ -479,7 +498,7 @@ function filterMethods() {
   }
 }
 
-// ==================== NOTIFICAÇÃO ====================
+// ==================== FUNÇÕES DE NOTIFICAÇÃO ====================
 
 function showNotification(message, type = "success") {
   const notification = document.getElementById("notification");
@@ -489,7 +508,9 @@ function showNotification(message, type = "success") {
   notification.className = `notification ${type}`;
   notification.classList.add("show");
 
-  setTimeout(() => notification.classList.remove("show"), 3000);
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 3000);
 }
 
 // ==================== EXPORTAÇÃO ====================
@@ -497,6 +518,7 @@ function showNotification(message, type = "success") {
 function getUserMethods() {
   return getAllMethods();
 }
+
 function getMethodById(methodId) {
   return methodsData.methods[methodId] || null;
 }
@@ -512,23 +534,36 @@ function exportMethods() {
   showNotification("Backup dos métodos criado!", "success");
 }
 
+function resetMethodsData() {
+  if (confirm("ATENÇÃO: Isso vai apagar TODOS os métodos. Confirma?")) {
+    localStorage.removeItem("userMethods");
+    localStorage.removeItem("methodsSettings");
+    methodsData = { methods: {}, settings: {} };
+    loadMethods();
+    updateQuickStats();
+    showNotification("Dados resetados!", "success");
+  }
+}
+
 // ==================== INICIALIZAÇÃO ====================
 
 document.addEventListener("DOMContentLoaded", function () {
   try {
+    initializeDefaultMethods();
     loadMethods();
     updateQuickStats();
 
     window.addEventListener("click", function (event) {
-      if (event.target === document.getElementById("methodModal"))
-        closeMethodModal();
-      if (event.target === document.getElementById("methodDetailsModal"))
-        closeDetailsModal();
+      const methodModal = document.getElementById("methodModal");
+      const detailsModal = document.getElementById("methodDetailsModal");
+
+      if (event.target === methodModal) closeMethodModal();
+      if (event.target === detailsModal) closeDetailsModal();
     });
 
     console.log("Sistema de métodos iniciado com sucesso");
   } catch (error) {
-    console.error("Erro na inicialização:", error);
+    console.error("Erro na inicialização do sistema de métodos:", error);
     showNotification("Erro ao carregar métodos", "error");
   }
 });
