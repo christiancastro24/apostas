@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anotações — Bet Tracker Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles-anotacoes.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <!-- ── Sidebar ── -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Bet Tracker Pro</div>
+        </div>
+        <div class="nav-menu">
+          <div class="nav-item" onclick="window.location.href = 'index.html'">
+            Dashboard
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href = 'relatorios.html'"
+          >
+            Relatórios
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href = 'analises.html'"
+          >
+            Estratégias
+          </div>
+          <div class="nav-item" onclick="window.location.href = 'metodos.html'">
+            Métodos
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href = 'alavancagem.html'"
+          >
+            Alavancagem
+          </div>
+          <div class="nav-item active">Anotações</div>
+        </div>
+      </div>
+
+      <!-- ── Main Content ── -->
+      <div class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">Anotações</h1>
+          <p class="page-subtitle">
+            Registre estratégias, análises e lembretes importantes
+          </p>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Buscar anotações..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="filter-tags">
+            <button
+              class="tag-btn active"
+              data-filter="todas"
+              onclick="setFilter('todas')"
+            >
+              Todas
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="pinned"
+              onclick="setFilter('pinned')"
+            >
+              📌 Fixadas
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="estrategia"
+              onclick="setFilter('estrategia')"
+            >
+              📋 Estratégia
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="analise"
+              onclick="setFilter('analise')"
+            >
+              🔍 Análise
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="financeiro"
+              onclick="setFilter('financeiro')"
+            >
+              💰 Financeiro
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="aviso"
+              onclick="setFilter('aviso')"
+            >
+              ⚠️ Aviso
+            </button>
+            <button
+              class="tag-btn"
+              data-filter="geral"
+              onclick="setFilter('geral')"
+            >
+              📝 Geral
+            </button>
+          </div>
+
+          <button class="btn-nova" onclick="openNewModal()">
+            + Nova Anotação
+          </button>
+        </div>
+
+        <!-- Grid de Notas -->
+        <div class="notes-grid" id="notesGrid"></div>
+      </div>
+    </div>
+
+    <!-- Modal Criar / Editar -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 id="modalTitle">✏️ Nova Anotação</h2>
+          <button class="modal-close" onclick="closeModal('editModal')">
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-field">
+          <label for="inputTitulo">Título</label>
+          <input
+            type="text"
+            id="inputTitulo"
+            placeholder="Ex: Estratégia para jogos ao vivo"
+            maxlength="120"
+          />
+        </div>
+
+        <div class="modal-field">
+          <label for="inputCategoria">Categoria</label>
+          <select id="inputCategoria">
+            <option value="geral">📝 Geral</option>
+            <option value="estrategia">📋 Estratégia</option>
+            <option value="analise">🔍 Análise</option>
+            <option value="financeiro">💰 Financeiro</option>
+            <option value="aviso">⚠️ Aviso</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label for="inputConteudo">Conteúdo</label>
+          <textarea
+            id="inputConteudo"
+            placeholder="Escreva sua anotação aqui..."
+          ></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" onclick="closeModal('editModal')">
+            Cancelar
+          </button>
+          <button class="btn-save-modal" onclick="saveNote()">💾 Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Visualizar -->
+    <div class="modal-overlay" id="viewModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2 id="viewModalTitle"></h2>
+          <button class="modal-close" onclick="closeModal('viewModal')">
+            &times;
+          </button>
+        </div>
+        <div class="view-meta" id="viewMeta"></div>
+        <div class="view-body" id="viewBody"></div>
+        <div class="modal-footer" id="viewFooter"></div>
+      </div>
+    </div>
+
+    <script src="./js/script-anotacoes.js"></script>
+  </body>
+</html>
