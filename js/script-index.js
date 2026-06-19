@@ -670,7 +670,7 @@ function calculateReturn(oddInput) {
   const odd = parseFloat(oddInput.value) || 0;
   const unidade =
     parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-  const returnValue = odd * unidade * 60;
+  const returnValue = odd * unidade * 75;
 
   row.querySelector(".cell-retorno .return-value").textContent =
     formatBRL(returnValue);
@@ -755,14 +755,14 @@ function updateStats() {
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
       const unidade =
         parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-      const apostado = unidade * 60;
+      const apostado = unidade * 75;
       let lucro = 0;
 
       const betDate = new Date(dateInput.value);
       const isThisWeek = betDate >= oneWeekAgo && dateInput.value;
 
       if (resultSelect.value === "green") {
-        lucro = odd * unidade * 60 - apostado;
+        lucro = odd * unidade * 75 - apostado;
         totalGreen++;
         if (isThisWeek) {
           weeklyGreen++;
@@ -799,11 +799,11 @@ function updateStats() {
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
       const unidade =
         parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-      const apostado = unidade * 60;
+      const apostado = unidade * 75;
       let lucro = 0;
 
       if (resultSelect.value === "green") {
-        lucro = odd * unidade * 60 - apostado;
+        lucro = odd * unidade * 75 - apostado;
       } else if (resultSelect.value === "red") {
         lucro = -apostado;
       }
@@ -821,12 +821,12 @@ function updateStats() {
   document.getElementById("totalRed").textContent = totalRed;
   document.getElementById("totalReturn").textContent = formatBRL(totalReturn);
 
-  const bancaInicial = 3000;
+  const bancaInicial = 5000;
   const saldoAtual = bancaInicial + totalReturnAllMonths - totalSacado;
   document.getElementById("currentBalance").textContent = formatBRL(saldoAtual);
 
-  // Atualizar unidades atuais (saldo / 60)
-  const unidadesAtuais = Math.floor(saldoAtual / 60);
+  // Atualizar unidades atuais (saldo / 75)
+  const unidadesAtuais = Math.floor(saldoAtual / 75);
   document.getElementById("currentUnits").textContent = unidadesAtuais;
 
   // Atualizar valor sacado
@@ -1301,11 +1301,11 @@ function processWithdraw() {
       const odd = parseFloat(row.querySelector(".cell-odd input").value) || 0;
       const unidade =
         parseFloat(row.querySelector(".cell-unidade input").value) || 0;
-      const apostado = unidade * 60;
+      const apostado = unidade * 75;
       let lucro = 0;
 
       if (resultSelect.value === "green") {
-        lucro = odd * unidade * 60 - apostado;
+        lucro = odd * unidade * 75 - apostado;
       } else if (resultSelect.value === "red") {
         lucro = -apostado;
       }
@@ -1314,7 +1314,7 @@ function processWithdraw() {
     });
   });
 
-  const bancaInicial = 3000;
+  const bancaInicial = 5000;
   const currentBalance = bancaInicial + totalReturnAllMonths - totalSacado;
 
   if (amount > currentBalance) {
