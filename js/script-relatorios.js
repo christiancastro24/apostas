@@ -230,7 +230,7 @@ function calculateStats(data) {
 
   data.forEach((bet) => {
     const odd = parseFloat(bet.odd) || 1;
-    const stake = (parseFloat(bet.unidade) || 1) * 50;
+    const stake = (parseFloat(bet.unidade) || 1) * 75;
 
     totalOdd += odd;
     totalStaked += stake;
@@ -328,7 +328,7 @@ function updateMonthlyChart() {
 
   filteredData.forEach((bet) => {
     const month = bet.month;
-    const stake = (parseFloat(bet.unidade) || 1) * 50;
+    const stake = (parseFloat(bet.unidade) || 1) * 75;
     const odd = parseFloat(bet.odd) || 1;
 
     monthlyData[month].bets++;
@@ -528,7 +528,7 @@ function updateCasaApostasChart() {
       casaStats[casa] = { profit: 0, staked: 0, wins: 0, total: 0 };
     }
 
-    const stake = (parseFloat(bet.unidade) || 1) * 50;
+    const stake = (parseFloat(bet.unidade) || 1) * 75;
     const odd = parseFloat(bet.odd) || 1;
 
     casaStats[casa].staked += stake;
@@ -747,7 +747,7 @@ function updateDetailedTable() {
 
   tbody.innerHTML = filteredData
     .map((bet) => {
-      const stake = (parseFloat(bet.unidade) || 1) * 50;
+      const stake = (parseFloat(bet.unidade) || 1) * 75;
       const odd = parseFloat(bet.odd) || 1;
       let profit = 0;
       let roi = 0;
@@ -874,7 +874,7 @@ function calculateTotalProfit() {
   Object.values(allBetsData).forEach((monthData) => {
     if (Array.isArray(monthData)) {
       monthData.forEach((bet) => {
-        const stake = (parseFloat(bet.unidade) || 1) * 50;
+        const stake = (parseFloat(bet.unidade) || 1) * 75;
         const odd = parseFloat(bet.odd) || 1;
 
         if (bet.resultado === "green") {
@@ -1361,7 +1361,7 @@ function addPDFStats(doc, pageWidth) {
 function addPDFTable(doc) {
   // Preparar dados da tabela (usando dados filtrados)
   const tableData = filteredData.map((bet) => {
-    const stake = (parseFloat(bet.unidade) || 1) * 50;
+    const stake = (parseFloat(bet.unidade) || 1) * 75;
     const odd = parseFloat(bet.odd) || 1;
     let profit = 0;
 
@@ -1703,7 +1703,7 @@ function calculateDailyResults(month, year) {
         dailyResults[betDay] = { profit: 0, bets: 0 };
       }
 
-      const stake = (parseFloat(bet.unidade) || 1) * 50;
+      const stake = (parseFloat(bet.unidade) || 1) * 75;
       const odd = parseFloat(bet.odd) || 1;
 
       if (bet.resultado === "green") {
@@ -1761,7 +1761,7 @@ function showDayBets(day, month, year) {
 
   dayBets.forEach((bet) => {
     const unidade = parseFloat(bet.unidade) || 1;
-    const stake = unidade * 50;
+    const stake = unidade * 75;
     const odd = parseFloat(bet.odd) || 1;
     let profit = 0;
 
