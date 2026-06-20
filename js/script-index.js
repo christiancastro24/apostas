@@ -405,18 +405,32 @@ function createMonthContent(month) {
 }
 
 // Função corrigida para reordenar a tabela (do menor para o maior)
+// Função corrigida para reordenar a tabela (do menor para o maior),
+// empurrando apostas sem data sempre para o final da lista.
 function sortTableByDate(month) {
   const tbody = document.getElementById(month + "-tbody");
+  if (!tbody) return;
+
   const rows = Array.from(tbody.querySelectorAll("tr"));
 
   rows.sort((a, b) => {
-    const dateA = new Date(
-      a.querySelector(".cell-data input").value || "1970-01-01",
-    );
-    const dateB = new Date(
-      b.querySelector(".cell-data input").value || "1970-01-01",
-    );
-    return dateA - dateB; // Ordem crescente (mais antigo primeiro)
+    const rawDateA = a.querySelector(".cell-data input").value;
+    const rawDateB = b.querySelector(".cell-data input").value;
+
+    // Se A não tem data e B tem, A vai para baixo (retorna 1)
+    if (!rawDateA && rawDateB) return 1;
+
+    // Se B não tem data e A tem, B vai para baixo (retorna -1)
+    if (rawDateA && !rawDateB) return -1;
+
+    // Se nenhum dos dois tem data, mantém a ordem de criação
+    if (!rawDateA && !rawDateB) return 0;
+
+    // Se ambos têm data, compara do mais antigo para o mais recente
+    const dateA = new Date(rawDateA);
+    const dateB = new Date(rawDateB);
+
+    return dateA - dateB;
   });
 
   // Limpar tbody e readicionar as linhas ordenadas
