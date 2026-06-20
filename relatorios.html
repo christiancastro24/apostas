@@ -1,235 +1,228 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatórios - Bet Tracker Pro</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/styles.relatorios.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style></style>
   </head>
   <body>
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">Bet Tracker Pro</div>
-      </div>
-      <div class="nav-menu">
-        <div class="nav-item" onclick="window.location.href='index.html'">
-          Dashboard
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Bet Tracker Pro</div>
         </div>
-        <div
-          class="nav-item active"
-          onclick="window.location.href='relatorios.html'"
-        >
-          Relatórios
-        </div>
-                  <div class="nav-item" onclick="window.location.href='analises.html'">
+        <div class="nav-menu">
+          <div class="nav-item" onclick="window.location.href = 'index.html'">
+            Dashboard
+          </div>
+          <div
+            class="nav-item active"
+            onclick="window.location.href = 'relatorios.html'"
+          >
+            Relatórios
+          </div>
+          <div
+            class="nav-item"
+            onclick="window.location.href = 'analises.html'"
+          >
             Estratégias
           </div>
-
-                <div
-            class="nav-item"
-            onclick="window.location.href='metodos.html'"
-          >
+          <div class="nav-item" onclick="window.location.href = 'metodos.html'">
             Métodos
           </div>
-
-              <div
+          <div
             class="nav-item"
-            onclick="window.location.href='alavancagem.html'"
+            onclick="window.location.href = 'alavancagem.html'"
           >
-            <span class="nav-icon">🚀</span>
             Alavancagem
           </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="header">
-        <h1>📊 Relatórios Avançados</h1>
-        <p>Análise profunda do seu desempenho em apostas esportivas</p>
-      </div>
-
-      <!-- Filtros -->
-      <div class="filters-section">
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label>🗓️ Período</label>
-            <select id="periodFilter">
-              <option value="todos">Todos os Meses</option>
-              <option value="janeiro">Janeiro</option>
-              <option value="fevereiro">Fevereiro</option>
-              <option value="marco">Março</option>
-              <option value="abril">Abril</option>
-              <option value="maio">Maio</option>
-              <option value="junho">Junho</option>
-              <option value="julho">Julho</option>
-              <option value="agosto">Agosto</option>
-              <option value="setembro">Setembro</option>
-              <option value="outubro">Outubro</option>
-              <option value="novembro">Novembro</option>
-              <option value="dezembro">Dezembro</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label>⚽ Esporte</label>
-            <select id="sportFilter">
-              <option value="todos">Todos os Esportes</option>
-              <option value="futebol">⚽ Futebol</option>
-              <option value="basquete">🏀 Basquete</option>
-              <option value="tenis">🎾 Tênis</option>
-              <option value="volei">🏐 Vôlei</option>
-              <option value="ufc">🥊 UFC/MMA</option>
-              <option value="esports">🎮 E-Sports</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label>🎯 Resultado</label>
-            <select id="resultFilter">
-              <option value="todos">Todos os Resultados</option>
-              <option value="green">Green</option>
-              <option value="red">Red</option>
-              <option value="pending">Pendente</option>
-            </select>
-          </div>
-<div class="filter-group">
-  <label>🏪 Casa de Apostas</label>
-  <select id="casaApostasFilter">
-    <option value="todos">Todas as Casas</option>
-    <option value="betano">🔥 Betano</option>
-    <option value="superbet">💎 SuperBet</option>
-    <option value="bet365">🎯 Bet365</option>
-    <option value="estrelabet">⭐ Estrelabet</option>
-  </select>
-</div>
-          <div class="filter-group">
-            <button class="apply-filters-btn" onclick="applyFilters()">
-              🔍 Aplicar Filtros
-            </button>
+          <div
+            class="nav-item"
+            onclick="window.location.href = 'anotacoes.html'"
+          >
+            Anotações
           </div>
         </div>
       </div>
 
-      <!-- Loading -->
-      <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner"></div>
-        <p>Processando dados...</p>
-      </div>
+      <!-- Main Content -->
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <h1>📊 Relatórios Avançados</h1>
+          <p>Análise profunda do seu desempenho em apostas esportivas</p>
+        </div>
 
-      <!-- Estatísticas Gerais -->
-      <div class="stats-overview" id="statsOverview">
-        <!-- Stats serão inseridas aqui dinamicamente -->
-      </div>
-
-      <!-- Gráficos Dashboard -->
-      <div class="dashboard-grid">
-        <div class="chart-card">
-          <div class="chart-title">📈 Evolução Mensal</div>
-          <div class="chart-container">
-            <canvas id="monthlyChart"></canvas>
+        <!-- Filtros -->
+        <div class="filters-section">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label>🗓️ Período</label>
+              <select id="periodFilter">
+                <option value="todos">Todos os Meses</option>
+                <option value="janeiro">Janeiro</option>
+                <option value="fevereiro">Fevereiro</option>
+                <option value="marco">Março</option>
+                <option value="abril">Abril</option>
+                <option value="maio">Maio</option>
+                <option value="junho">Junho</option>
+                <option value="julho">Julho</option>
+                <option value="agosto">Agosto</option>
+                <option value="setembro">Setembro</option>
+                <option value="outubro">Outubro</option>
+                <option value="novembro">Novembro</option>
+                <option value="dezembro">Dezembro</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>⚽ Esporte</label>
+              <select id="sportFilter">
+                <option value="todos">Todos os Esportes</option>
+                <option value="futebol">⚽ Futebol</option>
+                <option value="basquete">🏀 Basquete</option>
+                <option value="tenis">🎾 Tênis</option>
+                <option value="volei">🏐 Vôlei</option>
+                <option value="ufc">🥊 UFC/MMA</option>
+                <option value="esports">🎮 E-Sports</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>🎯 Resultado</label>
+              <select id="resultFilter">
+                <option value="todos">Todos os Resultados</option>
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+                <option value="pending">Pendente</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>🏪 Casa de Apostas</label>
+              <select id="casaApostasFilter">
+                <option value="todos">Todas as Casas</option>
+                <option value="betano">🔥 Betano</option>
+                <option value="superbet">💎 SuperBet</option>
+                <option value="bet365">🎯 Bet365</option>
+                <option value="estrelabet">⭐ Estrelabet</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <button class="apply-filters-btn" onclick="applyFilters()">
+                🔍 Aplicar Filtros
+              </button>
+            </div>
           </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-title">🎯 Assertividade por Esporte</div>
-          <div class="chart-container">
-            <canvas id="sportChart"></canvas>
+        <!-- Loading -->
+        <div class="loading-spinner" id="loadingSpinner">
+          <div class="spinner"></div>
+          <p>Processando dados...</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview" id="statsOverview"></div>
+
+        <!-- Gráficos -->
+        <div class="dashboard-grid">
+          <div class="chart-card">
+            <div class="chart-title">📈 Evolução Mensal</div>
+            <div class="chart-container">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🎯 Assertividade por Esporte</div>
+            <div class="chart-container"><canvas id="sportChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">💰 Distribuição de Resultados</div>
+            <div class="chart-container">
+              <canvas id="resultsChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🏪 Performance por Casa de Apostas</div>
+            <div class="chart-container">
+              <canvas id="confidenceChart"></canvas>
+            </div>
           </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-title">💰 Distribuição de Resultados</div>
-          <div class="chart-container">
-            <canvas id="resultsChart"></canvas>
-          </div>
+        <!-- Insights -->
+        <div class="insights-section">
+          <div class="insights-title">🧠 Insights Inteligentes</div>
+          <div id="insightsContainer"></div>
         </div>
 
-        <div class="chart-card">
-       <div class="chart-title">🏪 Performance por Casa de Apostas</div>
-          <div class="chart-container">
-            <canvas id="confidenceChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Insights Inteligentes -->
-      <div class="insights-section">
-        <div class="insights-title">🧠 Insights Inteligentes</div>
-        <div id="insightsContainer">
-          <!-- Insights serão inseridos aqui -->
-        </div>
-      </div>
-
-      <!-- Tabela Detalhada -->
+        <!-- Tabela Detalhada -->
         <div class="detailed-table">
-        <div class="table-title">📋 Análise Detalhada por Aposta</div>
-        <div class="table-wrapper">
+          <div class="table-title">📋 Análise Detalhada por Aposta</div>
+          <div class="table-wrapper">
             <table id="detailedTable">
-            <thead>
+              <thead>
                 <tr>
-                <th>Data</th>
-                <th>Esporte</th>
-                <th>Jogo</th>
-                <th>Odd</th>
-                <th>Valor</th>
-                <th>Resultado</th>
-                <th>Lucro/Prejuízo</th> <!-- MUDOU AQUI -->
+                  <th>Data</th>
+                  <th>Esporte</th>
+                  <th>Jogo</th>
+                  <th>Odd</th>
+                  <th>Valor</th>
+                  <th>Resultado</th>
+                  <th>Lucro/Prejuízo</th>
                 </tr>
-            </thead>
-            <tbody>
-                <!-- Dados serão inseridos aqui -->
-            </tbody>
+              </thead>
+              <tbody></tbody>
             </table>
-        </div>
+          </div>
         </div>
 
+        <!-- Resultados Diários -->
+        <div class="daily-results-section">
+          <div class="section-header">
+            <div class="section-title">
+              📅 Resultados Diários —
+              <span id="monthYearDisplay">Setembro 2025</span>
+            </div>
+            <div class="month-navigation">
+              <button class="nav-btn" onclick="previousMonth()">‹</button>
+              <button class="nav-btn" onclick="nextMonth()">›</button>
+            </div>
+          </div>
 
-<div class="daily-results-section">
-  <div class="section-header">
-    <div class="section-title">
-      📅 Resultados Diários - <span id="monthYearDisplay">Setembro 2025</span>
-    </div>
-    <div class="month-navigation">
-      <button class="nav-btn" onclick="previousMonth()">‹</button>
-      <button class="nav-btn" onclick="nextMonth()">›</button>
-    </div>
-  </div>
-  
-  <div class="calendar-wrapper">
-    <div class="weekdays-header">
-      <div class="weekday">Dom</div>
-      <div class="weekday">Seg</div>
-      <div class="weekday">Ter</div>
-      <div class="weekday">Qua</div>
-      <div class="weekday">Qui</div>
-      <div class="weekday">Sex</div>
-      <div class="weekday">Sáb</div>
-    </div>
-    
-    <div class="daily-results-grid" id="dailyResultsGrid">
-      <!-- Grid será preenchido via JavaScript -->
-    </div>
-  </div>
+          <div class="calendar-wrapper">
+            <div class="weekdays-header">
+              <div class="weekday">Dom</div>
+              <div class="weekday">Seg</div>
+              <div class="weekday">Ter</div>
+              <div class="weekday">Qua</div>
+              <div class="weekday">Qui</div>
+              <div class="weekday">Sex</div>
+              <div class="weekday">Sáb</div>
+            </div>
+            <div class="daily-results-grid" id="dailyResultsGrid"></div>
+          </div>
+        </div>
 
-  <!-- Modal -->
-<div id="betsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">Apostas do Dia</h3>
-            <span class="close">&times;</span>
+        <!-- Modal apostas do dia -->
+        <div id="betsModal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="modalTitle">Apostas do Dia</h3>
+              <span class="close">&times;</span>
+            </div>
+            <div id="modalBetsContent"></div>
+          </div>
         </div>
-        <div id="modalBetsContent">
-            <!-- Conteúdo das apostas será inserido aqui -->
-        </div>
+      </div>
     </div>
-</div>
-</div>
 
     <script src="./js/script-relatorios.js"></script>
   </body>
