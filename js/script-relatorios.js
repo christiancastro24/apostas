@@ -94,6 +94,17 @@ function normalizeSportName(sport) {
   return (sport || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function getSportsForBet(bet) {
+  if (
+    bet.tipo === "multipla" &&
+    Array.isArray(bet.games) &&
+    bet.games.length > 0
+  ) {
+    return [...new Set(bet.games.map((g) => normalizeSportName(g.sport)))];
+  }
+  return [normalizeSportName(bet.esporte)];
+}
+
 // NOVO: verifica se uma aposta (simples ou múltipla) pertence ao
 // esporte filtrado. Para múltiplas, olha dentro de bet.games.
 function betMatchesSport(bet, sportFilter) {
@@ -296,21 +307,21 @@ function calculateStats(data) {
       totalProfit -= stake;
     }
 
-    // Stats por esporte
-    if (!sportStats[bet.esporte]) {
-      sportStats[bet.esporte] = { wins: 0, total: 0 };
-    }
-    sportStats[bet.esporte].total++;
-    if (bet.resultado === "green") {
-      sportStats[bet.esporte].wins++;
-    }
+    getSportsForBet(bet).forEach((sport) => {
+      if (!sportStats[sport]) {
+        sportStats[sport] = { wins: 0, total: 0 };
+      }
+      sportStats[sport].total++;
+      if (bet.resultado === "green") {
+        sportStats[sport].wins++;
+      }
+    });
   });
 
   const roi =
     totalStaked > 0 ? ((totalProfit / totalStaked) * 100).toFixed(1) : 0;
   const avgOdd = (totalOdd / totalBets).toFixed(2);
 
-  // Cálculos para odds acertadas
   const wonBets = data.filter((bet) => bet.resultado === "green");
   const highestWonOdd =
     wonBets.length > 0
@@ -324,14 +335,13 @@ function calculateStats(data) {
         ).toFixed(2)
       : 0;
 
-  // Melhor esporte
   let bestSport = "Futebol";
   let bestWinRate = 0;
   Object.entries(sportStats).forEach(([sport, stats]) => {
     const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
     if (winRate > bestWinRate && stats.total >= 3) {
       bestWinRate = winRate;
-      bestSport = sport;
+      bestSport = sportDisplayNames[sport] || sport;
     }
   });
 
@@ -447,13 +457,15 @@ function updateSportChart() {
 
   const sportStats = {};
   filteredData.forEach((bet) => {
-    if (!sportStats[bet.esporte]) {
-      sportStats[bet.esporte] = { wins: 0, total: 0 };
-    }
-    sportStats[bet.esporte].total++;
-    if (bet.resultado === "green") {
-      sportStats[bet.esporte].wins++;
-    }
+    getSportsForBet(bet).forEach((sport) => {
+      if (!sportStats[sport]) {
+        sportStats[sport] = { wins: 0, total: 0 };
+      }
+      sportStats[sport].total++;
+      if (bet.resultado === "green") {
+        sportStats[sport].wins++;
+      }
+    });
   });
 
   const sports = Object.keys(sportStats);
@@ -466,19 +478,10 @@ function updateSportChart() {
   charts.sport = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: sports.map((sport) => {
-        const icons = {
-          futebol: "⚽",
-          basquete: "🏀",
-          tenis: "🎾",
-          volei: "🏐",
-          ufc: "🥊",
-          esports: "🎮",
-        };
-        return `${icons[sport] || "🏆"} ${
-          sport.charAt(0).toUpperCase() + sport.slice(1)
-        }`;
-      }),
+      labels: sports.map(
+        (sport) =>
+          `${sportIcons[sport] || "🏆"} ${sportDisplayNames[sport] || sport}`,
+      ),
       datasets: [
         {
           data: winRates,
