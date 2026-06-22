@@ -1,25 +1,12 @@
 // Dados simulados - em produção, viria do localStorage
 let allBetsData = {};
 let filteredData = [];
-let allMultiplasData = {}; // NOVO: guarda o multiplaData carregado
 let charts = {};
 
 // Carregar dados do localStorage
 function loadBetsData() {
   const savedBets = localStorage.getItem("betsData");
   const savedMultiplas = localStorage.getItem("multiplaData");
-
-  // NOVO: parsear e guardar multiplaData (antes era lido e descartado)
-  if (savedMultiplas) {
-    try {
-      allMultiplasData = JSON.parse(savedMultiplas);
-    } catch (e) {
-      console.error("Erro ao parsear multiplaData:", e);
-      allMultiplasData = {};
-    }
-  } else {
-    allMultiplasData = {};
-  }
 
   if (savedBets) {
     allBetsData = JSON.parse(savedBets);
@@ -76,56 +63,6 @@ function loadBetsData() {
       ],
     };
   }
-
-  // NOVO: anexar os jogos detalhados de multiplaData em cada aposta
-  // múltipla correspondente, cruzando pelo rowId.
-  Object.keys(allBetsData).forEach((month) => {
-    allBetsData[month].forEach((bet) => {
-      if (bet.tipo === "multipla") {
-        const detalhe = bet.rowId ? allMultiplasData[bet.rowId] : null;
-        bet.games =
-          detalhe && Array.isArray(detalhe.games) ? detalhe.games : [];
-      }
-    });
-  });
-}
-
-function normalizeSportName(sport) {
-  return (sport || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
-function getSportsForBet(bet) {
-  if (
-    bet.tipo === "multipla" &&
-    Array.isArray(bet.games) &&
-    bet.games.length > 0
-  ) {
-    return [...new Set(bet.games.map((g) => normalizeSportName(g.sport)))];
-  }
-  return [normalizeSportName(bet.esporte)];
-}
-
-// NOVO: verifica se uma aposta (simples ou múltipla) pertence ao
-// esporte filtrado. Para múltiplas, olha dentro de bet.games.
-function betMatchesSport(bet, sportFilter) {
-  if (sportFilter === "todos") return true;
-
-  const filtroNormalizado = normalizeSportName(sportFilter);
-
-  // Aposta simples: compara direto o campo esporte
-  if (bet.tipo !== "multipla") {
-    return normalizeSportName(bet.esporte) === filtroNormalizado;
-  }
-
-  // Aposta múltipla: verifica se algum jogo dentro dela é do esporte filtrado
-  if (Array.isArray(bet.games) && bet.games.length > 0) {
-    return bet.games.some(
-      (game) => normalizeSportName(game.sport) === filtroNormalizado,
-    );
-  }
-
-  // Fallback: sem detalhamento disponível, usa o campo genérico da aposta
-  return normalizeSportName(bet.esporte) === filtroNormalizado;
 }
 
 // Aplicar filtros
@@ -136,7 +73,7 @@ function applyFilters() {
     const period = document.getElementById("periodFilter").value;
     const sport = document.getElementById("sportFilter").value;
     const result = document.getElementById("resultFilter").value;
-    const casaApostas = document.getElementById("casaApostasFilter").value;
+    const casaApostas = document.getElementById("casaApostasFilter").value; // NOVO
 
     filteredData = [];
 
@@ -163,13 +100,10 @@ function applyFilters() {
         allBetsData[month].forEach((bet) => {
           let include = true;
 
-          // ALTERADO: antes era `bet.esporte !== sport`, agora usa
-          // betMatchesSport() que também olha dentro de múltiplas
-          if (!betMatchesSport(bet, sport)) include = false;
-
+          if (sport !== "todos" && bet.esporte !== sport) include = false;
           if (result !== "todos" && bet.resultado !== result) include = false;
           if (casaApostas !== "todos" && bet.casaApostas !== casaApostas)
-            include = false;
+            include = false; // NOVO
 
           if (include) {
             filteredData.push({ ...bet, month });
@@ -307,21 +241,21 @@ function calculateStats(data) {
       totalProfit -= stake;
     }
 
-    getSportsForBet(bet).forEach((sport) => {
-      if (!sportStats[sport]) {
-        sportStats[sport] = { wins: 0, total: 0 };
-      }
-      sportStats[sport].total++;
-      if (bet.resultado === "green") {
-        sportStats[sport].wins++;
-      }
-    });
+    // Stats por esporte
+    if (!sportStats[bet.esporte]) {
+      sportStats[bet.esporte] = { wins: 0, total: 0 };
+    }
+    sportStats[bet.esporte].total++;
+    if (bet.resultado === "green") {
+      sportStats[bet.esporte].wins++;
+    }
   });
 
   const roi =
     totalStaked > 0 ? ((totalProfit / totalStaked) * 100).toFixed(1) : 0;
   const avgOdd = (totalOdd / totalBets).toFixed(2);
 
+  // Cálculos para odds acertadas
   const wonBets = data.filter((bet) => bet.resultado === "green");
   const highestWonOdd =
     wonBets.length > 0
@@ -335,13 +269,14 @@ function calculateStats(data) {
         ).toFixed(2)
       : 0;
 
+  // Melhor esporte
   let bestSport = "Futebol";
   let bestWinRate = 0;
   Object.entries(sportStats).forEach(([sport, stats]) => {
     const winRate = stats.total > 0 ? (stats.wins / stats.total) * 100 : 0;
     if (winRate > bestWinRate && stats.total >= 3) {
       bestWinRate = winRate;
-      bestSport = sportDisplayNames[sport] || sport;
+      bestSport = sport;
     }
   });
 
@@ -457,15 +392,13 @@ function updateSportChart() {
 
   const sportStats = {};
   filteredData.forEach((bet) => {
-    getSportsForBet(bet).forEach((sport) => {
-      if (!sportStats[sport]) {
-        sportStats[sport] = { wins: 0, total: 0 };
-      }
-      sportStats[sport].total++;
-      if (bet.resultado === "green") {
-        sportStats[sport].wins++;
-      }
-    });
+    if (!sportStats[bet.esporte]) {
+      sportStats[bet.esporte] = { wins: 0, total: 0 };
+    }
+    sportStats[bet.esporte].total++;
+    if (bet.resultado === "green") {
+      sportStats[bet.esporte].wins++;
+    }
   });
 
   const sports = Object.keys(sportStats);
@@ -478,10 +411,19 @@ function updateSportChart() {
   charts.sport = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: sports.map(
-        (sport) =>
-          `${sportIcons[sport] || "🏆"} ${sportDisplayNames[sport] || sport}`,
-      ),
+      labels: sports.map((sport) => {
+        const icons = {
+          futebol: "⚽",
+          basquete: "🏀",
+          tenis: "🎾",
+          volei: "🏐",
+          ufc: "🥊",
+          esports: "🎮",
+        };
+        return `${icons[sport] || "🏆"} ${
+          sport.charAt(0).toUpperCase() + sport.slice(1)
+        }`;
+      }),
       datasets: [
         {
           data: winRates,
