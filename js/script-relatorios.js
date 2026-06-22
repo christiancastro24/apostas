@@ -1,12 +1,25 @@
 // Dados simulados - em produção, viria do localStorage
 let allBetsData = {};
 let filteredData = [];
+let allMultiplasData = {}; // NOVO: guarda o multiplaData carregado
 let charts = {};
 
 // Carregar dados do localStorage
 function loadBetsData() {
   const savedBets = localStorage.getItem("betsData");
   const savedMultiplas = localStorage.getItem("multiplaData");
+
+  // NOVO: parsear e guardar multiplaData (antes era lido e descartado)
+  if (savedMultiplas) {
+    try {
+      allMultiplasData = JSON.parse(savedMultiplas);
+    } catch (e) {
+      console.error("Erro ao parsear multiplaData:", e);
+      allMultiplasData = {};
+    }
+  } else {
+    allMultiplasData = {};
+  }
 
   if (savedBets) {
     allBetsData = JSON.parse(savedBets);
@@ -63,6 +76,45 @@ function loadBetsData() {
       ],
     };
   }
+
+  // NOVO: anexar os jogos detalhados de multiplaData em cada aposta
+  // múltipla correspondente, cruzando pelo rowId.
+  Object.keys(allBetsData).forEach((month) => {
+    allBetsData[month].forEach((bet) => {
+      if (bet.tipo === "multipla") {
+        const detalhe = bet.rowId ? allMultiplasData[bet.rowId] : null;
+        bet.games =
+          detalhe && Array.isArray(detalhe.games) ? detalhe.games : [];
+      }
+    });
+  });
+}
+
+function normalizeSportName(sport) {
+  return (sport || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+// NOVO: verifica se uma aposta (simples ou múltipla) pertence ao
+// esporte filtrado. Para múltiplas, olha dentro de bet.games.
+function betMatchesSport(bet, sportFilter) {
+  if (sportFilter === "todos") return true;
+
+  const filtroNormalizado = normalizeSportName(sportFilter);
+
+  // Aposta simples: compara direto o campo esporte
+  if (bet.tipo !== "multipla") {
+    return normalizeSportName(bet.esporte) === filtroNormalizado;
+  }
+
+  // Aposta múltipla: verifica se algum jogo dentro dela é do esporte filtrado
+  if (Array.isArray(bet.games) && bet.games.length > 0) {
+    return bet.games.some(
+      (game) => normalizeSportName(game.sport) === filtroNormalizado,
+    );
+  }
+
+  // Fallback: sem detalhamento disponível, usa o campo genérico da aposta
+  return normalizeSportName(bet.esporte) === filtroNormalizado;
 }
 
 // Aplicar filtros
@@ -73,7 +125,7 @@ function applyFilters() {
     const period = document.getElementById("periodFilter").value;
     const sport = document.getElementById("sportFilter").value;
     const result = document.getElementById("resultFilter").value;
-    const casaApostas = document.getElementById("casaApostasFilter").value; // NOVO
+    const casaApostas = document.getElementById("casaApostasFilter").value;
 
     filteredData = [];
 
@@ -100,10 +152,13 @@ function applyFilters() {
         allBetsData[month].forEach((bet) => {
           let include = true;
 
-          if (sport !== "todos" && bet.esporte !== sport) include = false;
+          // ALTERADO: antes era `bet.esporte !== sport`, agora usa
+          // betMatchesSport() que também olha dentro de múltiplas
+          if (!betMatchesSport(bet, sport)) include = false;
+
           if (result !== "todos" && bet.resultado !== result) include = false;
           if (casaApostas !== "todos" && bet.casaApostas !== casaApostas)
-            include = false; // NOVO
+            include = false;
 
           if (include) {
             filteredData.push({ ...bet, month });
